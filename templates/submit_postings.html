@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Submit Job Posting</title>
+  <link rel="stylesheet" href="static\css\subpost.css">
+</head>
+<body>
+  <header class="header">
+    <a href="{{ url_for('index') }}" class="logo">JobConnect</a>
+    <nav class="nav">
+      <a href="{{ url_for('index') }}">Home</a>
+      <a href="submit-postings">Submit Posting</a>
+      <a href="approved-postings">Approved Postings</a>
+      <a href="about">About</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h1>Submit a Job Posting</h1>
+    <form method="POST">
+      <label for="title">Job Title</label>
+      <input type="text" id="title" name="title" placeholder="Enter job title" required>
+
+      <label for="location">Location</label>
+      <input type="text" id="location" name="location" placeholder="Enter job location" required>
+
+      <label for="description">Job Description</label>
+      <textarea id="description" name="description" placeholder="Enter job description" rows="5" required></textarea>
+
+      <label for="qualifications">Qualifications</label>
+      <textarea id="qualifications" name="qualifications" placeholder="Enter qualifications" rows="3" required></textarea>
+
+      <label for="deadline">Application Deadline</label>
+      <input type="date" id="deadline" name="deadline" required>
+
+      <button type="submit" class="btn btn-primary">Submit Job</button>
+    </form>
+  </main>
+</body>
+</html>

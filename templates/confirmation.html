@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Submission Confirmed</title>
+  <link rel="stylesheet" href="static/css/confirmation.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <a href="{{ url_for('index') }}" class="logo">JobConnect</a>
+    <nav class="nav">
+      <a href="{{ url_for('index') }}">Home</a>
+      <a href="submit-postings">Submit Posting</a>
+      <a href="approved-postings">Approved Postings</a>
+      <a href="about.html">About</a>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container">
+    <h1>Thank You!</h1>
+    <p>Your job posting, <strong>{{ job_title }}</strong>, has been submitted successfully.</p>
+
+    <!-- Buttons -->
+    <div>
+      <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Home</a>
+      <a href="submit-postings" class="btn btn-primary">Submit Another Posting</a>
+    </div>
+  </main>
+</body>
+</html>

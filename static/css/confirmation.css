@@ -1,0 +1,117 @@
+/* General Styles */
+body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+  }
+  
+  
+  /* Main Content */
+  .container {
+    margin: 6rem auto 2rem; /* To account for the fixed header */
+    padding: 2rem;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    text-align: center;
+  }
+  
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: #121212;
+  }
+  
+  p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+  }
+  
+  /* Button Styles */
+  .btn-primary, .btn-secondary {
+    display: inline-block;
+    padding: 0.8rem 1.5rem;
+    color: #fff;
+    background: #00bfa5;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    margin: 0.5rem; /* Space between buttons */
+    transition: background 0.3s ease, color 0.3s ease;
+  }
+  
+  .btn-primary:hover, .btn-secondary:hover {
+    background: #008e7d;
+  }
+  /* Header */
+.header {
+    background: #272727; 
+    color: #fff;
+    padding: 1.75rem 2rem;
+    position: fixed; /* Fixed at the top of the viewport */
+    width: 100%;
+    z-index: 100;
+    top: 0;
+    display: flex; /* Flexbox layout for alignment */
+    justify-content: flex-start; /* Align logo and nav close together */
+    align-items: center; /* Align items vertically */
+    transition: transform 0.3s ease-in-out, background 0.3s ease-in-out;
+  }
+  
+  /* Logo */
+  .logo {
+    font-size: 5rem;
+    font-weight: bold;
+    color: #ffffff;
+    text-decoration: none;
+    margin-right: 15rem; /* Space between logo and nav */
+  }
+  
+  /* Navigation Bar */
+.nav {
+    display: flex; /* Flexbox for horizontal layout */
+    gap: 2rem; /* Space between nav items */
+  }
+  
+  .nav a {
+    color: #fff;
+    text-decoration: none !important; /* Force remove underline */
+    font-size: 1rem;
+    padding: 0.5rem 1rem; /* Padding for the box effect */
+    position: relative; /* For positioning the hover effect */
+    border-radius: 8px; /* Rounded corners for the box */
+    transition: all 0.3s ease; /* Smooth animation for color and background */
+    background-color: transparent; /* Default background */
+    border: 2px solid transparent; /* Invisible border for smooth transition */
+    transition-delay: 0.1s;
+  }
+  
+  .nav a:hover {
+    color: #121212; /* Change text color on hover */
+    background-color: #00bfa5; /* Highlight box on hover */
+    border-color: #00bfa5; /* Add border on hover */
+  }
+    
+    /* Header hidden state */
+    .header.hidden {
+      transform: translateY(-100%); /* Move header out of view */
+    }
+    
+  
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    
+    .nav a {
+      color: #fff;
+      text-decoration: none;
+      margin-left: 1rem;
+      font-size: 1rem;
+    }
+    
+    .nav a:hover {
+      text-decoration: underline;
+    }

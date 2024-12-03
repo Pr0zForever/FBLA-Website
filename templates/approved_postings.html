@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Approved Postings</title>
+  <link rel="stylesheet" href="static\css\approved.css">
+</head>
+<body>
+  <header class="header">
+    <a href="{{ url_for('index') }}" class="logo">JobConnect</a>
+    <nav class="nav">
+      <a href="{{ url_for('index') }}">Home</a>
+      <a href="submit-postings">Submit Posting</a>
+      <a href="approved-postings">Approved Postings</a>
+      <a href="about">About</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h1>Approved Job Postings</h1>
+    <div class="job-list">
+      {% for job in job_postings %}
+      <div class="job-card">
+        <h2>{{ job.title }}</h2>
+        <p><strong>Location:</strong> {{ job.location }}</p>
+        <p><strong>Description:</strong> {{ job.description }}</p>
+        <p><strong>Qualifications:</strong> {{ job.qualifications }}</p>
+        <p><strong>Deadline:</strong> {{ job.deadline }}</p>
+        <button class="btn">Apply Now</button>
+      </div>
+      {% endfor %}
+    </div>
+  </main>
+</body>
+</html>
