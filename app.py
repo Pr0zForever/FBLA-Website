@@ -3,21 +3,23 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_migrate import Migrate
+from db import db
 
 
 app = Flask(__name__)
-app.secret_key = 'monkey'
 
 # Configure the SQLite database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///job_postings.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
 app.config['SECRET_KEY'] = 'admin123'
+
+
 
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 db = SQLAlchemy(app)
+
 
 # Initialize Flask-Migrate
 migrate = Migrate(app, db)
@@ -28,12 +30,59 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(100), nullable=False)
     role = db.Column(db.String(20), nullable=False)  # Role: 'admin', 'employer', or 'student'
 
+# Define a model for Job Postings
+class JobPosting(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    location = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    qualifications = db.Column(db.Text, nullable=False)
+    deadline = db.Column(db.String(50), nullable=False)
+    posted_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    approved = db.Column(db.Boolean, default=False)  # New field to track approval status
+
+
+    # Relationship to User table
+    employer = db.relationship('User', backref='job_postings', lazy=True)
+
+class JobApplication(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    job_id = db.Column(db.Integer, db.ForeignKey('job_posting.id'), nullable=False)  # Link to the job
+    student_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # Link to the student
+    cover_letter = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=db.func.now())
+
+    # Relationships for easier access
+    job = db.relationship('JobPosting', backref='applications', lazy=True)
+    student = db.relationship('User', backref='applications', lazy=True)
+
+
 @login_manager.user_loader
 def load_user(user_id):
     if not user_id:
+        print("Debug: Received user_id=None in load_user function")
+        return None  # Return None if user_id is invalid
+    try:
+        return User.query.get(int(user_id))
+    except ValueError:
+        print(f"Debug: Invalid user_id={user_id}")
         return None
-    return User.query.get(int(user_id))
 
+with app.app_context():
+    # Check if the admin user already exists
+    existing_admin = User.query.filter_by(username="admin").first()
+    if existing_admin:
+        print("Admin user already exists. Skipping creation.")
+    else:
+        # Create the admin user if it doesn't exist
+        admin_user = User(
+            username="admin",
+            password=generate_password_hash("admin123", method='pbkdf2:sha256'),
+            role="admin"
+        )
+        db.session.add(admin_user)
+        db.session.commit()
+        print("Admin user created successfully.")
 
 # Predefined admin credentials
 ADMIN_USERNAME = "admin"
@@ -70,35 +119,20 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
 
-        # Check for admin credentials
-        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
-            admin_user = User.query.filter_by(username=ADMIN_USERNAME).first()
-            if not admin_user:
-                # Create admin user if not already in the database
-                admin_user = User(
-                    username=ADMIN_USERNAME,
-                    password=generate_password_hash(ADMIN_PASSWORD, method='pbkdf2:sha256'),
-                    role="admin"
-                )
-                db.session.add(admin_user)
-                db.session.commit()
-
-            login_user(admin_user)
-            return redirect(url_for('admin_panel'))
-
-
-        # Authenticate regular users
+        # Check if the user exists in the database
         user = User.query.filter_by(username=username).first()
+
         if user and check_password_hash(user.password, password):
             login_user(user)
-            if user.role == 'employer':
+            if user.role == 'admin':
+                return redirect(url_for('admin_panel'))
+            elif user.role == 'employer':
                 return redirect(url_for('employer_dashboard'))
             elif user.role == 'student':
                 return redirect(url_for('student_dashboard'))
-
-        flash('Invalid credentials. Please try again.', 'error')
-        return redirect(url_for('login'))
-
+        else:
+            flash('Invalid credentials', 'error')
+            return redirect(url_for('login'))
     return render_template('login.html')
 
 # Logout
@@ -110,12 +144,19 @@ def logout():
     return redirect(url_for('login'))
 
 # Admin Panel
-@app.route('/admin-panel')
+@app.route('/admin-panel', methods=['GET', 'POST'])
 @login_required
 def admin_panel():
     if current_user.role != 'admin':
+        flash("Access restricted to administrators only.", "error")
         return redirect(url_for('index'))
-    return render_template('admin_panel.html')
+
+    # Fetch unapproved and approved job postings separately
+    unapproved_jobs = JobPosting.query.filter_by(approved=False).all()
+    approved_jobs = JobPosting.query.filter_by(approved=True).all()
+
+    return render_template('admin_panel.html', unapproved_jobs=unapproved_jobs, approved_jobs=approved_jobs)
+
 
 @app.route('/employer-dashboard')
 @login_required
@@ -145,6 +186,19 @@ def delete_posting(job_id):
     flash('Job posting deleted successfully.', 'success')
     return redirect(url_for('employer_dashboard'))
 
+@app.route('/approve-posting/<int:job_id>', methods=['POST'])
+@login_required
+def approve_posting(job_id):
+    if current_user.role != 'admin':
+        flash("Access restricted.", "error")
+        return redirect(url_for('index'))
+
+    job = JobPosting.query.get_or_404(job_id)
+    job.approved = True
+    db.session.commit()
+    flash("Job posting approved successfully.", "success")
+    return redirect(url_for('admin_panel'))
+
 
 @app.route('/student-dashboard')
 @login_required
@@ -158,19 +212,6 @@ def student_dashboard():
     return render_template('student_dashboard.html', job_postings=job_postings)
 
 
-
-# Define a model for Job Postings
-class JobPosting(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), nullable=False)
-    location = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.Text, nullable=False)
-    qualifications = db.Column(db.Text, nullable=False)
-    deadline = db.Column(db.String(50), nullable=False)
-    posted_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # Foreign key
-
-    # Relationship to User table
-    employer = db.relationship('User', backref='job_postings', lazy=True)
 
 # Create the database tables (run this only once or when the schema changes)
 @app.before_request
@@ -210,6 +251,9 @@ def submit_posting():
     flash('Job posting submitted successfully.', 'success')
     return redirect(url_for('employer_dashboard'))
 
+
+
+
 @app.route('/confirmation')
 def confirmation():
     job_title = request.args.get('job_title', 'Your job posting')
@@ -218,8 +262,10 @@ def confirmation():
 # Approved Postings Page Route
 @app.route('/approved-postings')
 def approved_postings():
-    job_postings = JobPosting.query.all()
+    # Fetch only approved job postings
+    job_postings = JobPosting.query.filter_by(approved=True).all()
     return render_template('approved_postings.html', job_postings=job_postings)
+
  
     
 @app.route('/apply/<int:job_id>', methods=['GET', 'POST'])
@@ -228,14 +274,23 @@ def apply(job_id):
     if current_user.role != 'student':
         flash('Only students can apply for jobs.', 'error')
         return redirect(url_for('index'))
-    
-    # Fetch the job posting
+
     job = JobPosting.query.get_or_404(job_id)
 
     if request.method == 'POST':
-        # Logic to handle the job application
-        flash(f'You have successfully applied for the job: {job.title}', 'success')
-        return redirect(url_for('student-dashboard'))
+        cover_letter = request.form.get('cover_letter')
+        
+        # Save the application
+        new_application = JobApplication(
+            job_id=job.id,
+            student_id=current_user.id,
+            cover_letter=cover_letter
+        )
+        db.session.add(new_application)
+        db.session.commit()
+        
+        flash('Your application has been submitted!', 'success')
+        return redirect(url_for('confirmation', job_title=job.title))
     
     return render_template('apply.html', job=job)
 

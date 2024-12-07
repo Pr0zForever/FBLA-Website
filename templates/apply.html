@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Apply for {{ job.title }}</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="\static\css\apply.css">
 </head>
 <body>
   <!-- Header -->
@@ -29,18 +29,30 @@
     </nav>
   </header>
 
-  <!-- Main Content -->
-  <div class="container">
+<!-- Application Form Section -->
+<main class="container">
+  <div class="form-card">
     <h1>Apply for {{ job.title }}</h1>
-    <p><strong>Location:</strong> {{ job.location }}</p>
-    <p><strong>Description:</strong> {{ job.description }}</p>
-    <p><strong>Qualifications:</strong> {{ job.qualifications }}</p>
-    <p><strong>Deadline:</strong> {{ job.deadline }}</p>
-
+    <p class="job-details">
+      <strong>Location:</strong> {{ job.location }}<br>
+      <strong>Description:</strong> {{ job.description }}<br>
+      <strong>Qualifications:</strong> {{ job.qualifications }}<br>
+      <strong>Deadline:</strong> {{ job.deadline }}
+    </p>
     <form method="POST">
-      <button type="submit" class="btn btn-primary">Confirm Application</button>
+      <label for="cover_letter">Cover Letter</label>
+      <textarea id="cover_letter" name="cover_letter" rows="5" placeholder="Write your cover letter here..." required></textarea>
+      <div class="form-actions">
+        <a href="{{ url_for('student_dashboard') }}" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary">Submit Application</button>
+      </div>
     </form>
-    <a href="{{ url_for('student_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
   </div>
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+  <p>© 2024 JobConnect. All rights reserved.</p>
+</footer>
 </body>
 </html>

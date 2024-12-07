@@ -3,42 +3,46 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Submission Confirmed</title>
-  <link rel="stylesheet" href="static/css/confirmation.css">
+  <title>Confirmation</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/confirmation.css') }}">
 </head>
 <body>
   <!-- Header -->
   <header class="header">
-    <a href="#" class="logo">JobConnect</a>
+    <a href="{{ url_for('index') }}" class="logo">JobConnect</a>
     <nav class="nav">
       <a href="{{ url_for('index') }}">Home</a>
-      <a href="approved-postings">Approved Postings</a>
+      <a href="{{ url_for('approved') }}">Approved Postings</a>
       {% if current_user.is_authenticated %}
-        {% if current_user.role == 'admin' %}
-          <a href="admin-panel">Admin Panel</a>
-        {% elif current_user.role == 'employer' %}
-          <a href="employer-dashboard">Dashboard</a>
+        {% if current_user.role == 'employer' %}
+          <a href="{{ url_for('employer_dashboard') }}">Dashboard</a>
         {% elif current_user.role == 'student' %}
-          <a href="student-dashboard">Dashboard</a>
+          <a href="{{ url_for('student_dashboard') }}">Dashboard</a>
+        {% elif current_user.role == 'admin' %}
+          <a href="{{ url_for('admin_panel') }}">Admin Panel</a>
         {% endif %}
-        <a href="logout" class="btn btn-primary">Logout</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
       {% else %}
-        <a href="login" class="btn btn-primary">Login</a>
-        <a href="register" class="btn btn-secondary">Register</a>
+        <a href="{{ url_for('login') }}">Login</a>
+        <a href="{{ url_for('register') }}">Register</a>
       {% endif %}
     </nav>
   </header>
 
   <!-- Main Content -->
-  <main class="container">
+  <div class="container">
     <h1>Thank You!</h1>
-    <p>Your job posting, <strong>{{ job_title }}</strong>, has been submitted successfully.</p>
-
-    <!-- Buttons -->
-    <div>
-      <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Home</a>
-      <a href="submit-postings" class="btn btn-primary">Submit Another Posting</a>
+    <p>Your job posting has been successfully submitted.</p>
+    <p>We will review your submission and notify you once it's approved.</p>
+    <div class="buttons">
+      <a href="{{ url_for('submit_posting') }}" class="button primary">Submit Another Job</a>
+      <a href="{{ url_for('index') }}" class="button secondary">Return to Homepage</a>
     </div>
-  </main>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>© 2024 JobConnect. All rights reserved.</p>
+  </footer>
 </body>
 </html>

@@ -1,65 +1,12 @@
 /* General Styles */
 body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background-color: #f9f9f9;
-  color: #333;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-.container {
-  text-align: center;
-  margin-top: 5rem;
-  flex-grow: 1;
-}
-
-h1 {
-  font-size: 2.5rem;
-  color: #00bfa5;
-  margin-bottom: 1rem;
-}
-
-p {
-  font-size: 1.2rem;
-  margin-bottom: 1.5rem;
-}
-
-/* Buttons */
-.buttons {
-  margin-top: 2rem;
-}
-
-.button {
-  display: inline-block;
-  padding: 0.8rem 2rem;
-  font-size: 1rem;
-  border-radius: 5px;
-  text-decoration: none;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.button.primary {
-  background-color: #00bfa5;
-  color: white;
-}
-
-.button.primary:hover {
-  background-color: #008e7d;
-}
-
-.button.secondary {
-  background-color: #ffffff;
-  color: #00bfa5;
-  border: 1px solid #00bfa5;
-}
-
-.button.secondary:hover {
-  background-color: #f4f4f4;
-}
-
-/* Header */
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+  }
+  
+  /* Header */
 .header {
   background: #272727; 
   color: #fff;
@@ -129,3 +76,95 @@ p {
   .nav a:hover {
     text-decoration: underline;
   }
+  
+  /* Main Content */
+  .container {
+    max-width: 800px;
+    margin: 5rem auto;
+    padding: 2rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .form-card h1 {
+    font-size: 1.8rem;
+    color: #333;
+    margin-bottom: 1rem;
+  }
+  
+  .job-details {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 2rem;
+  }
+  
+  form label {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    display: block;
+    color: #333;
+  }
+  
+  textarea {
+    width: 100%;
+    padding: 0.8rem;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    resize: vertical;
+  }
+  
+  textarea:focus {
+    border-color: #00bfa5;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 191, 165, 0.3);
+  }
+  
+  .form-actions {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .btn {
+    padding: 0.8rem 1.2rem;
+    font-size: 1rem;
+    border-radius: 5px;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    cursor: pointer;
+  }
+  
+  .btn-primary {
+    background-color: #00bfa5;
+    color: white;
+    border: none;
+    transition: background-color 0.3s;
+  }
+  
+  .btn-primary:hover {
+    background-color: #008e7d;
+  }
+  
+  .btn-secondary {
+    background-color: #ddd;
+    color: #333;
+    border: none;
+    transition: background-color 0.3s;
+  }
+  
+  .btn-secondary:hover {
+    background-color: #bbb;
+  }
+  
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 1rem 0;
+    background: #272727;
+    color: white;
+    margin-top: 2rem;
+  }
+  
