@@ -146,3 +146,61 @@ body {
     .nav a:hover {
       text-decoration: underline;
     }
+
+    .actions {
+      margin-top: 1rem;
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+  }
+  
+  .btn {
+      display: inline-block;
+      background: #00bfa5;
+      color: white;
+      text-decoration: none;
+      padding: 0.8rem 2rem;
+      font-size: 1rem;
+      border-radius: 5px;
+      text-align: center;
+      transition: background 0.3s ease;
+  }
+  
+  .btn-view {
+      background: #00bfa5;
+  }
+  
+  .btn-view:hover {
+      background: #008e7d;
+  }
+  
+  .btn-edit {
+      background: #ffc107;
+      color: #fff;
+  }
+  
+  .btn-edit:hover {
+      background: #e0a800;
+  }
+
+  .jobs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.job-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    transition: transform 0.2s;
+}
+
+.job-card:hover {
+    transform: translateY(-5px);
+}
+
+.job-card h3 {
+    font-size: 1.5rem;
+}

@@ -2,76 +2,10 @@
 body {
     margin: 0;
     font-family: 'Arial', sans-serif;
-    line-height: 1.6;
+    background-color: #f4f4f4;
     color: #333;
-    background-color: #f4f4f4; /* Light gray background for contrast */
-  }
-  
-  .container {
-    width: 90%;
-    max-width: 1200px;
-    margin: 6rem auto;
-    background: #fff; /* Pure white for content contrast */
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-  }
-  
-  h1 {
-    text-align: center;
-    font-size: 2.2rem;
-    margin-bottom: 1.5rem;
-    color: #121212;
-  }
-  
-  /* Job List */
-  .job-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
-  }
-  
-  .job-card {
-    background: #fff;
-    padding: 1.5rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-  
-  .job-card:hover {
-    transform: translateY(-5px); /* Slight lift on hover */
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  }
-  
-  .job-card h2 {
-    font-size: 1.8rem;
-    margin-bottom: 0.5rem;
-    color: #00bfa5; /* Highlighted job title */
-  }
-  
-  .job-card p {
-    margin: 0.5rem 0;
-    color: #555; /* Muted gray for description text */
-  }
-  
-  .job-card button {
-    display: inline-block;
-    margin-top: 1rem;
-    padding: 0.8rem 1.5rem;
-    background: #00bfa5; /* Primary action color */
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background 0.3s ease;
-  }
-  
-  .job-card button:hover {
-    background: #008e7d; /* Darker green on hover */
-  }
-  
+}
+
 /* Header */
 .header {
     background: #272727; 
@@ -99,7 +33,7 @@ body {
   /* Navigation Bar */
 .nav {
     display: flex; /* Flexbox for horizontal layout */
-    gap: 1rem; /* Space between nav items */
+    gap: 2rem; /* Space between nav items */
   }
   
   .nav a {
@@ -143,20 +77,101 @@ body {
       text-decoration: underline;
     }
 
-    .btn-apply {
-      display: inline-block;
-      background: #00bfa5;
-      color: #fff;
-      text-decoration: none;
-      padding: 0.8rem 1.2rem;
-      font-size: 1rem;
-      border-radius: 5px;
-      transition: background 0.3s ease, transform 0.2s ease;
-  }
-  
-  .btn-apply:hover {
-      background: #008e7d;
-      transform: scale(1.05);
-  }
-  
-  
+.container {
+    margin: 6rem auto 2rem auto;
+    max-width: 800px;
+    padding: 2rem;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    font-size: 2.5rem;
+    text-align: center;
+    color: #121212;
+    margin-bottom: 1rem;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: #333;
+}
+
+input, textarea {
+    font-size: 1rem;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 1.5rem;
+    width: 100%;
+}
+
+input:focus, textarea:focus {
+    border-color: #00bfa5;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 191, 165, 0.3);
+}
+
+textarea {
+    resize: vertical;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+button {
+    background: #00bfa5;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.2rem;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+button:hover {
+    background: #008e7d;
+}
+
+.btn-secondary {
+    background: #888;
+    color: white;
+    text-align: center;
+    padding: 0.8rem 1.2rem;
+    font-size: 1rem;
+    border-radius: 5px;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background: #555;
+}
+
+.btn-primary {
+    background: #00bfa5;
+    color: white;
+    padding: 0.8rem 1.2rem;
+    font-size: 1rem;
+    border-radius: 5px;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: #008e7d;
+}
+

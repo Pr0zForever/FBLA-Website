@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/view_applicants.css') }}">
+
+    <title>View Applicants</title>
+</head>
+<body>
+    <header class="header">
+        <a href="{{ url_for('index') }}" class="logo">JobConnect</a>
+        <nav class="nav">
+          <a href="{{ url_for('index') }}">Home</a>
+          <a href="approved-postings">Approved Postings</a>
+          {% if current_user.is_authenticated %}
+            {% if current_user.role == 'admin' %}
+              <a href="admin-panel">Admin Panel</a>
+            {% elif current_user.role == 'employer' %}
+              <a href="employer-dashboard">Dashboard</a>
+            {% elif current_user.role == 'student' %}
+              <a href="student-dashboard">Dashboard</a>
+            {% endif %}
+            <a href="logout" class="btn btn-primary">Logout</a>
+          {% else %}
+            <a href="login" class="btn btn-primary">Login</a>
+            <a href="register" class="btn btn-secondary">Register</a>
+          {% endif %}
+        </nav>
+      </header>
+    
+    <main class="container">
+        <h1>Applicants for "{{ job.title }}"</h1>
+        
+        {% if applications %}
+        <div class="applicants-grid">
+            {% for application in applications %}
+            <div class="applicant-card">
+                <h3>Applicant: {{ application.student.username }}</h3>
+                <p><strong>Cover Letter:</strong></p>
+                <p>{{ application.cover_letter }}</p>
+                <p><strong>Applied On:</strong> {{ application.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p>No applications have been submitted for this job yet.</p>
+        {% endif %}
+    </main>
+</body>
+</html>

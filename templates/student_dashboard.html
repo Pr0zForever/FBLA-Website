@@ -9,7 +9,7 @@
 <body>
   <!-- Header -->
   <header class="header">
-    <a href="#" class="logo">JobConnect</a>
+    <a href="{{ url_for('index') }}" class="logo">JobConnect</a>
     <nav class="nav">
       <a href="{{ url_for('index') }}">Home</a>
       <a href="approved-postings">Approved Postings</a>
@@ -29,31 +29,36 @@
     </nav>
   </header>
 
-  <!-- Main Content -->
-  <div class="container">
-    <h1>Welcome, {{ current_user.username }}</h1>
-    <p>Explore the latest job opportunities tailored for students.</p>
+  <main class="container">
+    <!-- Welcome Section -->
+    <div class="dashboard-header">
+        <h1>Welcome, {{ current_user.username }}</h1>
+        <p>View and manage your applications below.</p>
+    </div>
 
-    <section class="jobs">
-      <h2>Available Job Postings</h2>
-      <div class="job-list">
-        {% for job in job_postings %}
-        <div class="job-card">
-          <h3>{{ job.title }}</h3>
-          <p><strong>Location:</strong> {{ job.location }}</p>
-          <p><strong>Description:</strong> {{ job.description }}</p>
-          <p><strong>Qualifications:</strong> {{ job.qualifications }}</p>
-          <p><strong>Deadline:</strong> {{ job.deadline }}</p>
-          <a href="{{ url_for('apply', job_id=job.id) }}" class="btn btn-primary">Apply Now</a>
+    <!-- Job Applications Section -->
+    <section class="student-section">
+        <h2>Your Applications</h2>
+        {% if applications %}
+        <div class="applications-grid">
+            {% for application in applications %}
+            <div class="application-card">
+                <h3>{{ application.job.title }}</h3>
+                <p><strong>Company:</strong> {{ application.job.company_name or "N/A" }}</p>
+                <p><strong>Location:</strong> {{ application.job.location }}</p>
+                <p><strong>Deadline:</strong> {{ application.job.deadline }}</p>
+                <p><strong>Your Cover Letter:</strong> {{ application.cover_letter }}</p>
+                <div class="actions">
+                    <a href="/edit-application/{{ application.id }}" class="btn btn-edit">Edit</a>
+                </div>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
-      </div>
+        {% else %}
+        <p>You haven't applied for any jobs yet. Start exploring <a href="/approved-postings">job postings</a>.</p>
+        {% endif %}
     </section>
-  </div>
+</main>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <p>© 2024 JobConnect. All rights reserved.</p>
-  </footer>
 </body>
 </html>

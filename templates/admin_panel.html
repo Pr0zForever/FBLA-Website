@@ -5,61 +5,62 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Panel</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_panel.css') }}">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="static/css/admin_dashboard.css">
+    <title>Admin Dashboard</title>
 </head>
 <body>
-  <!-- Header -->
-  <header class="header">
-    <a href="{{ url_for('index') }}" class="logo">JobConnect</a>
-    <nav class="nav">
-      <a href="{{ url_for('index') }}">Home</a>
-      <a href="{{ url_for('about') }}">About</a>
-      <a href="{{ url_for('logout') }}">Logout</a>
-    </nav>
-  </header>
+    <header class="header">
+        <div class="logo-container">
+            <a href="#" class="logo">Admin Panel</a>
+        </div>
+        <nav class="nav">
+            <a href="/">Home</a>
+            <a href="/approved-postings">Approved Postings</a>
+            <a href="/logout" class="logout-btn">Logout</a>
+        </nav>
+    </header>
 
-  <!-- Main Content -->
-  <div class="container">
-    <h1>Admin Panel</h1>
-    <p>Manage job postings and users.</p>
+    <main class="container">
+        <div class="dashboard-header">
+            <h1>Admin Dashboard</h1>
+            <p>Efficiently manage job postings and oversee platform operations.</p>
+        </div>
 
-    <!-- Unapproved Job Postings -->
-  <section>
-    <h2>Unapproved Job Postings</h2>
-    {% for job in unapproved_jobs %}
-      <div class="card">
-        <h3>{{ job.title }}</h3>
-        <p><strong>Location:</strong> {{ job.location }}</p>
-        <p><strong>Description:</strong> {{ job.description }}</p>
-        <p><strong>Deadline:</strong> {{ job.deadline }}</p>
-        <form method="POST" action="{{ url_for('approve_posting', job_id=job.id) }}">
-          <button type="submit" class="btn btn-success">Approve</button>
-        </form>
-        <form method="POST" action="{{ url_for('delete_posting', job_id=job.id) }}">
-          <button type="submit" class="btn btn-danger">Delete</button>
-        </form>
-      </div>
-    {% endfor %}
-  </section>
+        <!-- Unapproved Postings Section -->
+        <section class="admin-section highlight">
+            <h2>Pending Approval</h2>
+            <div class="dashboard-grid">
+                {% for job in unapproved_jobs %}
+                <div class="dashboard-card">
+                    <h3>{{ job.title }}</h3>
+                    <p><strong>Location:</strong> {{ job.location }}</p>
+                    <p><strong>Qualifications:</strong> {{ job.qualifications }}</p>
+                    <p><strong>Deadline:</strong> {{ job.deadline }}</p>
+                    <form action="/approve-posting/{{ job.id }}" method="POST">
+                        <button class="btn btn-primary">Approve</button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
 
-  <!-- Approved Job Postings -->
-  <section>
-    <h2>Approved Job Postings</h2>
-    {% for job in approved_jobs %}
-      <div class="card">
-        <h3>{{ job.title }}</h3>
-        <p><strong>Location:</strong> {{ job.location }}</p>
-        <p><strong>Description:</strong> {{ job.description }}</p>
-        <p><strong>Deadline:</strong> {{ job.deadline }}</p>
-        <form method="POST" action="{{ url_for('delete_posting', job_id=job.id) }}">
-          <button type="submit" class="btn btn-danger">Delete</button>
-        </form>
-      </div>
-    {% endfor %}
-  </section>
-</div>
-  <!-- Footer -->
-  <footer class="footer">
-    <p>© 2024 JobConnect. All rights reserved.</p>
-  </footer>
-</body>
+        <!-- Approved Postings Section -->
+        <section class="admin-section">
+            <h2>Approved Job Postings</h2>
+            <div class="dashboard-grid">
+                {% for job in approved_jobs %}
+                <div class="dashboard-card approved">
+                    <h3>{{ job.title }}</h3>
+                    <p><strong>Location:</strong> {{ job.location }}</p>
+                    <p><strong>Qualifications:</strong> {{ job.qualifications }}</p>
+                    <p><strong>Deadline:</strong> {{ job.deadline }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+    </main>
+</body
 </html>

@@ -9,7 +9,7 @@
 <body>
   <!-- Header -->
   <header class="header">
-    <a href="#" class="logo">JobConnect</a>
+    <a href="{{ url_for('index') }}" class="logo">JobConnect</a>
     <nav class="nav">
       <a href="{{ url_for('index') }}">Home</a>
       <a href="approved-postings">Approved Postings</a>
@@ -50,9 +50,6 @@
   </div>
 </main>
 
-<!-- Footer -->
-<footer class="footer">
-  <p>© 2024 JobConnect. All rights reserved.</p>
-</footer>
+
 </body>
 </html>

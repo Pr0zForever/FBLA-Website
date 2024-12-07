@@ -1,148 +1,181 @@
 /* General Styles */
 body {
-    margin: 0;
-    font-family: 'Arial', sans-serif;
-    line-height: 1.6;
-    color: #333;
-    background-color: #f4f4f4; /* Light gray background for contrast */
-  }
-  
-  .container {
-    width: 90%;
-    max-width: 600px;
-    margin: 6rem auto;
-    background: #fff;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-  }
-  
-  h1 {
-    text-align: center;
-    font-size: 2.2rem;
-    margin-bottom: 1rem;
-    color: #121212;
-  }
-  
-  p {
-    text-align: center;
-    margin-bottom: 2rem;
-    color: #555;
-    font-size: 1rem;
-  }
-  
-  /* Form Styles */
-  form {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  label {
-    margin-bottom: 0.5rem;
-    font-weight: bold;
-    color: #333;
-  }
-  
-  input, textarea {
-    font-size: 1rem;
-    padding: 0.8rem;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    margin-bottom: 1rem;
-  }
-  
-  input:focus, textarea:focus {
-    border-color: #00bfa5;
-    outline: none;
-    box-shadow: 0 0 5px rgba(0, 191, 165, 0.3);
-  }
-  
-  textarea {
-    resize: vertical; /* Allow vertical resizing only */
-  }
-  
-  button {
-    background: #00bfa5;
-    color: #fff;
-    border: none;
-    padding: 0.8rem 1.2rem;
-    font-size: 1rem;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s ease;
-  }
-  
-  button:hover {
-    background: #008e7d;
-  }
-  
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+  line-height: 1.6;
+  background-color: #f9f9f9;
+  color: #333;
+}
+
 /* Header */
 .header {
-    background: #272727; 
-    color: #fff;
-    padding: 1.75rem 2rem;
-    position: fixed; /* Fixed at the top of the viewport */
-    width: 100%;
-    z-index: 100;
-    top: 0;
-    display: flex; /* Flexbox layout for alignment */
-    justify-content: flex-start; /* Align logo and nav close together */
-    align-items: center; /* Align items vertically */
-    transition: transform 0.3s ease-in-out, background 0.3s ease-in-out;
-  }
-  
-  /* Logo */
-  .logo {
-    font-size: 5rem;
-    font-weight: bold;
-    color: #ffffff;
-    text-decoration: none;
-    margin-right: 15rem; /* Space between logo and nav */
-  }
-  
-  /* Navigation Bar */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #00bfa5;
+  color: #fff;
+  padding: 1.5rem 2rem;
+  position: fixed; /* Fixed at the top of the viewport */
+  width: 100%;
+  z-index: 100;
+  top: 0;
+  display: flex; /* Flexbox layout for alignment */
+  justify-content: flex-start; /* Align logo and nav close together */
+  align-items: center; /* Align items vertically */
+  transition: transform 0.3s ease-in-out, background 0.3s ease-in-out;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #fff;
+  text-decoration: none;
+  margin-right: 45rem;
+}
+
 .nav {
-    display: flex; /* Flexbox for horizontal layout */
-    gap: 7rem; /* Space between nav items */
-  }
-  
-  .nav a {
-    color: #fff;
-    text-decoration: none !important; /* Force remove underline */
-    font-size: 1rem;
-    padding: 0.5rem 1rem; /* Padding for the box effect */
-    position: relative; /* For positioning the hover effect */
-    border-radius: 20px; /* Rounded corners for the box */
-    transition: all 0.5s ease; /* Smooth animation for color and background */
-    background-color: transparent; /* Default background */
-    border: 2px solid transparent; /* Invisible border for smooth transition */
-    transition-delay: 0.2s;
-  }
-  
-  .nav a:hover {
-    color: #121212; /* Change text color on hover */
-    background-color: #00bfa5; /* Highlight box on hover */
-    border-color: #00bfa5; /* Add border on hover */
-  }
-    
-    /* Header hidden state */
-    .header.hidden {
-      transform: translateY(-100%); /* Move header out of view */
-    }
-    
-  
-    .logo {
-      font-size: 1.5rem;
-      font-weight: bold;
-    }
-    
-    .nav a {
-      color: #fff;
-      text-decoration: none;
-      margin-left: 1rem;
-      font-size: 1rem;
-    }
-    
-    .nav a:hover {
-      text-decoration: underline;
-    }
+  display: flex;
+  gap: 2rem;
+}
+
+.nav a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.nav a:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+.logout-btn {
+  background: #e53935;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: background 0.3s ease;
+}
+
+.logout-btn:hover {
+  background: #c62828;
+}
+
+/* Main Content */
+.container {
+  margin: 8rem auto 2rem auto;
+  width: 90%;
+  max-width: 1400px;
+}
+
+/* Dashboard Header */
+.dashboard-header {
+  margin-top: 2rem;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.dashboard-header h1 {
+  font-size: 2.8rem;
+  color: #121212;
+}
+
+.dashboard-header p {
+  font-size: 1.2rem;
+  color: #555;
+}
+
+/* Admin Section */
+.admin-section {
+  margin-top: 1rem;
+}
+
+.admin-section h2 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #00bfa5;
+  border-bottom: 3px solid #00bfa5;
+  padding-bottom: 0.5rem;
+}
+
+/* Highlight Section */
+.highlight {
+  background: #e3f2fd;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+/* Dashboard Grid */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+}
+
+/* Dashboard Cards */
+.dashboard-card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: left;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.dashboard-card h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #272727;
+}
+
+.dashboard-card p {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 0.5rem;
+}
+
+/* Approved Cards */
+.dashboard-card.approved {
+  border-left: 4px solid #4caf50;
+}
+
+/* Buttons */
+.btn {
+  display: inline-block;
+  background: #00bfa5;
+  color: #fff;
+  text-decoration: none;
+  padding: 0.8rem 1.2rem;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.btn:hover {
+  background: #008e7d;
+}
+
+.btn-primary {
+  background: #4caf50;
+}
+
+.btn-primary:hover {
+  background: #388e3c;
+}

@@ -1,12 +1,13 @@
 /* General Styles */
 body {
-    margin: 0;
-    font-family: 'Arial', sans-serif;
-    background-color: #f9f9f9;
-    color: #333;
-  }
-  
-  /* Header */
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+  background-color: #f4f4f4;
+  color: #333;
+  line-height: 1.6;
+}
+
+/* Header */
 .header {
   background: #272727; 
   color: #fff;
@@ -77,89 +78,92 @@ body {
     text-decoration: underline;
   }
 
-  
-  /* Main Content */
-  .container {
-    margin-top: 8rem; /* Adjust for navbar height */
-    padding: 2rem;
-    max-width: 1200px;
-    margin: 8rem auto 2rem;
-  }
-  
-  h1 {
-    font-size: 2rem;
-    color: #272727;
-    margin-bottom: 1rem;
-  }
-  
-  p {
-    font-size: 1rem;
-    margin-bottom: 2rem;
-    color: #555;
-  }
-  
-  .jobs {
-    margin-top: 2rem;
-  }
-  
-  .jobs h2 {
-    font-size: 1.8rem;
-    color: #272727;
-    margin-bottom: 1rem;
-  }
-  
-  .job-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
-  }
-  
-  .job-card {
-    background: #fff;
-    padding: 1.5rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-  
-  .job-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-  }
-  
-  .job-card h3 {
-    font-size: 1.5rem;
-    margin-bottom: 0.8rem;
-    color: #272727;
-  }
-  
-  .job-card p {
-    font-size: 1rem;
-    color: #555;
-    margin-bottom: 0.8rem;
-  }
-  
-  .btn-primary {
-    display: inline-block;
-    padding: 0.8rem 1.5rem;
-    background: #00bfa5;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 5px;
-    font-size: 1rem;
-    transition: background 0.3s ease;
-  }
-  
-  .btn-primary:hover {
-    background: #008e7d;
-  }
-  
-  /* Footer */
-  .footer {
-    background: #272727;
-    color: #fff;
-    text-align: center;
-    padding: 1rem 0;
-    position: relative;
-  }
-  
+/* Main Content */
+.container {
+  margin: 6rem auto 2rem auto;
+  max-width: 1200px;
+  padding: 1rem;
+}
+
+/* Dashboard Header */
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.dashboard-header h1 {
+  font-size: 2.5rem;
+  color: #121212;
+}
+
+.dashboard-header p {
+  font-size: 1.2rem;
+  color: #555;
+}
+
+/* Applications Section */
+.student-section {
+  margin-top: 2rem;
+}
+
+.student-section h2 {
+  font-size: 2rem;
+  color: #00bfa5;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #00bfa5;
+  padding-bottom: 0.5rem;
+}
+
+/* Applications Grid */
+.applications-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Application Card */
+.application-card {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.application-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.application-card h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: #272727;
+}
+
+.application-card p {
+  font-size: 1rem;
+  margin: 0.5rem 0;
+  color: #555;
+}
+
+/* Actions Section */
+.actions {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.actions .btn-edit {
+  background: #ffc107;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: background 0.3s ease;
+}
+
+.actions .btn-edit:hover {
+  background: #e0a800;
+}

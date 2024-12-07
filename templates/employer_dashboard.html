@@ -9,7 +9,7 @@
 <body>
   <!-- Header -->
   <header class="header">
-    <a href="#" class="logo">JobConnect</a>
+    <a href="{{ url_for('index') }}" class="logo">JobConnect</a>
     <nav class="nav">
       <a href="{{ url_for('index') }}">Home</a>
       <a href="approved-postings">Approved Postings</a>
@@ -45,6 +45,10 @@
           <p><strong>Description:</strong> {{ job.description }}</p>
           <p><strong>Qualifications:</strong> {{ job.qualifications }}</p>
           <p><strong>Deadline:</strong> {{ job.deadline }}</p>
+          <div class="actions">
+            <a href="/view-applicants/{{ job.id }}" class="btn btn-view">View Applicants</a>
+            <a href="/edit-posting/{{ job.id }}" class="btn btn-edit">Edit Posting</a>
+        </div>
           <form method="POST" action="{{ url_for('delete_posting', job_id=job.id) }}">
             <button type="submit" class="btn btn-danger">Delete Posting</button>
           </form>
@@ -56,7 +60,7 @@
     <!-- Section for Adding a Job -->
     <section class="add-job">
       <h2>Submit a New Job Posting</h2>
-      <form method="POST" action="{{ url_for('submit_posting') }}">
+      <form method="POST" action="submit-postings">
         <label for="title">Job Title</label>
         <input type="text" id="title" name="title" placeholder="Enter job title" required>
 

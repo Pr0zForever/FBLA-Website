@@ -169,23 +169,66 @@
     color: #8a4fff;
   }
   
-  /* Call-to-Action */
-  .cta {
-    opacity: 0;
-    transition: all 2s;
-    background: #121212;
-    color: #fff;
+  .container {
+    margin-top: 6rem;
+    padding: 2rem;
+}
+
+.references {
+    background-color: #121212;
+    padding: 4rem 2rem;
+}
+
+.references h2 {
     text-align: center;
-    padding: 3rem 0;
-  }
-  
-  .cta h2 {
-    margin-bottom: 1.5rem;
-  }
-  
-  .cta-buttons .btn {
-    margin: 0 0.5rem;
-  }
+    font-size: 2.5rem;
+    color: #c4c4c4;
+}
+
+.reference-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.reference-card {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    text-align: center;
+    transition: transform 0.2s ease-in-out;
+}
+
+.reference-card:hover {
+    transform: translateY(-5px);
+}
+
+.reference-card h3 {
+    font-size: 1.5rem;
+    color: #959595;
+    margin-bottom: 1rem;
+}
+
+.reference-card p {
+    color: #555;
+    margin-bottom: 1rem;
+}
+
+.btn-primary {
+    background: #00bfa5;
+    color: white;
+    text-decoration: none;
+    padding: 0.8rem 1.2rem;
+    font-size: 1rem;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: #008e7d;
+}
   
   /* Footer */
   .footer {

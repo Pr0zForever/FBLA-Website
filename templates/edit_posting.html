@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/edit_posting.css') }}">
+    <title>Edit Job Posting</title>
+</head>
+<body>
+
+<header class="header">
+    <a href="{{ url_for('index') }}" class="logo">JobConnect</a>
+    <nav class="nav">
+        <a href="{{ url_for('index') }}">Home</a>
+        <a href="{{ url_for('approved_postings') }}">Approved Postings</a>
+        {% if current_user.is_authenticated %}
+            {% if current_user.role == 'employer' %}
+                <a href="{{ url_for('employer_dashboard') }}">Dashboard</a>
+            {% elif current_user.role == 'admin' %}
+                <a href="{{ url_for('admin_panel') }}">Admin Panel</a>
+            {% endif %}
+            <a href="{{ url_for('logout') }}" class="btn btn-primary">Logout</a>
+        {% else %}
+            <a href="{{ url_for('login') }}" class="btn btn-primary">Login</a>
+            <a href="{{ url_for('register') }}" class="btn btn-secondary">Register</a>
+        {% endif %}
+    </nav>
+</header>
+
+<main class="container">
+    <h1>Edit Job Posting</h1>
+
+    <form action="{{ url_for('edit_posting', job_id=job.id) }}" method="POST">
+        <label for="title">Job Title</label>
+        <input type="text" id="title" name="title" value="{{ job.title }}" required>
+
+        <label for="location">Location</label>
+        <input type="text" id="location" name="location" value="{{ job.location }}" required>
+
+        <label for="description">Job Description</label>
+        <textarea id="description" name="description" rows="6" required>{{ job.description }}</textarea>
+
+        <label for="qualifications">Qualifications</label>
+        <textarea id="qualifications" name="qualifications" rows="4" required>{{ job.qualifications }}</textarea>
+
+        <label for="deadline">Application Deadline</label>
+        <input type="date" id="deadline" name="deadline" value="{{ job.deadline }}" required>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a href="{{ url_for('employer_dashboard') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</main>
+
+</body>
+</html>
