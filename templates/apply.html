@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login</title>
-  <link rel="stylesheet" href="static\css\login.css">
+  <title>Apply for {{ job.title }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
   <!-- Header -->
@@ -29,25 +29,18 @@
     </nav>
   </header>
 
-  <main class="container">
-    <h1>Login</h1>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <p class="{{ category }}">{{ message }}</p>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
+  <!-- Main Content -->
+  <div class="container">
+    <h1>Apply for {{ job.title }}</h1>
+    <p><strong>Location:</strong> {{ job.location }}</p>
+    <p><strong>Description:</strong> {{ job.description }}</p>
+    <p><strong>Qualifications:</strong> {{ job.qualifications }}</p>
+    <p><strong>Deadline:</strong> {{ job.deadline }}</p>
+
     <form method="POST">
-      <label for="username">Username</label>
-      <input type="text" id="username" name="username" placeholder="Enter your username" required>
-
-      <label for="password">Password</label>
-      <input type="password" id="password" name="password" placeholder="Enter your password" required>
-
-      <button type="submit">Login</button>
+      <button type="submit" class="btn btn-primary">Confirm Application</button>
     </form>
-    <a class = "accountless" href="{{ url_for('register') }}">Don't have an account? Register</a>
-  </main>
+    <a href="{{ url_for('student_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+  </div>
 </body>
 </html>

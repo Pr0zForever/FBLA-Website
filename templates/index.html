@@ -12,10 +12,21 @@
   <header class="header">
     <a href="#" class="logo">JobConnect</a>
     <nav class="nav">
-      <a href="#">Home</a>
-      <a href="submit-postings">Submit Posting</a>
+      <a href="{{ url_for('index') }}">Home</a>
       <a href="approved-postings">Approved Postings</a>
-      <a href="#about">About</a>
+      {% if current_user.is_authenticated %}
+        {% if current_user.role == 'admin' %}
+          <a href="admin-panel">Admin Panel</a>
+        {% elif current_user.role == 'employer' %}
+          <a href="employer-dashboard">Dashboard</a>
+        {% elif current_user.role == 'student' %}
+          <a href="student-dashboard">Dashboard</a>
+        {% endif %}
+        <a href="logout" class="btn btn-primary">Logout</a>
+      {% else %}
+        <a href="login" class="btn btn-primary">Login</a>
+        <a href="register" class="btn btn-secondary">Register</a>
+      {% endif %}
     </nav>
   </header>
   
@@ -26,8 +37,8 @@
       <h1>Connecting Talent with Opportunity</h1>
       <p>Simplifying the job application process for students and employers.</p>
       <div class="hero-buttons">
-        <a href="submit-postings" class="btn btn-primary">Post a Job</a>
-        <a href="" class="btn btn-secondary">View Job Listings</a>
+        <a href="submit_posting" class="btn btn-primary">Post a Job</a>
+        <a href="approved-postings" class="btn btn-secondary">View Job Listings</a>
       </div>
     </div>
   </section>
@@ -58,8 +69,8 @@
     <div class="container">
       <h2>Ready to Get Started?</h2>
       <div class="cta-buttons">
-        <a href="#post-job" class="btn btn-primary">Post a Job</a>
-        <a href="#listings" class="btn btn-secondary">Browse Jobs</a>
+        <a href="submit-posting" class="btn btn-primary">Post a Job</a>
+        <a href="approved-postings" class="btn btn-secondary">Browse Jobs</a>
       </div>
     </div>
   </section>
@@ -69,10 +80,10 @@
     <div class="container">
       <p>© 2024 JobConnect. All rights reserved.</p>
       <nav class="footer-nav">
-        <a href="#">Home</a>
-        <a href="#post-job">Submit Posting</a>
-        <a href="#listings">Approved Postings</a>
-        <a href="#contact">Contact Us</a>
+        <a href="index">Home</a>
+        <a href="submit-posting">Submit Posting</a>
+        <a href="approved-postings">Approved Postings</a>
+        <a href="contact">Contact Us</a>
       </nav>
     </div>
   </footer>

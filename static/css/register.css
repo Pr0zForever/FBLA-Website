@@ -1,0 +1,162 @@
+/* General Styles */
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  background-color: #f9f9f9; /* Soft background color */
+  color: #333;
+}
+
+/* Page Container */
+.container {
+  margin: 7rem auto; /* Adjust for navbar height */
+  width: 100%;
+  max-width: 400px;
+  background: #ffffff;
+  padding: 2.5rem 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+/* Heading */
+h1 {
+  font-size: 1.8rem;
+  color: #272727;
+  margin-bottom: 1.5rem;
+}
+
+/* Form Styles */
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  text-align: left;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  color: #555;
+}
+
+input, select {
+  font-size: 1rem;
+  padding: 0.8rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+input:focus, select:focus {
+  border-color: #00bfa5;
+  outline: none;
+  box-shadow: 0 0 8px rgba(0, 191, 165, 0.3);
+}
+
+button {
+  font-size: 1rem;
+  padding: 0.8rem;
+  background: #00bfa5;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background: #008e7d;
+}
+
+/* Error Messages */
+.error {
+  color: #ff4d4d;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+/* Links */
+.accountless {
+  text-decoration: none;
+  color: #00bfa5;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  display: inline-block;
+}
+
+.accountless:hover {
+  color: #008e7d;
+  text-decoration: underline;
+}
+
+/* Header */
+.header {
+  background: #272727; 
+  color: #fff;
+  padding: 1.75rem 2rem;
+  position: fixed; /* Fixed at the top of the viewport */
+  width: 100%;
+  z-index: 100;
+  top: 0;
+  display: flex; /* Flexbox layout for alignment */
+  justify-content: flex-start; /* Align logo and nav close together */
+  align-items: center; /* Align items vertically */
+  transition: transform 0.3s ease-in-out, background 0.3s ease-in-out;
+}
+
+/* Logo */
+.logo {
+  font-size: 5rem;
+  font-weight: bold;
+  color: #ffffff;
+  text-decoration: none;
+  margin-right: 15rem; /* Space between logo and nav */
+}
+
+/* Navigation Bar */
+.nav {
+  display: flex; /* Flexbox for horizontal layout */
+  gap: 2rem; /* Space between nav items */
+}
+
+.nav a {
+  color: #fff;
+  text-decoration: none !important; /* Force remove underline */
+  font-size: 1rem;
+  padding: 0.5rem 1rem; /* Padding for the box effect */
+  position: relative; /* For positioning the hover effect */
+  border-radius: 20px; /* Rounded corners for the box */
+  transition: all 0.5s ease; /* Smooth animation for color and background */
+  background-color: transparent; /* Default background */
+  border: 2px solid transparent; /* Invisible border for smooth transition */
+  transition-delay: 0.2s;
+}
+
+.nav a:hover {
+  color: #121212; /* Change text color on hover */
+  background-color: #00bfa5; /* Highlight box on hover */
+  border-color: #00bfa5; /* Add border on hover */
+}
+  
+  /* Header hidden state */
+  .header.hidden {
+    transform: translateY(-100%); /* Move header out of view */
+  }
+  
+
+  .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  .nav a {
+    color: #fff;
+    text-decoration: none;
+    margin-left: 1rem;
+    font-size: 1rem;
+  }
+  
+  .nav a:hover {
+    text-decoration: underline;
+  }

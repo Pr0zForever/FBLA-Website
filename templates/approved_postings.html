@@ -8,12 +8,23 @@
 </head>
 <body>
   <header class="header">
-    <a href="{{ url_for('index') }}" class="logo">JobConnect</a>
+    <a href="#" class="logo">JobConnect</a>
     <nav class="nav">
       <a href="{{ url_for('index') }}">Home</a>
-      <a href="submit-postings">Submit Posting</a>
       <a href="approved-postings">Approved Postings</a>
-      <a href="about">About</a>
+      {% if current_user.is_authenticated %}
+        {% if current_user.role == 'admin' %}
+          <a href="admin-panel">Admin Panel</a>
+        {% elif current_user.role == 'employer' %}
+          <a href="employer-dashboard">Dashboard</a>
+        {% elif current_user.role == 'student' %}
+          <a href="student-dashboard">Dashboard</a>
+        {% endif %}
+        <a href="logout" class="btn btn-primary">Logout</a>
+      {% else %}
+        <a href="login" class="btn btn-primary">Login</a>
+        <a href="register" class="btn btn-secondary">Register</a>
+      {% endif %}
     </nav>
   </header>
 

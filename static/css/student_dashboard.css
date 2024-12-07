@@ -1,0 +1,165 @@
+/* General Styles */
+body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+  }
+  
+  /* Header */
+.header {
+  background: #272727; 
+  color: #fff;
+  padding: 1.75rem 2rem;
+  position: fixed; /* Fixed at the top of the viewport */
+  width: 100%;
+  z-index: 100;
+  top: 0;
+  display: flex; /* Flexbox layout for alignment */
+  justify-content: flex-start; /* Align logo and nav close together */
+  align-items: center; /* Align items vertically */
+  transition: transform 0.3s ease-in-out, background 0.3s ease-in-out;
+}
+
+/* Logo */
+.logo {
+  font-size: 5rem;
+  font-weight: bold;
+  color: #ffffff;
+  text-decoration: none;
+  margin-right: 15rem; /* Space between logo and nav */
+}
+
+/* Navigation Bar */
+.nav {
+  display: flex; /* Flexbox for horizontal layout */
+  gap: 2rem; /* Space between nav items */
+}
+
+.nav a {
+  color: #fff;
+  text-decoration: none !important; /* Force remove underline */
+  font-size: 1rem;
+  padding: 0.5rem 1rem; /* Padding for the box effect */
+  position: relative; /* For positioning the hover effect */
+  border-radius: 20px; /* Rounded corners for the box */
+  transition: all 0.5s ease; /* Smooth animation for color and background */
+  background-color: transparent; /* Default background */
+  border: 2px solid transparent; /* Invisible border for smooth transition */
+  transition-delay: 0.2s;
+}
+
+.nav a:hover {
+  color: #121212; /* Change text color on hover */
+  background-color: #00bfa5; /* Highlight box on hover */
+  border-color: #00bfa5; /* Add border on hover */
+}
+  
+  /* Header hidden state */
+  .header.hidden {
+    transform: translateY(-100%); /* Move header out of view */
+  }
+  
+
+  .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  .nav a {
+    color: #fff;
+    text-decoration: none;
+    margin-left: 1rem;
+    font-size: 1rem;
+  }
+  
+  .nav a:hover {
+    text-decoration: underline;
+  }
+
+  
+  /* Main Content */
+  .container {
+    margin-top: 8rem; /* Adjust for navbar height */
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 8rem auto 2rem;
+  }
+  
+  h1 {
+    font-size: 2rem;
+    color: #272727;
+    margin-bottom: 1rem;
+  }
+  
+  p {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+    color: #555;
+  }
+  
+  .jobs {
+    margin-top: 2rem;
+  }
+  
+  .jobs h2 {
+    font-size: 1.8rem;
+    color: #272727;
+    margin-bottom: 1rem;
+  }
+  
+  .job-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .job-card {
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .job-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .job-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.8rem;
+    color: #272727;
+  }
+  
+  .job-card p {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 0.8rem;
+  }
+  
+  .btn-primary {
+    display: inline-block;
+    padding: 0.8rem 1.5rem;
+    background: #00bfa5;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: background 0.3s ease;
+  }
+  
+  .btn-primary:hover {
+    background: #008e7d;
+  }
+  
+  /* Footer */
+  .footer {
+    background: #272727;
+    color: #fff;
+    text-align: center;
+    padding: 1rem 0;
+    position: relative;
+  }
+  

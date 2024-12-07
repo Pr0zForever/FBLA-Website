@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/student_dashboard.css') }}">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <a href="#" class="logo">JobConnect</a>
+    <nav class="nav">
+      <a href="{{ url_for('index') }}">Home</a>
+      <a href="approved-postings">Approved Postings</a>
+      {% if current_user.is_authenticated %}
+        {% if current_user.role == 'admin' %}
+          <a href="admin-panel">Admin Panel</a>
+        {% elif current_user.role == 'employer' %}
+          <a href="employer-dashboard">Dashboard</a>
+        {% elif current_user.role == 'student' %}
+          <a href="student-dashboard">Dashboard</a>
+        {% endif %}
+        <a href="logout" class="btn btn-primary">Logout</a>
+      {% else %}
+        <a href="login" class="btn btn-primary">Login</a>
+        <a href="register" class="btn btn-secondary">Register</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <div class="container">
+    <h1>Welcome, {{ current_user.username }}</h1>
+    <p>Explore the latest job opportunities tailored for students.</p>
+
+    <section class="jobs">
+      <h2>Available Job Postings</h2>
+      <div class="job-list">
+        {% for job in job_postings %}
+        <div class="job-card">
+          <h3>{{ job.title }}</h3>
+          <p><strong>Location:</strong> {{ job.location }}</p>
+          <p><strong>Description:</strong> {{ job.description }}</p>
+          <p><strong>Qualifications:</strong> {{ job.qualifications }}</p>
+          <p><strong>Deadline:</strong> {{ job.deadline }}</p>
+          <a href="{{ url_for('apply', job_id=job.id) }}" class="btn btn-primary">Apply Now</a>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>© 2024 JobConnect. All rights reserved.</p>
+  </footer>
+</body>
+</html>

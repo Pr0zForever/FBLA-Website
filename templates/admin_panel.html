@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_panel.css') }}">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <a href="{{ url_for('index') }}" class="logo">JobConnect</a>
+    <nav class="nav">
+      <a href="{{ url_for('index') }}">Home</a>
+      <a href="{{ url_for('about') }}">About</a>
+      <a href="{{ url_for('logout') }}">Logout</a>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <div class="container">
+    <h1>Admin Panel</h1>
+    <p>Manage job postings and users.</p>
+
+    <!-- Job Postings Management -->
+    <section class="jobs">
+      <h2>Manage Job Postings</h2>
+      <div class="job-list">
+        {% for job in job_postings %}
+        <div class="job-card">
+          <h3>{{ job.title }}</h3>
+          <p><strong>Location:</strong> {{ job.location }}</p>
+          <p><strong>Description:</strong> {{ job.description }}</p>
+          <p><strong>Qualifications:</strong> {{ job.qualifications }}</p>
+          <p><strong>Deadline:</strong> {{ job.deadline }}</p>
+          <form method="POST" action="{{ url_for('delete_posting', job_id=job.id) }}">
+            <button type="submit" class="btn btn-danger">Delete Posting</button>
+          </form>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- User Management -->
+    <section class="users">
+      <h2>Manage Users</h2>
+      <div class="user-list">
+        {% for user in users %}
+        <div class="user-card">
+          <p><strong>Username:</strong> {{ user.username }}</p>
+          <p><strong>Role:</strong> {{ user.role }}</p>
+          <form method="POST" action="{{ url_for('delete_user', user_id=user.id) }}">
+            <button type="submit" class="btn btn-danger">Delete User</button>
+          </form>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>© 2024 JobConnect. All rights reserved.</p>
+  </footer>
+</body>
+</html>

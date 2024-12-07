@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employer Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/employer_dashboard.css') }}">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <a href="#" class="logo">JobConnect</a>
+    <nav class="nav">
+      <a href="{{ url_for('index') }}">Home</a>
+      <a href="approved-postings">Approved Postings</a>
+      {% if current_user.is_authenticated %}
+        {% if current_user.role == 'admin' %}
+          <a href="admin-panel">Admin Panel</a>
+        {% elif current_user.role == 'employer' %}
+          <a href="employer-dashboard">Dashboard</a>
+        {% elif current_user.role == 'student' %}
+          <a href="student-dashboard">Dashboard</a>
+        {% endif %}
+        <a href="logout" class="btn btn-primary">Logout</a>
+      {% else %}
+        <a href="login" class="btn btn-primary">Login</a>
+        <a href="register" class="btn btn-secondary">Register</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <div class="container">
+    <h1>Welcome, {{ current_user.username }}</h1>
+    <p>Manage your job postings and connect with top talent.</p>
+
+    <!-- Section for Job Postings -->
+    <section class="jobs">
+      <h2>Your Job Postings</h2>
+      <div class="job-list">
+        {% for job in job_postings %}
+        <div class="job-card">
+          <h3>{{ job.title }}</h3>
+          <p><strong>Location:</strong> {{ job.location }}</p>
+          <p><strong>Description:</strong> {{ job.description }}</p>
+          <p><strong>Qualifications:</strong> {{ job.qualifications }}</p>
+          <p><strong>Deadline:</strong> {{ job.deadline }}</p>
+          <form method="POST" action="{{ url_for('delete_posting', job_id=job.id) }}">
+            <button type="submit" class="btn btn-danger">Delete Posting</button>
+          </form>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- Section for Adding a Job -->
+    <section class="add-job">
+      <h2>Submit a New Job Posting</h2>
+      <form method="POST" action="{{ url_for('submit_posting') }}">
+        <label for="title">Job Title</label>
+        <input type="text" id="title" name="title" placeholder="Enter job title" required>
+
+        <label for="location">Location</label>
+        <input type="text" id="location" name="location" placeholder="Enter job location" required>
+
+        <label for="description">Job Description</label>
+        <textarea id="description" name="description" placeholder="Enter job description" rows="5" required></textarea>
+
+        <label for="qualifications">Qualifications</label>
+        <input type="text" id="qualifications" name="qualifications" placeholder="Enter required qualifications" required>
+
+        <label for="deadline">Application Deadline</label>
+        <input type="date" id="deadline" name="deadline" required>
+
+        <button type="submit" class="btn btn-primary">Submit Job</button>
+      </form>
+    </section>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>© 2024 JobConnect. All rights reserved.</p>
+  </footer>
+</body>
+</html>
