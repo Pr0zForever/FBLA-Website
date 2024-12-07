@@ -254,9 +254,28 @@ def student_dashboard():
     if current_user.role != 'student':
         flash('Access restricted to students only.', 'error')
         return redirect(url_for('index'))
+    
+    # Fetch applications submitted by the current user
+    applications = JobApplication.query.filter_by(student_id=current_user.id).all()
+    return render_template('student_dashboard.html', applications=applications)
 
-    job_postings = JobPosting.query.filter_by(approved=True).all()
-    return render_template('student_dashboard.html', job_postings=job_postings)
+@app.route('/edit-application/<int:application_id>', methods=['GET', 'POST'])
+@login_required
+def edit_application(application_id):
+    application = JobApplication.query.get_or_404(application_id)
+
+    if application.student_id != current_user.id:
+        flash('Access denied.', 'error')
+        return redirect(url_for('student_dashboard'))
+
+    if request.method == 'POST':
+        application.cover_letter = request.form.get('cover_letter')
+        db.session.commit()
+        flash('Application updated successfully!', 'success')
+        return redirect(url_for('student_dashboard'))
+
+    return render_template('edit_application.html', application=application)
+
 
 @app.route('/apply/<int:job_id>', methods=['GET', 'POST'])
 @login_required

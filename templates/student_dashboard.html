@@ -36,28 +36,30 @@
         <p>View and manage your applications below.</p>
     </div>
 
-    <!-- Job Applications Section -->
-    <section class="student-section">
-        <h2>Your Applications</h2>
-        {% if applications %}
-        <div class="applications-grid">
-            {% for application in applications %}
-            <div class="application-card">
-                <h3>{{ application.job.title }}</h3>
-                <p><strong>Company:</strong> {{ application.job.company_name or "N/A" }}</p>
-                <p><strong>Location:</strong> {{ application.job.location }}</p>
-                <p><strong>Deadline:</strong> {{ application.job.deadline }}</p>
-                <p><strong>Your Cover Letter:</strong> {{ application.cover_letter }}</p>
-                <div class="actions">
-                    <a href="/edit-application/{{ application.id }}" class="btn btn-edit">Edit</a>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <p>You haven't applied for any jobs yet. Start exploring <a href="/approved-postings">job postings</a>.</p>
-        {% endif %}
-    </section>
+    <main class="container">
+      <h1>Welcome, {{ current_user.username }}!</h1>
+      <p>Here you can see the jobs you've applied for.</p>
+  
+      {% if applications %}
+      <h2>Your Applications</h2>
+      <div class="applications-grid">
+          {% for application in applications %}
+          <div class="application-card">
+              <h3>Job Title: {{ application.job.title }}</h3>
+              <p><strong>Company:</strong> {{ application.job.location }}</p>
+              <p><strong>Application Date:</strong> {{ application.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+              <p><strong>Cover Letter:</strong></p>
+              <p>{{ application.cover_letter }}</p>
+              <div class="card-actions">
+                  <a href="{{ url_for('edit_application', application_id=application.id) }}" class="btn btn-secondary">Edit Application</a>
+              </div>
+          </div>
+          {% endfor %}
+      </div>
+      {% else %}
+      <p>You have not applied for any jobs yet.</p>
+      {% endif %}
+  </main>
 </main>
 
 </body>

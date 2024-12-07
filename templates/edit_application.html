@@ -1,0 +1,30 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/edit_application.css') }}">
+    <title>Edit Application</title>
+</head>
+<body>
+
+<header class="header">
+    <a href="{{ url_for('index') }}" class="logo">JobConnect</a>
+    <nav class="nav">
+        <a href="{{ url_for('index') }}">Home</a>
+        <a href="{{ url_for('student_dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('logout') }}" class="btn btn-primary">Logout</a>
+    </nav>
+</header>
+
+<main class="container">
+    <h1>Edit Your Application</h1>
+    <form method="POST">
+        <label for="cover_letter">Cover Letter</label>
+        <textarea id="cover_letter" name="cover_letter" rows="8">{{ application.cover_letter }}</textarea>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+    </form>
+</main>
+
+</body>
+</html>
