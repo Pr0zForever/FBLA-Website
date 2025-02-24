@@ -302,10 +302,10 @@ section {
 /* ✨ Hero Buttons */
 .hero-buttons .btn {
   text-decoration: none;
-  padding: 1rem 2rem;
+  padding: 0.5rem 1rem;
   border-radius: 5px;
   font-size: 1.2rem;
-  margin: 0 0.5rem;
+  margin: 0 0.2rem;
   transition: all 0.3s ease-in-out;
 }
 
@@ -654,8 +654,9 @@ section {
   }
 
   .hero-buttons {
+    display: block;
     flex-direction: column;
-    gap: 10px;
+    
   }
 
   .btn {
@@ -719,10 +720,11 @@ section {
 
   .hero-buttons {
     gap: 8px;
+
   }
 
   .btn {
-    padding: 10px;
+    padding: 0px;
     font-size: 1rem;
   }
 
