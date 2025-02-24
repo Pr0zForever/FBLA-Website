@@ -440,3 +440,307 @@ section {
 .show {
   opacity: 1;
 }
+
+/* 🌟 Shooting Stars Container */
+.shooting-stars {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;  /* Adjust z-index to be behind content */
+}
+
+/* 🌠 Shooting Star Element */
+.star {
+  position: absolute;
+  width: 2px;
+  height: 80px;
+  background: linear-gradient(white, rgba(255,255,255,0));
+  opacity: 0.8;
+  transform: rotate(-45deg);
+  animation: shoot 1.5s linear infinite;
+}
+
+/* ✨ Keyframes for Shooting Star Animation */
+@keyframes shoot {
+  0% {
+    transform: translate(0, 0) rotate(-45deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(120vw, 120vh) rotate(-45deg);
+    opacity: 0;
+  }
+}
+
+/* 🌠 Position and Stagger Animation Delays */
+.star:nth-child(1) { top: 10%; left: 5%; animation-delay: 0s; }
+.star:nth-child(2) { top: 20%; left: 25%; animation-delay: 0.3s; }
+.star:nth-child(3) { top: 5%; left: 45%; animation-delay: 0.6s; }
+.star:nth-child(4) { top: 30%; left: 65%; animation-delay: 0.9s; }
+.star:nth-child(5) { top: 40%; left: 85%; animation-delay: 1.2s; }
+.star:nth-child(6) { top: 50%; left: 15%; animation-delay: 1.5s; }
+.star:nth-child(7) { top: 60%; left: 35%; animation-delay: 1.8s; }
+.star:nth-child(8) { top: 70%; left: 55%; animation-delay: 2.1s; }
+
+/* Hide shooting stars on mobile */
+@media (max-width: 768px) {
+  .shooting-stars {
+    display: none;
+  }
+}
+
+
+
+/* 💻 Hide on Mobile for Performance */
+@media (max-width: 768px) {
+  .streaks-container {
+    display: none;
+  }
+}
+
+/* Hamburger Menu Icon */
+.hamburger {
+  display: none; /* Hidden by default on larger screens */
+  font-size: 1.8rem;
+  cursor: pointer;
+  margin-left: auto;
+  transition: transform 0.3s ease;
+}
+
+/* Animate when active */
+.hamburger.open {
+  transform: rotate(90deg);
+}
+/* 📌 Mobile Styles */
+@media (max-width: 768px) {
+  /* Hide the normal nav links */
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 70px;
+    left: 0;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  /* Show nav when active */
+  .nav-links.active {
+    display: flex;
+  }
+
+  .nav-links li {
+    text-align: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .nav-links li:last-child {
+    border-bottom: none;
+  }
+
+  .nav-links a {
+    display: block;
+    width: 100%;
+    padding: 12px 20px;
+    font-size: 1.1rem;
+  }
+
+  /* Hamburger menu */
+  .hamburger {
+    display: block;
+    font-size: 1.8rem;
+    cursor: pointer;
+    margin-left: auto;
+  }
+
+  /* Adjust nav icons */
+  .nav-icons {
+    margin-left: 10px;
+  }
+
+  /* User dropdown positioning */
+  .user-dropdown {
+    position: relative;
+  }
+
+  .user-menu {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    width: 150px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: none;
+    flex-direction: column;
+  }
+
+  .user-menu a {
+    padding: 12px;
+    text-align: left;
+  }
+
+  /* Show dropdown when active */
+  .user-dropdown.active .user-menu {
+    display: flex;
+  }
+}
+
+
+/* 🌍 General Responsive Styles */
+@media (max-width: 1024px) {
+  .container {
+    width: 95%;
+  }
+
+  .navbar {
+    padding: 12px 30px;
+  }
+
+  .hero h1 {
+    font-size: 2.5rem;
+  }
+
+  .hero p {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 768px) {
+  /* 📌 Adjust Navbar for Mobile */
+  .nav-links {
+    display: none; /* Hide by default */
+    flex-direction: column;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(8px);
+    border-radius: 0 0 10px 10px;
+    text-align: center;
+    padding: 10px 0;
+  }
+
+  .nav-links.active {
+    display: flex;
+  }
+
+  .nav-links a {
+    padding: 10px;
+    font-size: 1rem;
+  }
+
+  /* 📌 Adjust Hero Section */
+  .hero {
+    height: 80vh;
+    padding: 20px;
+  }
+
+  .hero h1 {
+    font-size: 2rem;
+  }
+
+  .hero p {
+    font-size: 1.1rem;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  /* 📌 Features Section */
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  /* 📌 Search Overlay */
+  .search-container {
+    width: 90%;
+  }
+
+  .suggestions-box {
+    width: 90%;
+  }
+
+  /* 📌 Footer */
+  .footer {
+    text-align: center;
+    padding: 20px;
+  }
+
+  .footer-nav {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* 📌 Navbar Adjustments */
+  .navbar {
+    padding: 10px 20px;
+  }
+
+  .logo {
+    font-size: 1.3rem;
+  }
+
+  .nav-icons i {
+    font-size: 1rem;
+  }
+
+  /* 📌 Hero Section */
+  .hero {
+    height: 75vh;
+  }
+
+  .hero h1 {
+    font-size: 1.8rem;
+  }
+
+  .hero p {
+    font-size: 1rem;
+  }
+
+  .hero-buttons {
+    gap: 8px;
+  }
+
+  .btn {
+    padding: 10px;
+    font-size: 1rem;
+  }
+
+  /* 📌 Features Section */
+  .features h2 {
+    font-size: 1.5rem;
+  }
+
+  .feature {
+    padding: 15px;
+  }
+
+  /* 📌 Footer */
+  .footer p {
+    font-size: 0.9rem;
+  }
+
+  .footer-nav a {
+    font-size: 0.9rem;
+  }
+}

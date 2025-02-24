@@ -346,8 +346,8 @@ body {
 /* 📌 Right Content (AI Insights, Graphs, Stock Graph) */
 .right-content {
   grid-column: 3;
-  grid-row: 1 / 3;
-  padding: 15px;
+  grid-row: 1 / 2;
+  
 }
 
 /* 📌 Separator */

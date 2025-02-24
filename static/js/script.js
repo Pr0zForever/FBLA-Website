@@ -161,3 +161,56 @@ document.addEventListener("DOMContentLoaded", function () {
           .catch(error => console.error("Error fetching search results:", error));
   });
 });
+
+// Select elements
+const hamburger = document.querySelector(".hamburger");
+const navLinks = document.querySelector(".nav-links");
+
+// Toggle menu on click
+hamburger.addEventListener("click", () => {
+  navLinks.classList.toggle("active"); // Show/hide menu
+  hamburger.classList.toggle("open"); // Toggle animation
+});
+
+// Close menu when a link is clicked
+document.querySelectorAll(".nav-links a").forEach(link => {
+  link.addEventListener("click", () => {
+    navLinks.classList.remove("active"); // Close menu
+    hamburger.classList.remove("open"); // Reset icon
+  });
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+  const noteInput = document.getElementById("note-input");
+  const notesContainer = document.getElementById("notes-container");
+
+  noteInput.addEventListener("keypress", function (event) {
+      if (event.key === "Enter" && noteInput.value.trim() !== "") {
+          event.preventDefault();
+          
+          const noteText = noteInput.value.trim();
+          addNote(noteText);
+
+          // Send the note to the backend (optional)
+          fetch(window.location.pathname + "/add_note", {
+              method: "POST",
+              headers: {
+                  "Content-Type": "application/json"
+              },
+              body: JSON.stringify({ note: noteText })
+          });
+
+          noteInput.value = ""; // Clear input field
+      }
+  });
+
+  function addNote(text) {
+      const noteElement = document.createElement("div");
+      noteElement.classList.add("note");
+      noteElement.innerHTML = `
+          <p class="note-text">"${text}"</p>
+          <p class="note-meta">— Just now</p>
+      `;
+      notesContainer.prepend(noteElement);
+  }
+});

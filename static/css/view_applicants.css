@@ -319,102 +319,103 @@ body {
     color: #555;
   }
   
-  /* 🔹 Applicants Section */
+/* 🌍 General Styling for Applicants Section */
+.applicants-section {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 20px;
+  text-align: center;
+}
+
+/* 🔹 Applicants Grid */
+.applicants-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive grid */
+  gap: 20px;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* 🔗 Applicant Card Link (Ensures the whole card is clickable) */
+.applicant-card-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* 📌 Individual Applicant Card */
+.applicant-card {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.applicant-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* 📌 Applicant Info */
+.applicant-info h3 {
+  font-size: 1.2rem;
+  color: #1D3557;
+  margin-bottom: 5px;
+}
+
+.applicant-info p {
+  font-size: 0.95rem;
+  color: #444;
+  margin-bottom: 8px;
+}
+
+/* 📜 Cover Letter (Shortened for readability) */
+.cover-letter {
+  font-size: 0.9rem;
+  color: #555;
+  font-style: italic;
+  max-height: 3.6em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+/* ❌ No Applicants Message */
+.no-applicants {
+  font-size: 1.2rem;
+  color: #777;
+  margin-top: 20px;
+}
+
+/* 📱 Responsive Adjustments */
+@media (max-width: 768px) {
   .applicants-section {
-    margin-top: 2rem;
+    padding: 10px;
   }
-  
-  /* 📌 Applicants Grid */
+
   .applicants-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.2rem;
-    justify-content: center;
+    grid-template-columns: 1fr; /* Single column on small screens */
   }
-  
-  /* 👤 Applicant Card */
+
   .applicant-card {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(10px);
-    border-radius: 10px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    text-align: left;
-    max-width: 320px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    padding: 15px;
   }
-  
-  .applicant-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 14px rgba(0, 0, 0, 0.12);
-  }
-  
+
   .applicant-info h3 {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #00bfa5;
-    margin-bottom: 0.4rem;
+    font-size: 1.1rem;
   }
-  
+
   .applicant-info p {
     font-size: 0.9rem;
-    color: #555;
-    margin: 0.15rem 0;
   }
-  
+
   .cover-letter {
-    font-style: italic;
-    color: #444;
-    margin-top: 0.5rem;
+    font-size: 0.85rem;
   }
-  
-  /* 🎯 Actions */
-  .applicant-actions {
-    margin-top: 1rem;
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-  }
-  
-  .btn {
-    display: inline-block;
-    padding: 0.6rem 1rem;
-    border-radius: 6px;
-    text-decoration: none;
-    font-size: 0.9rem;
-    font-weight: bold;
-    transition: background 0.3s ease;
-    border: none;
-    cursor: pointer;
-  }
-  
-  .btn-contact {
-    background: #00bfa5;
-    color: white;
-  }
-  
-  .btn-contact:hover {
-    background: #008e7d;
-  }
-  
-  .btn-reject {
-    background: #e53935;
-    color: white;
-  }
-  
-  .btn-reject:hover {
-    background: #c62828;
-  }
-  
-  /* ❌ No Applicants */
-  .no-applicants {
-    text-align: center;
-    font-size: 1.1rem;
-    color: #666;
-    margin-top: 1.5rem;
-  }
-  
+}

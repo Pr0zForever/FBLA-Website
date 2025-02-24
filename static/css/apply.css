@@ -284,6 +284,34 @@ body, html {
   }
 }
 
+/* Background container */
+.background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, 
+      rgba(167, 0, 0, 0.7) 10%, 
+      rgba(220, 255, 220, 0.7) 30%, 
+      rgba(220, 220, 255, 0.7) 50%, 
+      rgba(255, 240, 200, 0.7) 70%, 
+      rgba(240, 220, 255, 0.7) 90%);
+  background-size: 300% 300%;
+  filter: blur(20px);
+  animation: moveGradient 10s infinite alternate ease-in-out;
+  z-index: -1;
+}
+
+@keyframes moveGradient {
+  0% {
+      background-position: 0% 0%;
+  }
+  100% {
+      background-position: 100% 100%;
+  }
+}
+
 html, body {
 margin: 0;
 padding: 100px 20px 40px; /* Added top padding to push content below navbar */

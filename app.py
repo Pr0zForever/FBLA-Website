@@ -36,6 +36,22 @@ login_manager.login_view = 'login'
 
 # Models
 
+from db import db
+
+class EmployerNote(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    application_id = db.Column(db.Integer, db.ForeignKey('job_application.id'), nullable=False)  # ✅ Ensure ForeignKey exists
+    employer_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    student_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    job_id = db.Column(db.Integer, db.ForeignKey('job_posting.id'), nullable=False)
+    note = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+
+    employer = db.relationship('User', foreign_keys=[employer_id])
+    student = db.relationship('User', foreign_keys=[student_id])
+    job = db.relationship('JobPosting', backref=db.backref('employer_notes', lazy=True))
+
+
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
@@ -261,15 +277,19 @@ def view_applicants(job_id):
         flash('Access restricted to employers only.', 'error')
         return redirect(url_for('index'))
     
-    # Ensure the job exists and belongs to the logged-in employer
+    # ✅ Get all jobs owned by the employer
+    employer_jobs = JobPosting.query.filter_by(posted_by=current_user.id).all()
+    job_ids = [job.id for job in employer_jobs]
+
+    # ✅ Ensure job exists & belongs to employer
     job = JobPosting.query.get_or_404(job_id)
-    if job.posted_by != current_user.id:
+    if job.id not in job_ids:
         flash('You do not have permission to view applicants for this job.', 'error')
         return redirect(url_for('employer_dashboard'))
     
-    # Get all applications for this job
+    # ✅ Retrieve applications
     applications = JobApplication.query.filter_by(job_id=job.id).all()
-    
+
     return render_template('view_applicants.html', job=job, applications=applications)
 
 @app.route('/edit-posting/<int:job_id>', methods=['GET', 'POST'])
@@ -397,6 +417,28 @@ def apply(job_id):
 def approved_postings():
     job_postings = JobPosting.query.filter_by(approved=True).all()
     return render_template('approved_postings.html', job_postings=job_postings)
+
+@app.route('/reject-applicant/<int:applicant_id>', methods=['POST'])
+@login_required
+def reject_applicant(applicant_id):
+    """Allow employers to reject an applicant."""
+    if current_user.role != 'employer':
+        flash('Access restricted.', 'error')
+        return redirect(url_for('index'))
+
+    application = JobApplication.query.get_or_404(applicant_id)
+
+    # Ensure the employer owns the job posting
+    if application.job.posted_by != current_user.id:
+        flash('You are not authorized to reject this applicant.', 'error')
+        return redirect(url_for('employer_dashboard'))
+
+    db.session.delete(application)
+    db.session.commit()
+
+    flash('Applicant has been rejected successfully.', 'success')
+    return redirect(url_for('view_applicants', job_id=application.job_id))
+
 
 @app.route('/confirmation')
 def confirmation():
@@ -593,6 +635,63 @@ def post_job():
 
     return render_template('post_job.html')
 
+@app.route('/applicant-details/<int:application_id>')
+@login_required
+def applicant_details(application_id):
+    """View detailed information about an applicant"""
+    if current_user.role != 'employer':
+        flash("Access restricted to employers only.", "error")
+        return redirect(url_for('index'))
+
+    application = JobApplication.query.get_or_404(application_id)
+
+    # Ensure that the employer owns the job posting
+    if application.job.posted_by != current_user.id:
+        flash("You are not authorized to view this applicant.", "error")
+        return redirect(url_for('employer_dashboard'))
+
+    # AI Insights (Placeholder for now)
+    ai_insights = {
+        "market_growth": 75,
+        "market_demand": 80,
+        "relevance_score": 70,
+        "acceptance_chance": 65,
+    }
+
+    # Fetch employer notes for this applicant
+    notes = EmployerNote.query.filter_by(application_id=application_id).all()
+
+    return render_template('applicant_details.html', application=application, ai_insights=ai_insights, notes=notes)
+
+
+
+
+@app.route('/application/<int:application_id>')
+def application_details(application_id):
+    application = JobApplication.query.get_or_404(application_id)
+    employer_notes = EmployerNote.query.filter_by(application_id=application_id).order_by(EmployerNote.created_at.desc()).all()
+
+    return render_template('application_details.html', application=application, employer_notes=employer_notes)
+
+@app.route('/add_employer_note/<int:application_id>', methods=['POST'])
+def add_employer_note(application_id):
+    note_text = request.form.get('note')
+
+    if note_text:
+        new_note = EmployerNote(
+            application_id=application_id,
+            employer_id=1,  # Replace with `current_user.id` if using authentication
+            student_id=JobApplication.query.get(application_id).student_id,
+            job_id=JobApplication.query.get(application_id).job_id,
+            note=note_text,
+            created_at=datetime.utcnow()
+        )
+
+        db.session.add(new_note)
+        db.session.commit()
+
+    return redirect(url_for('application_details', application_id=application_id))
+
 @app.route('/download-resume/<int:application_id>')
 @login_required
 def download_resume(application_id):
@@ -609,6 +708,34 @@ def download_resume(application_id):
         download_name=application.resume_filename
     )
 
+@app.route('/application/<int:application_id>')
+def application_details(application_id):
+    application = JobApplication.query.get_or_404(application_id)
+    employer_notes = EmployerNote.query.filter_by(application_id=application_id).order_by(EmployerNote.created_at.desc()).all()
+
+    return render_template('application_details.html', application=application, employer_notes=employer_notes)
+
+@app.route('/application/<int:application_id>/add_note', methods=['POST'])
+def add_employer_note(application_id):
+    data = request.json
+    note_text = data.get("note", "").strip()
+
+    if note_text:
+        new_note = EmployerNote(
+            application_id=application_id,
+            employer_id=1,  # Replace with `current_user.id` if using authentication
+            student_id=JobApplication.query.get(application_id).student_id,
+            job_id=JobApplication.query.get(application_id).job_id,
+            note=note_text,
+            created_at=datetime.utcnow()
+        )
+
+        db.session.add(new_note)
+        db.session.commit()
+
+        return jsonify({"success": True, "note": note_text})
+
+    return jsonify({"success": False}), 400
 
 @app.route('/about')
 def about():
