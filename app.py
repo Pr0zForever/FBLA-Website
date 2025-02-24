@@ -635,62 +635,7 @@ def post_job():
 
     return render_template('post_job.html')
 
-@app.route('/applicant-details/<int:application_id>')
-@login_required
-def applicant_details(application_id):
-    """View detailed information about an applicant"""
-    if current_user.role != 'employer':
-        flash("Access restricted to employers only.", "error")
-        return redirect(url_for('index'))
 
-    application = JobApplication.query.get_or_404(application_id)
-
-    # Ensure that the employer owns the job posting
-    if application.job.posted_by != current_user.id:
-        flash("You are not authorized to view this applicant.", "error")
-        return redirect(url_for('employer_dashboard'))
-
-    # AI Insights (Placeholder for now)
-    ai_insights = {
-        "market_growth": 75,
-        "market_demand": 80,
-        "relevance_score": 70,
-        "acceptance_chance": 65,
-    }
-
-    # Fetch employer notes for this applicant
-    notes = EmployerNote.query.filter_by(application_id=application_id).all()
-
-    return render_template('applicant_details.html', application=application, ai_insights=ai_insights, notes=notes)
-
-
-
-
-@app.route('/application/<int:application_id>')
-def application_details(application_id):
-    application = JobApplication.query.get_or_404(application_id)
-    employer_notes = EmployerNote.query.filter_by(application_id=application_id).order_by(EmployerNote.created_at.desc()).all()
-
-    return render_template('application_details.html', application=application, employer_notes=employer_notes)
-
-@app.route('/add_employer_note/<int:application_id>', methods=['POST'])
-def add_employer_note(application_id):
-    note_text = request.form.get('note')
-
-    if note_text:
-        new_note = EmployerNote(
-            application_id=application_id,
-            employer_id=1,  # Replace with `current_user.id` if using authentication
-            student_id=JobApplication.query.get(application_id).student_id,
-            job_id=JobApplication.query.get(application_id).job_id,
-            note=note_text,
-            created_at=datetime.utcnow()
-        )
-
-        db.session.add(new_note)
-        db.session.commit()
-
-    return redirect(url_for('application_details', application_id=application_id))
 
 @app.route('/download-resume/<int:application_id>')
 @login_required
