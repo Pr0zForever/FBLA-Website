@@ -4,113 +4,154 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>JobConnect</title>
-  <link rel="stylesheet" href="static\css\style.css">
+  <link rel="stylesheet" href="static/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  
+  <script src="https://kit.fontawesome.com/yourkit.js" crossorigin="anonymous"></script>
+  
 </head>
 <body>
-<div class="parallax">
-  <!-- Header -->
-  <header class="header">
-    <a href="#" class="logo">JobConnect</a>
-    <nav class="nav">
-      <a href="{{ url_for('index') }}">Home</a>
-      <a href="approved-postings">Approved Postings</a>
+
+  <header class="navbar">
+    <div class="navbar-left">
+      <a href="{{ url_for('index') }}" class="logo">JobConnect</a>
+    </div>
+  
+    <ul class="nav-links">
+      <li><a href="{{ url_for('index') }}">Home</a></li>
+      <li><a href="{{ url_for('approved_postings') }}">Approved Postings</a></li>
+      
       {% if current_user.is_authenticated %}
         {% if current_user.role == 'admin' %}
-          <a href="admin-panel">Admin Panel</a>
+          <li><a href="{{ url_for('admin_panel') }}">Admin Panel</a></li>
+          <li><a href="{{ url_for('logout') }}">Logout</a></li>
         {% elif current_user.role == 'employer' %}
-          <a href="employer-dashboard">Dashboard</a>
+          <li><a href="{{ url_for('employer_dashboard') }}">Dashboard</a></li>
         {% elif current_user.role == 'student' %}
-          <a href="student-dashboard">Dashboard</a>
+          <li><a href="{{ url_for('student_dashboard') }}">Dashboard</a></li>
         {% endif %}
-        <a href="logout" class="btn btn-primary">Logout</a>
       {% else %}
-        <a href="login" class="btn btn-primary">Login</a>
-        <a href="register" class="btn btn-secondary">Register</a>
+        <li><a href="{{ url_for('login') }}">Login</a></li>
+        <li><a href="{{ url_for('register') }}">Register</a></li>
       {% endif %}
-    </nav>
+    </ul>
+  
+    <div class="nav-icons">
+      <i class="fas fa-search search-icon" onclick="openSearch()"></i>
+  
+      {% if current_user.is_authenticated and current_user.role in ['employer', 'student'] %}
+        <div class="user-dropdown">
+          <i class="fas fa-user user-icon" onclick="toggleUserMenu()"></i>
+          <div class="user-menu" id="userMenu">
+            <a href="{{ url_for('profile', username=current_user.username) }}">Profile</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+          </div>
+        </div>
+      {% endif %}
+    </div>
   </header>
   
-
-  <!-- Hero Section -->
-  <section class="hero">
-    <div class="container">
-      <h1>Connecting Talent with Opportunity</h1>
-      <p>Simplifying the job application process for students and employers.</p>
-      <div class="hero-buttons">
-        <a href="submit_posting" class="btn btn-primary">Post a Job</a>
-        <a href="approved-postings" class="btn btn-secondary">View Job Listings</a>
+  <!-- 🔎 Search Overlay -->
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-container">
+      <input type="text" id="searchInput" class="search-input" placeholder="Search for jobs..." onkeyup="fetchSuggestions()">
+      <button class="search-close" onclick="closeSearch()">✖</button>
+  </div>
+  <div class="suggestions-box">
+      <div class="search-tips">
+          <h3></h3>
+          <p><kbd></kbd><kbd></kbd></p>
       </div>
-    </div>
-  </section>
-
-  <!-- Features Section -->
-  <section class="features">
-    <div class="container">
-      <h2>Why Choose JobConnect?</h2>
-      <div class="features-grid">
-        <div class="feature">
-          <h3>For Employers</h3>
-          <p>Easily submit postings and manage them with just a few clicks.</p>
-        </div>
-        <div class="feature">
-          <h3>For Students</h3>
-          <p>Apply to jobs with a streamlined process tailored to your needs.</p>
-        </div>
-        <div class="feature">
-          <h3>Admin Control</h3>
-          <p>Approve or delete postings seamlessly through a secure backend.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  
-    <!-- References Section -->
-    <section class="references">
-      <div class="container">
-          <h2>References</h2>
-          <p>Here are some key resources and tools that helped bring JobConnect to life.</p>
-
-          <div class="reference-list">
-              <div class="reference-card">
-                  <h3>Flask</h3>
-                  <p>A lightweight WSGI web application framework that made building this platform easy and efficient.</p>
-                  <a href="https://flask.palletsprojects.com/" target="_blank" class="btn btn-primary">Learn More</a>
-              </div>
-
-              <div class="reference-card">
-                  <h3>SQLAlchemy</h3>
-                  <p>The SQL toolkit and Object-Relational Mapping (ORM) that enables easy database integration.</p>
-                  <a href="https://www.sqlalchemy.org/" target="_blank" class="btn btn-primary">Learn More</a>
-              </div>
-
-              <div class="reference-card">
-                  <h3>HTML, CSS & JS</h3>
-                  <p>The foundational technologies of the web used to design a responsive, accessible, and clean UI/UX.</p>
-                  <a href="https://developer.mozilla.org/en-US/docs/Learn/Getting_started_with_the_web" target="_blank" class="btn btn-primary">Learn More</a>
-              </div>
-
-              <div class="reference-card">
-                  <h3>Flask-Login</h3>
-                  <p>A simple authentication library for Flask that allowed for user authentication and role-based access.</p>
-                  <a href="https://flask-login.readthedocs.io/en/latest/" target="_blank" class="btn btn-primary">Learn More</a>
-              </div>
+      <div class="trending-jobs">
+          <h4>#1 Trending</h4>
+          <div class="trending-item" onclick="selectSuggestion('Software Engineer')">
+              <span>💼</span> Software Engineer
+          </div>
+          <h4>#2 Trending</h4>
+          <div class="trending-item" onclick="selectSuggestion('Data Scientist')">
+              <span>📊</span> Data Scientist
           </div>
       </div>
-  </section>
+      <ul class="search-suggestions" id="searchSuggestions"></ul>
+  </div>
+</div>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="container">
-      <p>© 2024 JobConnect. All rights reserved.</p>
-      <nav class="footer-nav">
-        <a href="index">Home</a>
-        <a href="submit-posting">Submit Posting</a>
-        <a href="approved-postings">Approved Postings</a>
-        <a href="contact">Contact Us</a>
-      </nav>
+  
+ 
+
+
+
+<!-- 🌟 Hero Section -->
+<section class="hero">
+  <div class="container">
+    <h1>Connecting Talent with Opportunity</h1>
+    <p>Simplifying the job application process for students and employers.</p>
+    <div class="hero-buttons">
+      <a href="submit_posting" class="btn btn-primary">Post a Job</a>
+      <a href="approved-postings" class="btn btn-secondary">View Job Listings</a>
     </div>
-  </footer>
-  <script src="static\js\script.js"></script>
+  </div>
+</section>
+
+<!-- 🌟 Features Section -->
+<section class="features">
+  <div class="container">
+    <h2>Why Choose JobConnect?</h2>
+    <div class="features-grid">
+      <div class="feature">
+        <h3>For Employers</h3>
+        <p>Easily submit postings and manage them with just a few clicks.</p>
+      </div>
+      <div class="feature">
+        <h3>For Students</h3>
+        <p>Apply to jobs with a streamlined process tailored to your needs.</p>
+      </div>
+      <div class="feature">
+        <h3>Admin Control</h3>
+        <p>Approve or delete postings seamlessly through a secure backend.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 🌟 References Section -->
+<section class="references">
+  <div class="container">
+      <h2>References</h2>
+      <p>Here are some key resources and tools that helped bring JobConnect to life.</p>
+      <div class="reference-list">
+          <div class="reference-card">
+              <h3>Flask</h3>
+              <p>A lightweight WSGI web application framework that made building this platform easy and efficient.</p>
+              <a href="https://flask.palletsprojects.com/" target="_blank" class="btn btn-primary">Learn More</a>
+          </div>
+          <div class="reference-card">
+              <h3>SQLAlchemy</h3>
+              <p>The SQL toolkit and ORM that enables easy database integration.</p>
+              <a href="https://www.sqlalchemy.org/" target="_blank" class="btn btn-primary">Learn More</a>
+          </div>
+          <div class="reference-card">
+              <h3>HTML, CSS & JS</h3>
+              <p>The foundational technologies of the web used to design a responsive UI/UX.</p>
+              <a href="https://developer.mozilla.org/en-US/docs/Learn/Getting_started_with_the_web" target="_blank" class="btn btn-primary">Learn More</a>
+          </div>
+      </div>
+  </div>
+</section>
+
+<!-- 🌟 Footer -->
+<footer class="footer">
+  <div class="container">
+    <p>© 2024 JobConnect. All rights reserved.</p>
+    <nav class="footer-nav">
+      <a href="index">Home</a>
+      <a href="submit-posting">Submit Posting</a>
+      <a href="approved-postings">Approved Postings</a>
+      <a href="contact">Contact Us</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="static/js/script.js"></script>
 </body>
 </html>

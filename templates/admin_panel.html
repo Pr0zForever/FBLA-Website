@@ -3,35 +3,93 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Panel</title>
+  <title>Admin Dashboard</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_panel.css') }}">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="static/css/admin_dashboard.css">
-    <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <header class="header">
-        <div class="logo-container">
-            <a href="#" class="logo">Admin Panel</a>
+  <div class="background"></div>
+   <!-- 🌟 Glassmorphic Navbar -->
+   <header class="navbar">
+    <div class="navbar-left">
+      <a href="{{ url_for('index') }}" class="logo">JobConnect</a>
+    </div>
+  
+    <ul class="nav-links">
+      <li><a href="{{ url_for('index') }}">Home</a></li>
+      <li><a href="{{ url_for('approved_postings') }}">Approved Postings</a></li>
+      
+      {% if current_user.is_authenticated %}
+        {% if current_user.role == 'admin' %}
+          <li><a href="{{ url_for('admin_panel') }}">Admin Panel</a></li>
+          <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        {% elif current_user.role == 'employer' %}
+          <li><a href="{{ url_for('employer_dashboard') }}">Dashboard</a></li>
+        {% elif current_user.role == 'student' %}
+          <li><a href="{{ url_for('student_dashboard') }}">Dashboard</a></li>
+        {% endif %}
+      {% else %}
+        <li><a href="{{ url_for('login') }}">Login</a></li>
+        <li><a href="{{ url_for('register') }}">Register</a></li>
+      {% endif %}
+    </ul>
+  
+    <div class="nav-icons">
+      <i class="fas fa-search search-icon" onclick="openSearch()"></i>
+  
+      {% if current_user.is_authenticated and current_user.role in ['employer', 'student'] %}
+        <div class="user-dropdown">
+          <i class="fas fa-user user-icon" onclick="toggleUserMenu()"></i>
+          <div class="user-menu" id="userMenu">
+            <a href="{{ url_for('profile', username=current_user.username) }}">Profile</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+          </div>
         </div>
-        <nav class="nav">
-            <a href="/">Home</a>
-            <a href="/approved-postings">Approved Postings</a>
-            <a href="/logout" class="logout-btn">Logout</a>
-        </nav>
-    </header>
+      {% endif %}
+    </div>
+  </header>
+  
+  <!-- 🔎 Search Overlay -->
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-container">
+      <input type="text" id="searchInput" class="search-input" placeholder="Search for jobs..." onkeyup="fetchSuggestions()">
+      <button class="search-close" onclick="closeSearch()">✖</button>
+  </div>
+  <div class="suggestions-box">
+      <div class="search-tips">
+          <h3></h3>
+          <p><kbd></kbd><kbd></kbd></p>
+      </div>
+      <div class="trending-jobs">
+          <h4>#1 Trending</h4>
+          <div class="trending-item" onclick="selectSuggestion('Software Engineer')">
+              <span>💼</span> Software Engineer
+          </div>
+          <h4>#2 Trending</h4>
+          <div class="trending-item" onclick="selectSuggestion('Data Scientist')">
+              <span>📊</span> Data Scientist
+          </div>
+      </div>
+      <ul class="search-suggestions" id="searchSuggestions"></ul>
+  </div>
+</div>
 
+  
+ 
+
+
+
+
+    <!-- 🌍 Main Container -->
     <main class="container">
         <div class="dashboard-header">
             <h1>Admin Dashboard</h1>
-            <p>Efficiently manage job postings and oversee platform operations.</p>
+            <p>Manage job postings and oversee platform operations.</p>
         </div>
 
-        <!-- Unapproved Postings Section -->
-        <section class="admin-section highlight">
-            <h2>Pending Approval</h2>
+        <!-- 🚀 Pending Approval Section -->
+        <section class="admin-section">
+            <h2>Pending Approvals</h2>
             <div class="dashboard-grid">
                 {% for job in unapproved_jobs %}
                 <div class="dashboard-card">
@@ -39,15 +97,17 @@
                     <p><strong>Location:</strong> {{ job.location }}</p>
                     <p><strong>Qualifications:</strong> {{ job.qualifications }}</p>
                     <p><strong>Deadline:</strong> {{ job.deadline }}</p>
-                    <form action="/approve-posting/{{ job.id }}" method="POST">
-                        <button class="btn btn-primary">Approve</button>
-                    </form>
+                    <div class="card-actions">
+                        <form action="/approve-posting/{{ job.id }}" method="POST">
+                            <button class="btn btn-approve">Approve</button>
+                        </form>
+                    </div>
                 </div>
                 {% endfor %}
             </div>
         </section>
 
-        <!-- Approved Postings Section -->
+        <!-- ✅ Approved Postings Section -->
         <section class="admin-section">
             <h2>Approved Job Postings</h2>
             <div class="dashboard-grid">
@@ -62,5 +122,6 @@
             </div>
         </section>
     </main>
-</body
+    <script src="static/js/script.js"></script>
+</body>
 </html>

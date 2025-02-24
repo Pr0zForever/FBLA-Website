@@ -1,0 +1,572 @@
+/* 🌟 Glassmorphic Navbar */
+.navbar {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 1200px;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 40px; /* Increased padding for better spacing */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  z-index: 1000;
+}
+
+/* 🔷 Logo */
+.logo {
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: #222;
+  text-decoration: none;
+  margin-right: auto; /* Pushes logo to the left */
+}
+
+/* 🖱️ Navigation Links */
+.nav-links {
+  display: flex;
+  gap: 25px;
+  list-style: none;
+  margin: 0 auto;
+}
+
+.nav-links li {
+  position: relative;
+}
+
+/* ✨ Underline Hover Effect */
+.nav-links a {
+  text-decoration: none;
+  color: #222;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.nav-links a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  width: 100%;
+  height: 2px;
+  background-color: #00bfa5;
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.nav-links a:hover::after {
+  transform: scaleX(1);
+}
+
+/* 🔍 Search & Icons */
+.nav-icons {
+  display: flex;
+  align-items: center;
+  gap: 20px; /* Evenly space the icons */
+  margin-left: auto; /* Pushes icons to the right */
+}
+
+.nav-icons i {
+  font-size: 1.2rem;
+  color: #333;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.nav-icons i:hover {
+  color: #00bfa5;
+}
+
+/* 🔎 Search Overlay */
+.search-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  flex-direction: column;
+}
+
+/* 📦 Search Container */
+.search-container {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 15px;
+  border-radius: 12px;
+  width: 40%;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  outline: none;
+}
+
+.search-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+}
+
+/* 📌 Suggestions Box */
+.suggestions-box {
+  background: rgba(255, 255, 255, 0.95);
+  width: 40%;
+  border-radius: 12px;
+  margin-top: 10px;
+  padding: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* 🔥 Search Tips */
+.search-tips {
+  font-size: 0.9rem;
+  color: #777;
+  margin-bottom: 10px;
+}
+
+/* 📊 Trending Section */
+.trending-jobs {
+  margin-bottom: 15px;
+}
+
+.trending-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.trending-item:hover {
+  background: #f5f5f5;
+}
+
+/* 🔹 Search Suggestions */
+/* 🔹 Fixes spacing issue in search suggestions */
+.search-suggestions {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+}
+
+.search-suggestions li {
+  padding: 12px 16px;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+  white-space: nowrap; /* Prevent extra spaces */
+  overflow: hidden; /* Prevent wrapping */
+  text-overflow: ellipsis; /* Add "..." if text is too long */
+}
+
+/* Ensures suggestions have proper formatting */
+.search-suggestions li:hover {
+  background: #f5f5f5;
+}
+
+/* 🔹 Prevents weird spacing when search is empty */
+.suggestion-item {
+  white-space: normal !important;
+  display: block;
+}
+
+
+/* 🔹 Highlight Matched Text */
+.search-suggestions li mark {
+  background: none;
+  color: #00bfa5;
+  font-weight: bold;
+}
+
+
+/* 🌟 Navbar User Dropdown */
+.user-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.user-icon {
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background 0.2s ease-in-out;
+}
+
+.user-icon:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.user-menu {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 150px;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.user-menu a {
+  text-decoration: none;
+  color: #333;
+  padding: 12px;
+  display: block;
+  transition: background 0.2s ease-in-out;
+}
+
+.user-menu a:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+
+
+/* Background container */
+.background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, 
+        rgba(167, 0, 0, 0.7) 10%, 
+        rgba(220, 255, 220, 0.7) 30%, 
+        rgba(220, 220, 255, 0.7) 50%, 
+        rgba(255, 240, 200, 0.7) 70%, 
+        rgba(240, 220, 255, 0.7) 90%);
+    background-size: 300% 300%;
+    filter: blur(20px);
+    animation: moveGradient 10s infinite alternate ease-in-out;
+    z-index: -1;
+}
+
+@keyframes moveGradient {
+    0% {
+        background-position: 0% 0%;
+    }
+    100% {
+        background-position: 100% 100%;
+    }
+}
+  /* Ensure full-page styling */
+  body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* Background container */
+.background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, 
+        rgba(167, 0, 0, 0.7) 10%, 
+        rgba(220, 255, 220, 0.7) 30%, 
+        rgba(220, 220, 255, 0.7) 50%, 
+        rgba(255, 240, 200, 0.7) 70%, 
+        rgba(240, 220, 255, 0.7) 90%);
+    background-size: 300% 300%;
+    filter: blur(20px);
+    animation: moveGradient 10s infinite alternate ease-in-out;
+    z-index: -1;
+}
+
+@keyframes moveGradient {
+    0% {
+        background-position: 0% 0%;
+    }
+    100% {
+        background-position: 100% 100%;
+    }
+}
+
+html, body {
+  margin: 0;
+  padding: 100px 20px 40px; /* Added top padding to push content below navbar */
+  
+  min-height: 100vh; /* Ensure the page extends beyond the viewport */
+  overflow-y: auto; /* Enables scrolling */
+}/* 🌟 General Styles */
+body {
+  line-height: 1.2;
+  font-family: 'Inter', sans-serif;
+  background-color: #F8F9FA; /* Very light gray */
+  color: #333;
+  margin: 0;
+  padding: 20px 40px;
+  display: grid;
+  grid-template-columns: 30% 2px 70%;
+  grid-template-rows: auto auto 1fr;
+  grid-gap: 15px;
+  height: 100vh;
+}
+
+/* 📌 Left Content (Job Details) */
+.left-content {
+  grid-column: 1;
+  grid-row: 1 / 3;
+  padding: 15px;
+}
+
+/* 📌 Right Content (AI Insights, Graphs, Stock Graph) */
+.right-content {
+  grid-column: 3;
+  grid-row: 1 / 3;
+  padding: 15px;
+}
+
+/* 📌 Separator */
+.separator {
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(to bottom, #ddd, #bbb);
+  border-radius: 1px;
+}
+
+/* 📌 Job Title */
+.job-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #4A4A4A; /* Dark gray */
+  margin-bottom: 8px;
+}
+
+/* 📄 Job Description */
+.job-description {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #666; /* Medium gray */
+  margin-bottom: 15px;
+}
+
+/* 💰 Salary Info */
+.salary-text {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #3A3A3A; /* Neutral dark gray */
+  margin-top: 10px;
+}
+
+/* 🎯 Apply Now Button */
+.apply-btn {
+  display: inline-block;
+  background: linear-gradient(135deg, #444, #222); /* Monotone dark gradient */
+  color: white;
+  padding: 12px 24px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  text-decoration: none;
+  width: 100%;
+  max-width: 200px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* ✨ Hover Effect */
+.apply-btn:hover {
+  transform: scale(1.05);
+  background: linear-gradient(135deg, #222, #111);
+}
+
+/* 📌 AI-Driven Insights Title */
+.section-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #4A4A4A;
+  text-align: center;
+  text-transform: uppercase;
+  margin-bottom: 15px;
+}
+
+/* 📊 Graphs Grid */
+.graphs-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+/* 📊 Individual Graph */
+.graph-box {
+  width: 22%;
+  max-width: 200px;
+  height: 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* 🎯 Chart Value Label */
+.chart-value {
+  position: absolute;
+  top: 65%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #444;
+}
+
+/* 📊 Stock Chart Container */
+.stock-chart-container {
+  width: 100%;
+  height: 180px;
+  margin-top: 15px;
+  padding: 15px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 📌 Job Recommendations Section */
+.job-recommendations {
+  grid-column: 1 / 4;
+  grid-row: 3;
+  background: transparent;
+  padding: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* 🔹 Horizontal Job Listing */
+.job-list {
+  display: flex;
+  gap: 15px;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 0;
+  width: 100%;
+  justify-content: center;
+}
+
+/* 📌 Individual Job Card (Clickable & Floating) */
+.job-card {
+  background: white;
+  padding: 18px;
+  border-radius: 12px;
+  min-width: 230px;
+  max-width: 240px;
+  text-align: center;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.12);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer; /* Makes the entire card clickable */
+  text-decoration: none; /* Removes underline */
+  color: inherit; /* Keeps text color natural */
+}
+
+/* ✨ Floating Hover Effect */
+.job-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* 🏆 Job Title */
+.job-card h3 {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #4A4A4A;
+  margin-bottom: 5px;
+  text-transform: capitalize;
+}
+
+/* 📍 Location */
+.job-card p {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 12px;
+}
+/* 📌 Job Card Container */
+.job-card {
+  background: white; /* Clean professional look */
+  padding: 15px;
+  border-radius: 8px;
+  min-width: 220px;
+  max-width: 230px;
+  text-align: center;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: auto;
+  overflow: hidden; /* Prevents unexpected content overflow */
+}
+
+/* 🏆 Job Title Styling */
+.job-card h3 {
+  font-size: 1rem; /* Keeps size manageable */
+  font-weight: bold;
+  color: #1D3557;
+  text-transform: capitalize;
+  white-space: nowrap; /* Prevents text from wrapping */
+  overflow: hidden; /* Hides excess text */
+  text-overflow: ellipsis; /* Adds "..." if text is too long */
+  width: 100%; /* Ensures title fits properly */
+  max-width: 90%; /* Limits width to avoid overlap */
+}
+
+/* 📍 Location Styling */
+.job-card p {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+/* ✨ Hover Effect */
+.job-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
+}
+

@@ -3,49 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/view_applicants.css') }}">
-
     <title>View Applicants</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/view_applicants.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <header class="header">
-        <a href="{{ url_for('index') }}" class="logo">JobConnect</a>
-        <nav class="nav">
-          <a href="{{ url_for('index') }}">Home</a>
-          <a href="approved-postings">Approved Postings</a>
-          {% if current_user.is_authenticated %}
-            {% if current_user.role == 'admin' %}
-              <a href="admin-panel">Admin Panel</a>
-            {% elif current_user.role == 'employer' %}
-              <a href="employer-dashboard">Dashboard</a>
-            {% elif current_user.role == 'student' %}
-              <a href="student-dashboard">Dashboard</a>
-            {% endif %}
-            <a href="logout" class="btn btn-primary">Logout</a>
-          {% else %}
-            <a href="login" class="btn btn-primary">Login</a>
-            <a href="register" class="btn btn-secondary">Register</a>
-          {% endif %}
-        </nav>
-      </header>
-    
-    <main class="container">
-        <h1>Applicants for "{{ job.title }}"</h1>
-        
-        {% if applications %}
-        <div class="applicants-grid">
-            {% for application in applications %}
-            <div class="applicant-card">
-                <h3>Applicant: {{ application.student.username }}</h3>
-                <p><strong>Cover Letter:</strong></p>
-                <p>{{ application.cover_letter }}</p>
-                <p><strong>Applied On:</strong> {{ application.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
-            </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <p>No applications have been submitted for this job yet.</p>
+  <div class="background"></div>
+   <!-- Glassmorphic Navbar -->
+   <header class="navbar">
+    <div class="navbar-left">
+      <a href="{{ url_for('index') }}" class="logo">JobConnect</a>
+    </div>
+  
+    <ul class="nav-links">
+      <li><a href="{{ url_for('index') }}">Home</a></li>
+      <li><a href="{{ url_for('approved_postings') }}">Approved Postings</a></li>
+      
+      {% if current_user.is_authenticated %}
+        {% if current_user.role == 'admin' %}
+          <li><a href="{{ url_for('admin_panel') }}">Admin Panel</a></li>
+          <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        {% elif current_user.role == 'employer' %}
+          <li><a href="{{ url_for('employer_dashboard') }}">Dashboard</a></li>
+        {% elif current_user.role == 'student' %}
+          <li><a href="{{ url_for('student_dashboard') }}">Dashboard</a></li>
         {% endif %}
+      {% else %}
+        <li><a href="{{ url_for('login') }}">Login</a></li>
+        <li><a href="{{ url_for('register') }}">Register</a></li>
+      {% endif %}
+    </ul>
+  
+    <div class="nav-icons">
+      <i class="fas fa-search search-icon" onclick="openSearch()"></i>
+  
+      {% if current_user.is_authenticated and current_user.role in ['employer', 'student'] %}
+        <div class="user-dropdown">
+          <i class="fas fa-user user-icon" onclick="toggleUserMenu()"></i>
+          <div class="user-menu" id="userMenu">
+            <a href="{{ url_for('profile', username=current_user.username) }}">Profile</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </header>
+
+    <!-- 🌍 Main Container -->
+    <main class="container">
+        <div class="dashboard-header">
+            <h1>Applicants for <span class="job-title">{{ job.title }}</span></h1>
+            <p>Review and manage applicants for this job posting.</p>
+        </div>
+
+        <!-- 📌 Applicants List -->
+        <section class="applicants-section">
+            {% if applicants %}
+            <div class="applicants-grid">
+                {% for applicant in applicants %}
+                <div class="applicant-card">
+                    <div class="applicant-info">
+                        <h3>{{ applicant.user.username }}</h3>
+                        <p><strong>Email:</strong> {{ applicant.user.email }}</p>
+                        <p><strong>Applied On:</strong> {{ applicant.applied_at.strftime('%Y-%m-%d') }}</p>
+                        <p class="cover-letter"><strong>Cover Letter:</strong> "{{ applicant.cover_letter }}"</p>
+                    </div>
+                    <div class="applicant-actions">
+                        <a href="mailto:{{ applicant.user.email }}" class="btn btn-contact">Contact</a>
+                        <form method="POST" action="{{ url_for('reject_applicant', applicant_id=applicant.id) }}">
+                            <button type="submit" class="btn btn-reject">Reject</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="no-applicants">No applicants have applied for this job yet.</p>
+            {% endif %}
+        </section>
     </main>
+    <script src="static/js/script.js"></script>
 </body>
 </html>

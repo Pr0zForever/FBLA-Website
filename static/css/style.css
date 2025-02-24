@@ -1,255 +1,442 @@
-/* Global Styles */
-  body {
-    margin: 0;
-    font-family: 'Inter', sans-serif;
-    line-height: 1.6;
-    color: #333;
-  }
-  
-  .container {
-    width: 90%;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  section {
-    display: grid;
-    place-items: center;
-    align-items: center;
-    min-height: 100vh;
-  }
-
-/* Header */
-.header {
-    background: transparent; /* Transparent background */
-    color: #fff;
-    padding: 1.75rem 2rem;
-    position: fixed; /* Fixed at the top of the viewport */
-    width: 100%;
-    z-index: 100;
-    top: 0;
-    display: flex; /* Flexbox layout for alignment */
-    justify-content: flex-start; /* Align logo and nav close together */
-    align-items: center; /* Align items vertically */
-    transition: transform 0.3s ease-in-out, background 0.3s ease-in-out;
-  }
-  
-  /* Logo */
-  .logo {
-    font-size: 5rem;
-    font-weight: bold;
-    color: #ffffff;
-    text-decoration: none;
-    margin-right: 15rem; /* Space between logo and nav */
-  }
-  
-/* Navigation Bar */
-.nav {
-  display: flex; /* Flexbox for horizontal layout */
-  gap: 1rem; /* Space between nav items */
+/* 🌎 General Styles */
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  line-height: 1.2;
+  color: #333;
+  background: linear-gradient(to right, #00bfa5, #8a4fff); /* Gradient background */
 }
 
-.nav a {
-  color: #fff;
-  text-decoration: none !important; /* Force remove underline */
+/* 🌟 Container */
+.container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+section {
+  display: grid;
+  place-items: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* 🌟 Glassmorphic Navbar */
+.navbar {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 1200px;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 40px; /* Increased padding for better spacing */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  z-index: 1000;
+}
+
+/* 🔷 Logo */
+.logo {
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: #222;
+  text-decoration: none;
+  margin-right: auto; /* Pushes logo to the left */
+}
+
+/* 🖱️ Navigation Links */
+.nav-links {
+  display: flex;
+  gap: 25px;
+  list-style: none;
+  margin: 0 auto;
+}
+
+.nav-links li {
+  position: relative;
+}
+
+/* ✨ Underline Hover Effect */
+.nav-links a {
+  text-decoration: none;
+  color: #222;
   font-size: 1rem;
-  padding: 0.5rem 1rem; /* Padding for the box effect */
-  position: relative; /* For positioning the hover effect */
-  border-radius: 20px; /* Rounded corners for the box */
-  transition: all 0.5s ease; /* Smooth animation for color and background */
-  background-color: transparent; /* Default background */
-  border: 2px solid transparent; /* Invisible border for smooth transition */
-  transition-delay: 0.2s;
+  padding: 0.5rem 1rem;
+  position: relative;
+  transition: all 0.3s ease;
 }
 
-.nav a:hover {
-  color: #121212; /* Change text color on hover */
-  background-color: #00bfa5; /* Highlight box on hover */
-  border-color: #00bfa5; /* Add border on hover */
-}
-  
-  /* Header hidden state */
-  .header.hidden {
-    transform: translateY(-100%); /* Move header out of view */
-  }
-  
-
-  .logo {
-    font-size: 1.5rem;
-    font-weight: bold;
-  }
-  
-  .nav a {
-    color: #fff;
-    text-decoration: none;
-    margin-left: 1rem;
-    font-size: 1rem;
-  }
-  
-  .nav a:hover {
-    text-decoration: underline;
-  }
-  
-  /* Hero Section */
-  .hero {
-    opacity: 0;
-    transition: all 2s;
-    background: linear-gradient(to right, #00bfa5, #8a4fff);
-    color: #fff;
-    text-align: center;
-    height: 100vh; /* Full screen height */
-    display: flex; /* Center content */
-    flex-direction: column; /* Stack content vertically */
-    justify-content: center; /* Center vertically */
-    align-items: center; /* Center horizontally */
-    padding: 0 1rem; /* Add some padding */
-    box-sizing: border-box; /* Ensure padding doesn't affect width/height */
-  }
-  
-  .hero h1 {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-  }
-  
-  .hero p {
-    font-size: 1.5rem;
-    margin-bottom: 2rem;
-  }
-  
-  .hero-buttons .btn {
-    text-decoration: none;
-    padding: 1rem 2rem;
-    border-radius: 5px;
-    font-size: 1.2rem;
-    margin: 0 0.5rem;
-  }
-  
-  .btn-primary {
-    background: #121212;
-    color: #fff;
-  }
-  
-  .btn-secondary {
-    background: #fff;
-    color: #121212;
-  }
-  
-  .btn-primary:hover, .btn-secondary:hover {
-    opacity: 0.8;
-  }
-  
-  /* Features Section */
-  .features {
-    opacity: 0;
-    transition: all 2s;
-    background: #f9f9f9;
-    padding: 4rem 0;
-    text-align: center;
-  }
-  
-  .features h2 {
-    margin-bottom: 2rem;
-  }
-  
-  .features-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2rem;
-  }
-  
-  .feature {
-    background: #fff;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  }
-  
-  .feature h3 {
-    margin-bottom: 1rem;
-    color: #8a4fff;
-  }
-  
-  .container {
-    margin-top: 6rem;
-    padding: 2rem;
+.nav-links a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  width: 100%;
+  height: 2px;
+  background-color: #00bfa5;
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
 }
 
-.references {
-    background-color: #121212;
-    padding: 4rem 2rem;
+.nav-links a:hover::after {
+  transform: scaleX(1);
 }
 
-.references h2 {
-    text-align: center;
-    font-size: 2.5rem;
-    color: #c4c4c4;
+/* 🔍 Search & Icons */
+.nav-icons {
+  display: flex;
+  align-items: center;
+  gap: 20px; /* Evenly space the icons */
+  margin-left: auto; /* Pushes icons to the right */
 }
 
-.reference-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    margin-top: 2rem;
+.nav-icons i {
+  font-size: 1.2rem;
+  color: #333;
+  cursor: pointer;
+  transition: color 0.3s ease;
 }
 
-.reference-card {
-    background-color: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 2rem;
-    text-align: center;
-    transition: transform 0.2s ease-in-out;
+.nav-icons i:hover {
+  color: #00bfa5;
 }
 
-.reference-card:hover {
-    transform: translateY(-5px);
+/* 🔎 Search Overlay */
+.search-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  flex-direction: column;
 }
 
-.reference-card h3 {
-    font-size: 1.5rem;
-    color: #959595;
-    margin-bottom: 1rem;
+/* 📦 Search Container */
+.search-container {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 15px;
+  border-radius: 12px;
+  width: 40%;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
-.reference-card p {
-    color: #555;
-    margin-bottom: 1rem;
+.search-input {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  outline: none;
+}
+
+.search-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+}
+
+/* 📌 Suggestions Box */
+.suggestions-box {
+  background: rgba(255, 255, 255, 0.95);
+  width: 40%;
+  border-radius: 12px;
+  margin-top: 10px;
+  padding: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* 🔥 Search Tips */
+.search-tips {
+  font-size: 0.9rem;
+  color: #777;
+  margin-bottom: 10px;
+}
+
+/* 📊 Trending Section */
+.trending-jobs {
+  margin-bottom: 15px;
+}
+
+.trending-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.trending-item:hover {
+  background: #f5f5f5;
+}
+
+/* 🔹 Search Suggestions */
+/* 🔹 Fixes spacing issue in search suggestions */
+.search-suggestions {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+}
+
+.search-suggestions li {
+  padding: 12px 16px;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+  white-space: nowrap; /* Prevent extra spaces */
+  overflow: hidden; /* Prevent wrapping */
+  text-overflow: ellipsis; /* Add "..." if text is too long */
+}
+
+/* Ensures suggestions have proper formatting */
+.search-suggestions li:hover {
+  background: #f5f5f5;
+}
+
+/* 🔹 Prevents weird spacing when search is empty */
+.suggestion-item {
+  white-space: normal !important;
+  display: block;
+}
+
+
+/* 🔹 Highlight Matched Text */
+.search-suggestions li mark {
+  background: none;
+  color: #00bfa5;
+  font-weight: bold;
+}
+
+
+/* 🌟 Navbar User Dropdown */
+.user-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.user-icon {
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background 0.2s ease-in-out;
+}
+
+.user-icon:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.user-menu {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 150px;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.user-menu a {
+  text-decoration: none;
+  color: #333;
+  padding: 12px;
+  display: block;
+  transition: background 0.2s ease-in-out;
+}
+
+.user-menu a:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+
+/* 🌟 Hero Section */
+.hero {
+  opacity: 1;
+  background: linear-gradient(to right, #00bfa5, #8a4fff);
+  color: #fff;
+  text-align: center;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 0 1rem;
+  box-sizing: border-box;
+}
+
+.hero h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.hero p {
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* ✨ Hero Buttons */
+.hero-buttons .btn {
+  text-decoration: none;
+  padding: 1rem 2rem;
+  border-radius: 5px;
+  font-size: 1.2rem;
+  margin: 0 0.5rem;
+  transition: all 0.3s ease-in-out;
 }
 
 .btn-primary {
-    background: #00bfa5;
-    color: white;
-    text-decoration: none;
-    padding: 0.8rem 1.2rem;
-    font-size: 1rem;
-    border-radius: 5px;
-    transition: background 0.3s ease;
+  background: #121212;
+  color: #fff;
+}
+
+.btn-secondary {
+  background: #fff;
+  color: #121212;
+}
+
+.btn-primary:hover, .btn-secondary:hover {
+  opacity: 0.8;
+  transform: translateY(-3px);
+}
+
+/* 🌟 Features Section */
+.features {
+  opacity: 1;
+  background: #f9f9f9;
+  padding: 4rem 0;
+  text-align: center;
+}
+
+.features h2 {
+  margin-bottom: 2rem;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  padding: 2rem;
+}
+
+.feature {
+  background: rgba(255, 255, 255, 0.8);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.feature h3 {
+  margin-bottom: 1rem;
+  color: #8a4fff;
+}
+
+/* 🌟 References Section */
+.references {
+  background: #121212;
+  padding: 4rem 2rem;
+}
+
+.references h2 {
+  text-align: center;
+  font-size: 2.5rem;
+  color: #c4c4c4;
+}
+
+.reference-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.reference-card {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  padding: 2rem;
+  text-align: center;
+  transition: transform 0.2s ease-in-out;
+}
+
+.reference-card:hover {
+  transform: translateY(-5px);
+}
+
+.reference-card h3 {
+  font-size: 1.5rem;
+  color: #959595;
+  margin-bottom: 1rem;
+}
+
+.reference-card p {
+  color: #555;
+  margin-bottom: 1rem;
+}
+
+.btn-primary {
+  background: #00bfa5;
+  color: white;
+  text-decoration: none;
+  padding: 0.8rem 1.2rem;
+  font-size: 1rem;
+  border-radius: 5px;
+  transition: background 0.3s ease;
 }
 
 .btn-primary:hover {
-    background: #008e7d;
+  background: #008e7d;
 }
-  
-  /* Footer */
-  .footer {
-    background: #f1f1f1;
-    color: #666;
-    text-align: center;
-    padding: 2rem 0;
-  }
-  
-  .footer-nav a {
-    color: #666;
-    margin: 0 0.5rem;
-    text-decoration: none;
-  }
-  
-  .footer-nav a:hover {
-    text-decoration: underline;
-  }
-  
 
+/* 🌟 Footer */
+.footer {
+  background: #f1f1f1;
+  color: #666;
+  text-align: center;
+  padding: 2rem 0;
+}
 
-  .show {
-    opacity: 1;
-  }
+.footer-nav a {
+  color: #666;
+  margin: 0 0.5rem;
+  text-decoration: none;
+}
+
+.footer-nav a:hover {
+  text-decoration: underline;
+}
+
+/* 🔥 Animations */
+.show {
+  opacity: 1;
+}

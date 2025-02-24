@@ -4,50 +4,111 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login</title>
-  <link rel="stylesheet" href="static\css\login.css">
+  <link rel="stylesheet" href="static/css/login.css">
+  <script src="https://kit.fontawesome.com/yourkit.js" crossorigin="anonymous"></script> <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-  <!-- Header -->
-  <header class="header">
-    <a href="{{ url_for('index') }}" class="logo">JobConnect</a>
-    <nav class="nav">
-      <a href="{{ url_for('index') }}">Home</a>
-      <a href="approved-postings">Approved Postings</a>
+  <div class="background"></div>
+
+  <header class="navbar">
+    <div class="navbar-left">
+      <a href="{{ url_for('index') }}" class="logo">JobConnect</a>
+    </div>
+  
+    <ul class="nav-links">
+      <li><a href="{{ url_for('index') }}">Home</a></li>
+      <li><a href="{{ url_for('approved_postings') }}">Approved Postings</a></li>
+      
       {% if current_user.is_authenticated %}
         {% if current_user.role == 'admin' %}
-          <a href="admin-panel">Admin Panel</a>
+          <li><a href="{{ url_for('admin_panel') }}">Admin Panel</a></li>
+          <li><a href="{{ url_for('logout') }}">Logout</a></li>
         {% elif current_user.role == 'employer' %}
-          <a href="employer-dashboard">Dashboard</a>
+          <li><a href="{{ url_for('employer_dashboard') }}">Dashboard</a></li>
         {% elif current_user.role == 'student' %}
-          <a href="student-dashboard">Dashboard</a>
+          <li><a href="{{ url_for('student_dashboard') }}">Dashboard</a></li>
         {% endif %}
-        <a href="logout" class="btn btn-primary">Logout</a>
       {% else %}
-        <a href="login" class="btn btn-primary">Login</a>
-        <a href="register" class="btn btn-secondary">Register</a>
+        <li><a href="{{ url_for('login') }}">Login</a></li>
+        <li><a href="{{ url_for('register') }}">Register</a></li>
       {% endif %}
-    </nav>
+    </ul>
+  
+    <div class="nav-icons">
+      <i class="fas fa-search search-icon" onclick="openSearch()"></i>
+  
+      {% if current_user.is_authenticated and current_user.role in ['employer', 'student'] %}
+        <div class="user-dropdown">
+          <i class="fas fa-user user-icon" onclick="toggleUserMenu()"></i>
+          <div class="user-menu" id="userMenu">
+            <a href="{{ url_for('profile', username=current_user.username) }}">Profile</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+          </div>
+        </div>
+      {% endif %}
+    </div>
   </header>
+  
+  <!-- 🔎 Search Overlay -->
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-container">
+      <input type="text" id="searchInput" class="search-input" placeholder="Search for jobs..." onkeyup="fetchSuggestions()">
+      <button class="search-close" onclick="closeSearch()">✖</button>
+  </div>
+  <div class="suggestions-box">
+      <div class="search-tips">
+          <h3></h3>
+          <p><kbd></kbd><kbd></kbd></p>
+      </div>
+      <div class="trending-jobs">
+          <h4>#1 Trending</h4>
+          <div class="trending-item" onclick="selectSuggestion('Software Engineer')">
+              <span>💼</span> Software Engineer
+          </div>
+          <h4>#2 Trending</h4>
+          <div class="trending-item" onclick="selectSuggestion('Data Scientist')">
+              <span>📊</span> Data Scientist
+          </div>
+      </div>
+      <ul class="search-suggestions" id="searchSuggestions"></ul>
+  </div>
+</div>
 
-  <main class="container">
+  
+ 
+
+
+  <!-- Login Form -->
+  <main class="login-container">
     <h1>Login</h1>
+
+    <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         {% for category, message in messages %}
-          <p class="{{ category }}">{{ message }}</p>
+          <p class="flash-message {{ category }}">{{ message }}</p>
         {% endfor %}
       {% endif %}
     {% endwith %}
-    <form method="POST">
-      <label for="username">Username</label>
-      <input type="text" id="username" name="username" placeholder="Enter your username" required>
 
-      <label for="password">Password</label>
-      <input type="password" id="password" name="password" placeholder="Enter your password" required>
+    <!-- Form -->
+    <form method="POST">
+      <div class="input-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" placeholder="Enter your username" required>
+      </div>
+
+      <div class="input-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="Enter your password" required>
+      </div>
 
       <button type="submit">Login</button>
     </form>
-    <a class = "accountless" href="{{ url_for('register') }}">Don't have an account? Register</a>
+
+    <a class="accountless" href="{{ url_for('register') }}">Don't have an account? Register</a>
   </main>
+  <script src="static/js/script.js"></script>
 </body>
 </html>

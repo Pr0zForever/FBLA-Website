@@ -1,123 +1,350 @@
-/* General Styles */
-body {
-  margin: 0;
-  font-family: 'Arial', sans-serif;
-  line-height: 1.6;
-  color: #333;
-  background-color: #f4f4f4; /* Light gray background for contrast */
-}
-
-
-/* Header */
-.header {
-  background: #272727; 
-  color: #fff;
-  padding: 1.75rem 2rem;
-  position: fixed; /* Fixed at the top of the viewport */
-  width: 100%;
-  z-index: 100;
-  top: 0;
-  display: flex; /* Flexbox layout for alignment */
-  justify-content: flex-start; /* Align logo and nav close together */
-  align-items: center; /* Align items vertically */
-  transition: transform 0.3s ease-in-out, background 0.3s ease-in-out;
-}
-
-/* Logo */
-.logo {
-  font-size: 5rem;
-  font-weight: bold;
-  color: #ffffff;
-  text-decoration: none;
-  margin-right: 15rem; /* Space between logo and nav */
-}
-
-/* Navigation Bar */
-.nav {
-  display: flex; /* Flexbox for horizontal layout */
-  gap: 2rem; /* Space between nav items */
-}
-
-.nav a {
-  color: #fff;
-  text-decoration: none !important; /* Force remove underline */
-  font-size: 1rem;
-  padding: 0.5rem 1rem; /* Padding for the box effect */
-  position: relative; /* For positioning the hover effect */
-  border-radius: 20px; /* Rounded corners for the box */
-  transition: all 0.5s ease; /* Smooth animation for color and background */
-  background-color: transparent; /* Default background */
-  border: 2px solid transparent; /* Invisible border for smooth transition */
-  transition-delay: 0.2s;
-}
-
-.nav a:hover {
-  color: #121212; /* Change text color on hover */
-  background-color: #00bfa5; /* Highlight box on hover */
-  border-color: #00bfa5; /* Add border on hover */
-}
-  
-  /* Header hidden state */
-  .header.hidden {
-    transform: translateY(-100%); /* Move header out of view */
-  }
-  
-
-  .logo {
-    font-size: 1.5rem;
-    font-weight: bold;
-  }
-  
-  .nav a {
-    color: #fff;
-    text-decoration: none;
-    margin-left: 1rem;
-    font-size: 1rem;
-  }
-  
-  .nav a:hover {
-    text-decoration: underline;
-  }
-
-  /* Page Container */
-.container {
-  margin: 7rem auto; /* Adjust for navbar height */
-  width: 100%;
-  max-width: 400px;
-  background: #ffffff;
-  padding: 2.5rem 2rem;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  text-align: center;
-}
-
-/* Heading */
-h1 {
-  font-size: 1.8rem;
-  color: #272727;
-  margin-bottom: 1.5rem;
-}
-
-/* Form Styles */
-form {
+/* 🌟 Glassmorphic Navbar */
+.navbar {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 1200px;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 18px;
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 40px; /* Increased padding for better spacing */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  z-index: 1000;
+}
+
+/* 🔷 Logo */
+.logo {
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: #222;
+  text-decoration: none;
+  margin-right: auto; /* Pushes logo to the left */
+}
+
+/* 🖱️ Navigation Links */
+.nav-links {
+  display: flex;
+  gap: 25px;
+  list-style: none;
+  margin: 0 auto;
+}
+
+.nav-links li {
+  position: relative;
+}
+
+/* ✨ Underline Hover Effect */
+.nav-links a {
+  text-decoration: none;
+  color: #222;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.nav-links a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  width: 100%;
+  height: 2px;
+  background-color: #00bfa5;
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.nav-links a:hover::after {
+  transform: scaleX(1);
+}
+
+/* 🔍 Search & Icons */
+.nav-icons {
+  display: flex;
+  align-items: center;
+  gap: 20px; /* Evenly space the icons */
+  margin-left: auto; /* Pushes icons to the right */
+}
+
+.nav-icons i {
+  font-size: 1.2rem;
+  color: #333;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.nav-icons i:hover {
+  color: #00bfa5;
+}
+
+/* 🔎 Search Overlay */
+.search-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
   flex-direction: column;
 }
 
-label {
+/* 📦 Search Container */
+.search-container {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 15px;
+  border-radius: 12px;
+  width: 40%;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  outline: none;
+}
+
+.search-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+}
+
+/* 📌 Suggestions Box */
+.suggestions-box {
+  background: rgba(255, 255, 255, 0.95);
+  width: 40%;
+  border-radius: 12px;
+  margin-top: 10px;
+  padding: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* 🔥 Search Tips */
+.search-tips {
+  font-size: 0.9rem;
+  color: #777;
+  margin-bottom: 10px;
+}
+
+/* 📊 Trending Section */
+.trending-jobs {
+  margin-bottom: 15px;
+}
+
+.trending-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.trending-item:hover {
+  background: #f5f5f5;
+}
+
+/* 🔹 Search Suggestions */
+/* 🔹 Fixes spacing issue in search suggestions */
+.search-suggestions {
+  list-style: none;
+  padding: 0;
+  margin: 0;
   text-align: left;
-  margin-bottom: 0.5rem;
+}
+
+.search-suggestions li {
+  padding: 12px 16px;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+  white-space: nowrap; /* Prevent extra spaces */
+  overflow: hidden; /* Prevent wrapping */
+  text-overflow: ellipsis; /* Add "..." if text is too long */
+}
+
+/* Ensures suggestions have proper formatting */
+.search-suggestions li:hover {
+  background: #f5f5f5;
+}
+
+/* 🔹 Prevents weird spacing when search is empty */
+.suggestion-item {
+  white-space: normal !important;
+  display: block;
+}
+
+
+/* 🔹 Highlight Matched Text */
+.search-suggestions li mark {
+  background: none;
+  color: #00bfa5;
+  font-weight: bold;
+}
+
+
+/* 🌟 Navbar User Dropdown */
+.user-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.user-icon {
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background 0.2s ease-in-out;
+}
+
+.user-icon:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.user-menu {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 150px;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.user-menu a {
+  text-decoration: none;
+  color: #333;
+  padding: 12px;
+  display: block;
+  transition: background 0.2s ease-in-out;
+}
+
+.user-menu a:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+
+
+/* Background container */
+.background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, 
+        rgba(167, 0, 0, 0.7) 10%, 
+        rgba(220, 255, 220, 0.7) 30%, 
+        rgba(220, 220, 255, 0.7) 50%, 
+        rgba(255, 240, 200, 0.7) 70%, 
+        rgba(240, 220, 255, 0.7) 90%);
+    background-size: 300% 300%;
+    filter: blur(20px);
+    animation: moveGradient 10s infinite alternate ease-in-out;
+    z-index: -1;
+}
+
+@keyframes moveGradient {
+    0% {
+        background-position: 0% 0%;
+    }
+    100% {
+        background-position: 100% 100%;
+    }
+}
+
+/* 🌎 General Styling */
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  color: #111;
+  background: linear-gradient(135deg, #eef2f3, #dde6ed); /* Soft gradient */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  line-height: 1.2;
+}
+
+/* 📌 Centered Login Container */
+.login-container {
+  width: 90%;
+  max-width: 400px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 2.5rem;
+  border-radius: 15px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+/* 🔷 Heading */
+h1 {
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+/* 🎭 Flash Messages */
+.flash-message {
+  color: #ff4d4d;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+/* 📝 Form */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.input-group {
+  text-align: left;
+}
+
+label {
   font-weight: bold;
   color: #555;
+  display: block;
+  margin-bottom: 0.3rem;
 }
 
 input {
   font-size: 1rem;
   padding: 0.8rem;
-  margin-bottom: 1.5rem;
+  width: 100%;
   border: 1px solid #ddd;
-  border-radius: 5px;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.7);
 }
 
 input:focus {
@@ -126,39 +353,41 @@ input:focus {
   box-shadow: 0 0 8px rgba(0, 191, 165, 0.3);
 }
 
+/* 🚀 Button */
 button {
   font-size: 1rem;
   padding: 0.8rem;
   background: #00bfa5;
   color: #fff;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
   transition: background 0.3s ease;
 }
 
 button:hover {
   background: #008e7d;
+  transform: scale(1.05);
 }
 
-/* Error Messages */
-.error {
-  color: #ff4d4d;
-  font-size: 0.9rem;
-  margin-bottom: 1rem;
-  text-align: center;
-}
-
-/* Links */
+/* 🔗 Register Link */
 .accountless {
   text-decoration: none;
   color: #00bfa5;
   font-size: 0.9rem;
-  margin-top: 1rem;
   display: inline-block;
+  margin-top: 1rem;
 }
 
 .accountless:hover {
   color: #008e7d;
   text-decoration: underline;
+}
+
+/* 📱 Responsive Adjustments */
+@media (max-width: 768px) {
+  .login-container {
+    width: 90%;
+    padding: 2rem;
+  }
 }

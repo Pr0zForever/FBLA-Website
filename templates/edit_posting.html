@@ -3,55 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/edit_posting.css') }}">
     <title>Edit Job Posting</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/edit_posting.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
+  <div class="background"></div>
 
-<header class="header">
-    <a href="{{ url_for('index') }}" class="logo">JobConnect</a>
-    <nav class="nav">
-        <a href="{{ url_for('index') }}">Home</a>
-        <a href="{{ url_for('approved_postings') }}">Approved Postings</a>
-        {% if current_user.is_authenticated %}
-            {% if current_user.role == 'employer' %}
-                <a href="{{ url_for('employer_dashboard') }}">Dashboard</a>
-            {% elif current_user.role == 'admin' %}
-                <a href="{{ url_for('admin_panel') }}">Admin Panel</a>
-            {% endif %}
-            <a href="{{ url_for('logout') }}" class="btn btn-primary">Logout</a>
-        {% else %}
-            <a href="{{ url_for('login') }}" class="btn btn-primary">Login</a>
-            <a href="{{ url_for('register') }}" class="btn btn-secondary">Register</a>
+  <header class="navbar">
+    <div class="navbar-left">
+      <a href="{{ url_for('index') }}" class="logo">JobConnect</a>
+    </div>
+  
+    <ul class="nav-links">
+      <li><a href="{{ url_for('index') }}">Home</a></li>
+      <li><a href="{{ url_for('approved_postings') }}">Approved Postings</a></li>
+      
+      {% if current_user.is_authenticated %}
+        {% if current_user.role == 'admin' %}
+          <li><a href="{{ url_for('admin_panel') }}">Admin Panel</a></li>
+          <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        {% elif current_user.role == 'employer' %}
+          <li><a href="{{ url_for('employer_dashboard') }}">Dashboard</a></li>
+        {% elif current_user.role == 'student' %}
+          <li><a href="{{ url_for('student_dashboard') }}">Dashboard</a></li>
         {% endif %}
-    </nav>
-</header>
-
-<main class="container">
-    <h1>Edit Job Posting</h1>
-
-    <form action="{{ url_for('edit_posting', job_id=job.id) }}" method="POST">
-        <label for="title">Job Title</label>
-        <input type="text" id="title" name="title" value="{{ job.title }}" required>
-
-        <label for="location">Location</label>
-        <input type="text" id="location" name="location" value="{{ job.location }}" required>
-
-        <label for="description">Job Description</label>
-        <textarea id="description" name="description" rows="6" required>{{ job.description }}</textarea>
-
-        <label for="qualifications">Qualifications</label>
-        <textarea id="qualifications" name="qualifications" rows="4" required>{{ job.qualifications }}</textarea>
-
-        <label for="deadline">Application Deadline</label>
-        <input type="date" id="deadline" name="deadline" value="{{ job.deadline }}" required>
-
-        <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Save Changes</button>
-            <a href="{{ url_for('employer_dashboard') }}" class="btn btn-secondary">Cancel</a>
+      {% else %}
+        <li><a href="{{ url_for('login') }}">Login</a></li>
+        <li><a href="{{ url_for('register') }}">Register</a></li>
+      {% endif %}
+    </ul>
+  
+    <div class="nav-icons">
+      <i class="fas fa-search search-icon" onclick="openSearch()"></i>
+  
+      {% if current_user.is_authenticated and current_user.role in ['employer', 'student'] %}
+        <div class="user-dropdown">
+          <i class="fas fa-user user-icon" onclick="toggleUserMenu()"></i>
+          <div class="user-menu" id="userMenu">
+            <a href="{{ url_for('profile', username=current_user.username) }}">Profile</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+          </div>
         </div>
-    </form>
-</main>
+      {% endif %}
+    </div>
+  </header>
+  
+  <!-- 🔎 Search Overlay -->
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-container">
+      <input type="text" id="searchInput" class="search-input" placeholder="Search for jobs..." onkeyup="fetchSuggestions()">
+      <button class="search-close" onclick="closeSearch()">✖</button>
+  </div>
+  <div class="suggestions-box">
+      <div class="search-tips">
+          <h3></h3>
+          <p><kbd></kbd><kbd></kbd></p>
+      </div>
+      <div class="trending-jobs">
+          <h4>#1 Trending</h4>
+          <div class="trending-item" onclick="selectSuggestion('Software Engineer')">
+              <span>💼</span> Software Engineer
+          </div>
+          <h4>#2 Trending</h4>
+          <div class="trending-item" onclick="selectSuggestion('Data Scientist')">
+              <span>📊</span> Data Scientist
+          </div>
+      </div>
+      <ul class="search-suggestions" id="searchSuggestions"></ul>
+  </div>
+</div>
 
+  
+ 
+
+    <main class="container">
+        <h1>Edit Job Posting</h1>
+        <p>Make necessary updates to your job posting below.</p>
+
+        <form method="POST">
+            <label for="title">Job Title</label>
+            <input type="text" id="title" name="title" value="{{ job.title }}" required>
+
+            <label for="location">Location</label>
+            <input type="text" id="location" name="location" value="{{ job.location }}" required>
+
+            <label for="description">Job Description</label>
+            <textarea id="description" name="description" rows="5" required>{{ job.description }}</textarea>
+
+            <label for="qualifications">Qualifications</label>
+            <input type="text" id="qualifications" name="qualifications" value="{{ job.qualifications }}" required>
+
+            <label for="deadline">Application Deadline</label>
+            <input type="date" id="deadline" name="deadline" value="{{ job.deadline }}" required>
+
+            <button type="submit" class="btn btn-primary">Update Posting</button>
+        </form>
+
+        <div class="back-link">
+            <a href="{{ url_for('employer_dashboard') }}">← Back to Dashboard</a>
+        </div>
+    </main>
+    <script src="static/js/script.js"></script>
 </body>
 </html>

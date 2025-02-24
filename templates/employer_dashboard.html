@@ -1,89 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Employer Dashboard</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/employer_dashboard.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employer Dashboard</title>
+    <link rel="stylesheet" href="static/css/employer_dashboard.css">
+    <script src="https://kit.fontawesome.com/yourkit.js" crossorigin="anonymous"></script> <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-  <!-- Header -->
-  <header class="header">
-    <a href="{{ url_for('index') }}" class="logo">JobConnect</a>
-    <nav class="nav">
-      <a href="{{ url_for('index') }}">Home</a>
-      <a href="approved-postings">Approved Postings</a>
+  <div class="background"></div>
+  <!-- Glassmorphic Navbar -->
+  <header class="navbar">
+    <div class="navbar-left">
+      <a href="{{ url_for('index') }}" class="logo">JobConnect</a>
+    </div>
+  
+    <ul class="nav-links">
+      <li><a href="{{ url_for('index') }}">Home</a></li>
+      <li><a href="{{ url_for('approved_postings') }}">Approved Postings</a></li>
+      
       {% if current_user.is_authenticated %}
         {% if current_user.role == 'admin' %}
-          <a href="admin-panel">Admin Panel</a>
+          <li><a href="{{ url_for('admin_panel') }}">Admin Panel</a></li>
+          <li><a href="{{ url_for('logout') }}">Logout</a></li>
         {% elif current_user.role == 'employer' %}
-          <a href="employer-dashboard">Dashboard</a>
+          <li><a href="{{ url_for('employer_dashboard') }}">Dashboard</a></li>
         {% elif current_user.role == 'student' %}
-          <a href="student-dashboard">Dashboard</a>
+          <li><a href="{{ url_for('student_dashboard') }}">Dashboard</a></li>
         {% endif %}
-        <a href="logout" class="btn btn-primary">Logout</a>
       {% else %}
-        <a href="login" class="btn btn-primary">Login</a>
-        <a href="register" class="btn btn-secondary">Register</a>
+        <li><a href="{{ url_for('login') }}">Login</a></li>
+        <li><a href="{{ url_for('register') }}">Register</a></li>
       {% endif %}
-    </nav>
+    </ul>
+  
+    <div class="nav-icons">
+      <i class="fas fa-search search-icon" onclick="openSearch()"></i>
+  
+      {% if current_user.is_authenticated and current_user.role in ['employer', 'student'] %}
+        <div class="user-dropdown">
+          <i class="fas fa-user user-icon" onclick="toggleUserMenu()"></i>
+          <div class="user-menu" id="userMenu">
+            <a href="{{ url_for('profile', username=current_user.username) }}">Profile</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+          </div>
+        </div>
+      {% endif %}
+    </div>
   </header>
-
-  <!-- Main Content -->
-  <div class="container">
-    <h1>Welcome, {{ current_user.username }}</h1>
-    <p>Manage your job postings and connect with top talent.</p>
-
-    <!-- Section for Job Postings -->
-    <section class="jobs">
-      <h2>Your Job Postings</h2>
-      <div class="job-list">
-        {% for job in job_postings %}
-        <div class="job-card">
-          <h3>{{ job.title }}</h3>
-          <p><strong>Location:</strong> {{ job.location }}</p>
-          <p><strong>Description:</strong> {{ job.description }}</p>
-          <p><strong>Qualifications:</strong> {{ job.qualifications }}</p>
-          <p><strong>Deadline:</strong> {{ job.deadline }}</p>
-          <div class="actions">
-            <a href="/view-applicants/{{ job.id }}" class="btn btn-view">View Applicants</a>
-            <a href="/edit-posting/{{ job.id }}" class="btn btn-edit">Edit Posting</a>
-        </div>
-          <form method="POST" action="{{ url_for('delete_posting', job_id=job.id) }}">
-            <button type="submit" class="btn btn-danger">Delete Posting</button>
-          </form>
-        </div>
-        {% endfor %}
-      </div>
-    </section>
-
-    <!-- Section for Adding a Job -->
-    <section class="add-job">
-      <h2>Submit a New Job Posting</h2>
-      <form method="POST" action="submit-postings">
-        <label for="title">Job Title</label>
-        <input type="text" id="title" name="title" placeholder="Enter job title" required>
-
-        <label for="location">Location</label>
-        <input type="text" id="location" name="location" placeholder="Enter job location" required>
-
-        <label for="description">Job Description</label>
-        <textarea id="description" name="description" placeholder="Enter job description" rows="5" required></textarea>
-
-        <label for="qualifications">Qualifications</label>
-        <input type="text" id="qualifications" name="qualifications" placeholder="Enter required qualifications" required>
-
-        <label for="deadline">Application Deadline</label>
-        <input type="date" id="deadline" name="deadline" required>
-
-        <button type="submit" class="btn btn-primary">Submit Job</button>
-      </form>
-    </section>
+  
+  <!-- 🔎 Search Overlay -->
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-container">
+      <input type="text" id="searchInput" class="search-input" placeholder="Search for jobs..." onkeyup="fetchSuggestions()">
+      <button class="search-close" onclick="closeSearch()">✖</button>
   </div>
+  <div class="suggestions-box">
+      <div class="search-tips">
+          <h3></h3>
+          <p><kbd></kbd><kbd></kbd></p>
+      </div>
+      <div class="trending-jobs">
+          <h4>#1 Trending</h4>
+          <div class="trending-item" onclick="selectSuggestion('Software Engineer')">
+              <span>💼</span> Software Engineer
+          </div>
+          <h4>#2 Trending</h4>
+          <div class="trending-item" onclick="selectSuggestion('Data Scientist')">
+              <span>📊</span> Data Scientist
+          </div>
+      </div>
+      <ul class="search-suggestions" id="searchSuggestions"></ul>
+  </div>
+</div>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <p>© 2024 JobConnect. All rights reserved.</p>
-  </footer>
+  
+ 
+
+
+    <!-- Employer Dashboard Section -->
+    <main class="container">
+        <h1>Welcome, {{ current_user.username }}</h1>
+        <p>Manage your job postings and connect with top talent.</p>
+        <a href="{{ url_for('post_job') }}" class="btn-primary">Post a New Job</a>
+
+
+
+
+        <!-- Job Postings -->
+        <h2>Your Job Postings</h2>
+        <div class="job-list">
+            {% for job in job_postings %}
+            <div class="job-card">
+                <i class="fas fa-bookmark bookmark"></i> <!-- Bookmark icon -->
+                <h3>{{ job.title }}</h3>
+                <p><strong>{{ job.location }}</strong></p>
+                <p>{{ job.description }}</p>
+                <div class="job-meta">
+                    <span><i class="fas fa-calendar-alt"></i> Deadline: {{ job.deadline }}</span>
+                </div>
+                <div class="job-actions">
+                    <a href="/view-applicants/{{ job.id }}" class="btn btn-view">View Applicants</a>
+                    <a href="/edit-posting/{{ job.id }}" class="btn btn-edit">Edit</a>
+                    <form method="POST" action="{{ url_for('delete_posting', job_id=job.id) }}">
+                        <button type="submit" class="btn btn-delete">Delete</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        
+    </main>
+    <script src="static/js/script.js"></script>
 </body>
 </html>

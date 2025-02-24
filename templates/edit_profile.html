@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+</head>
+<body>
+  <div class="background"></div>
+    <!-- Glassmorphic Navbar -->
+    <header class="navbar">
+      <div class="navbar-left">
+        <a href="{{ url_for('index') }}" class="logo">JobConnect</a>
+      </div>
+    
+      <ul class="nav-links">
+        <li><a href="{{ url_for('index') }}">Home</a></li>
+        <li><a href="{{ url_for('approved_postings') }}">Approved Postings</a></li>
+        
+        {% if current_user.is_authenticated %}
+          {% if current_user.role == 'admin' %}
+            <li><a href="{{ url_for('admin_panel') }}">Admin Panel</a></li>
+            <li><a href="{{ url_for('logout') }}">Logout</a></li>
+          {% elif current_user.role == 'employer' %}
+            <li><a href="{{ url_for('employer_dashboard') }}">Dashboard</a></li>
+          {% elif current_user.role == 'student' %}
+            <li><a href="{{ url_for('student_dashboard') }}">Dashboard</a></li>
+          {% endif %}
+        {% else %}
+          <li><a href="{{ url_for('login') }}">Login</a></li>
+          <li><a href="{{ url_for('register') }}">Register</a></li>
+        {% endif %}
+      </ul>
+    
+      <div class="nav-icons">
+        <i class="fas fa-search search-icon" onclick="openSearch()"></i>
+    
+        {% if current_user.is_authenticated and current_user.role in ['employer', 'student'] %}
+          <div class="user-dropdown">
+            <i class="fas fa-user user-icon" onclick="toggleUserMenu()"></i>
+            <div class="user-menu" id="userMenu">
+              <a href="{{ url_for('profile', username=current_user.username) }}">Profile</a>
+              <a href="{{ url_for('logout') }}">Logout</a>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </header>
+    
+    <!-- 🔎 Search Overlay -->
+  <div class="search-overlay" id="searchOverlay">
+    <div class="search-container">
+        <input type="text" id="searchInput" class="search-input" placeholder="Search for jobs..." onkeyup="fetchSuggestions()">
+        <button class="search-close" onclick="closeSearch()">✖</button>
+    </div>
+    <div class="suggestions-box">
+        <div class="search-tips">
+            <h3></h3>
+            <p><kbd></kbd><kbd></kbd></p>
+        </div>
+        <div class="trending-jobs">
+            <h4>#1 Trending</h4>
+            <div class="trending-item" onclick="selectSuggestion('Software Engineer')">
+                <span>💼</span> Software Engineer
+            </div>
+            <h4>#2 Trending</h4>
+            <div class="trending-item" onclick="selectSuggestion('Data Scientist')">
+                <span>📊</span> Data Scientist
+            </div>
+        </div>
+        <ul class="search-suggestions" id="searchSuggestions"></ul>
+    </div>
+  </div>
+  
+    
+   
+  
+    <div class="profile-container">
+        <h1>Edit Profile</h1>
+        <form method="POST">
+            <label for="name">Full Name:</label>
+            <input type="text" id="name" name="name" value="{{ user.name }}" required>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" value="{{ user.email }}" required>
+
+            <label for="bio">Bio:</label>
+            <textarea id="bio" name="bio" rows="4">{{ user.bio }}</textarea>
+
+            {% if user.role == 'employer' %}
+                <h3>Company Details</h3>
+                <label for="company_name">Company Name:</label>
+                <input type="text" id="company_name" name="company_name" value="{{ user.company_name }}">
+
+                <label for="company_website">Company Website:</label>
+                <input type="url" id="company_website" name="company_website" value="{{ user.company_website }}">
+
+            {% elif user.role == 'student' %}
+                <h3>Student Details</h3>
+                <label for="resume_link">Resume Link:</label>
+                <input type="url" id="resume_link" name="resume_link" value="{{ user.resume_link }}">
+
+                <label for="skills">Skills:</label>
+                <textarea id="skills" name="skills" rows="3">{{ user.skills }}</textarea>
+            {% endif %}
+
+            <button type="submit" class="btn">Save Changes</button>
+        </form>
+    </div>
+    <script src="static/js/script.js"></script>
+</body>
+</html>

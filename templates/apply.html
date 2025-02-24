@@ -5,51 +5,117 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Apply for {{ job.title }}</title>
   <link rel="stylesheet" href="\static\css\apply.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
+  <div class="background"></div>
   <!-- Header -->
-  <header class="header">
-    <a href="{{ url_for('index') }}" class="logo">JobConnect</a>
-    <nav class="nav">
-      <a href="{{ url_for('index') }}">Home</a>
-      <a href="approved-postings">Approved Postings</a>
+  <div class="background"></div>
+  <header class="navbar">
+    <div class="navbar-left">
+      <a href="{{ url_for('index') }}" class="logo">JobConnect</a>
+    </div>
+  
+    <ul class="nav-links">
+      <li><a href="{{ url_for('index') }}">Home</a></li>
+      <li><a href="{{ url_for('approved_postings') }}">Approved Postings</a></li>
+      
       {% if current_user.is_authenticated %}
         {% if current_user.role == 'admin' %}
-          <a href="admin-panel">Admin Panel</a>
+          <li><a href="{{ url_for('admin_panel') }}">Admin Panel</a></li>
+          <li><a href="{{ url_for('logout') }}">Logout</a></li>
         {% elif current_user.role == 'employer' %}
-          <a href="employer-dashboard">Dashboard</a>
+          <li><a href="{{ url_for('employer_dashboard') }}">Dashboard</a></li>
         {% elif current_user.role == 'student' %}
-          <a href="student-dashboard">Dashboard</a>
+          <li><a href="{{ url_for('student_dashboard') }}">Dashboard</a></li>
         {% endif %}
-        <a href="logout" class="btn btn-primary">Logout</a>
       {% else %}
-        <a href="login" class="btn btn-primary">Login</a>
-        <a href="register" class="btn btn-secondary">Register</a>
+        <li><a href="{{ url_for('login') }}">Login</a></li>
+        <li><a href="{{ url_for('register') }}">Register</a></li>
       {% endif %}
-    </nav>
+    </ul>
+  
+    <div class="nav-icons">
+      <i class="fas fa-search search-icon" onclick="openSearch()"></i>
+  
+      {% if current_user.is_authenticated and current_user.role in ['employer', 'student'] %}
+        <div class="user-dropdown">
+          <i class="fas fa-user user-icon" onclick="toggleUserMenu()"></i>
+          <div class="user-menu" id="userMenu">
+            <a href="{{ url_for('profile', username=current_user.username) }}">Profile</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+          </div>
+        </div>
+      {% endif %}
+    </div>
   </header>
-
-<!-- Application Form Section -->
-<main class="container">
-  <div class="form-card">
-    <h1>Apply for {{ job.title }}</h1>
-    <p class="job-details">
-      <strong>Location:</strong> {{ job.location }}<br>
-      <strong>Description:</strong> {{ job.description }}<br>
-      <strong>Qualifications:</strong> {{ job.qualifications }}<br>
-      <strong>Deadline:</strong> {{ job.deadline }}
-    </p>
-    <form method="POST">
-      <label for="cover_letter">Cover Letter</label>
-      <textarea id="cover_letter" name="cover_letter" rows="5" placeholder="Write your cover letter here..." required></textarea>
-      <div class="form-actions">
-        <a href="{{ url_for('student_dashboard') }}" class="btn btn-secondary">Cancel</a>
-        <button type="submit" class="btn btn-primary">Submit Application</button>
-      </div>
-    </form>
+  
+  <!-- 🔎 Search Overlay -->
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-container">
+      <input type="text" id="searchInput" class="search-input" placeholder="Search for jobs..." onkeyup="fetchSuggestions()">
+      <button class="search-close" onclick="closeSearch()">✖</button>
   </div>
-</main>
+  <div class="suggestions-box">
+      <div class="search-tips">
+          <h3></h3>
+          <p><kbd></kbd><kbd></kbd></p>
+      </div>
+      <div class="trending-jobs">
+          <h4>#1 Trending</h4>
+          <div class="trending-item" onclick="selectSuggestion('Software Engineer')">
+              <span>💼</span> Software Engineer
+          </div>
+          <h4>#2 Trending</h4>
+          <div class="trending-item" onclick="selectSuggestion('Data Scientist')">
+              <span>📊</span> Data Scientist
+          </div>
+      </div>
+      <ul class="search-suggestions" id="searchSuggestions"></ul>
+  </div>
+</div>
 
+  
+ 
+
+
+  
+  <!-- Application Form Section -->
+  <main class="container">
+    <div class="form-card">
+      <h1>Apply for {{ job.title }}</h1>
+      <p class="job-details">
+        <strong>📍 Location:</strong> {{ job.location }}<br>
+        <strong>📄 Description:</strong> {{ job.description }}<br>
+        <strong>🎓 Qualifications:</strong> {{ job.qualifications }}<br>
+        <strong>🗓️ Deadline:</strong> {{ job.deadline }}
+      </p>
+  
+      <form method="POST">
+        <label for="cover_letter">Cover Letter (or upload a file instead)</label>
+        <textarea id="cover_letter" name="cover_letter" rows="5" placeholder="Write your cover letter here..."></textarea>
+      
+        <label for="resume_upload">Upload File (PDF/DOCX)</label>
+        <input type="file" id="resume_upload" name="resume_upload" accept=".pdf, .doc, .docx">
+        <h3>Application Questions</h3>
+        {% if job.get_questions() %}
+            {% for question in job.get_questions() %}
+                <label>{{ question }}</label>
+                <textarea name="answers[]" required></textarea>
+            {% endfor %}
+        {% else %}
+            <p>No additional questions for this job.</p>
+        {% endif %}
+        
+        <div class="form-actions">
+          <a href="{{ url_for('student_dashboard') }}" class="btn btn-secondary">Cancel</a>
+          <button type="submit" class="btn btn-primary">Submit Application</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <script src="static/js/script.js"></script>
 
 </body>
 </html>
