@@ -708,12 +708,6 @@ def download_resume(application_id):
         download_name=application.resume_filename
     )
 
-@app.route('/application/<int:application_id>')
-def application_details(application_id):
-    application = JobApplication.query.get_or_404(application_id)
-    employer_notes = EmployerNote.query.filter_by(application_id=application_id).order_by(EmployerNote.created_at.desc()).all()
-
-    return render_template('application_details.html', application=application, employer_notes=employer_notes)
 
 @app.route('/application/<int:application_id>/add_note', methods=['POST'])
 def add_employer_note(application_id):
