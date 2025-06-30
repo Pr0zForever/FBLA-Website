@@ -1,152 +1,474 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Student Dashboard</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/student_dashboard.css') }}">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</head>
-<body>
-  <div class="background"></div>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Industria&display=swap" rel="stylesheet">
 
-  <header class="navbar">
-    <div class="navbar-left">
-      <a href="{{ url_for('index') }}" class="logo">JobConnect</a>
+  <script src="https://kit.fontawesome.com/yourkit.js" crossorigin="anonymous"></script>
+</head>
+<body class="bg-gray-100 text-gray-900 font-sans">
+
+<nav class="bg-white shadow-md sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+    <a href="{{ url_for('index') }}" class="text-2xl font-bold text-blue-600">JobConnect</a>
+
+    <!-- Live Search Component -->
+    <div class="relative w-96"> <!-- Increased from w-64 to w-96 -->
+      <input
+        type="text"
+        id="liveSearchInput"
+        placeholder="Search jobs or profiles..."
+        class="px-3 py-1.5 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm w-full"
+        oninput="fetchSuggestions(this.value)"
+        autocomplete="off"
+      >
+      <div id="searchSuggestions" class="absolute z-50 mt-1 bg-white border border-gray-300 rounded-md shadow-md w-full hidden max-h-80 overflow-y-auto"></div>
     </div>
-  
-    <ul class="nav-links">
-      <li><a href="{{ url_for('index') }}">Home</a></li>
-      <li><a href="{{ url_for('approved_postings') }}">Approved Postings</a></li>
-      
+
+    <ul class="flex space-x-6 items-center text-sm font-medium">
+      <li><a href="{{ url_for('index') }}" class="hover:text-blue-600 transition">Home</a></li>
+      <li><a href="{{ url_for('approved_postings') }}" class="hover:text-blue-600 transition">Jobs</a></li>
       {% if current_user.is_authenticated %}
         {% if current_user.role == 'admin' %}
-          <li><a href="{{ url_for('admin_panel') }}">Admin Panel</a></li>
-          <li><a href="{{ url_for('logout') }}">Logout</a></li>
+          <li><a href="{{ url_for('admin_panel') }}" class="hover:text-blue-600">Dashboard</a></li>
         {% elif current_user.role == 'employer' %}
-          <li><a href="{{ url_for('employer_dashboard') }}">Dashboard</a></li>
+          <li><a href="{{ url_for('employer_dashboard') }}" class="hover:text-blue-600">Dashboard</a></li>
         {% elif current_user.role == 'student' %}
-          <li><a href="{{ url_for('student_dashboard') }}">Dashboard</a></li>
+          <li><a href="{{ url_for('student_dashboard') }}" class="text-blue-600 font-semibold">My Dashboard</a></li>
         {% endif %}
+        <li><a href="{{ url_for('logout') }}" class="hover:text-red-500 transition">Logout</a></li>
       {% else %}
-        <li><a href="{{ url_for('login') }}">Login</a></li>
-        <li><a href="{{ url_for('register') }}">Register</a></li>
+        <li><a href="{{ url_for('login') }}" class="hover:text-blue-600 transition">Login</a></li>
+        <li><a href="{{ url_for('register') }}" class="hover:text-blue-600 transition">Register</a></li>
       {% endif %}
     </ul>
-  
-    <div class="nav-icons">
-      <i class="fas fa-search search-icon" onclick="openSearch()"></i>
-  
-      {% if current_user.is_authenticated and current_user.role in ['employer', 'student'] %}
-        <div class="user-dropdown">
-          <i class="fas fa-user user-icon" onclick="toggleUserMenu()"></i>
-          <div class="user-menu" id="userMenu">
-            <a href="{{ url_for('profile', username=current_user.username) }}">Profile</a>
-            <a href="{{ url_for('logout') }}">Logout</a>
-          </div>
-        </div>
+  </div>
+</nav>
+
+<script>
+async function fetchSuggestions(query) {
+  const suggestionBox = document.getElementById('searchSuggestions');
+  if (!query.trim()) {
+    suggestionBox.classList.add('hidden');
+    suggestionBox.innerHTML = '';
+    return;
+  }
+
+  try {
+    const res = await fetch(`/search-suggestions?q=${encodeURIComponent(query)}`);
+    const data = await res.json();
+
+    suggestionBox.innerHTML = '';
+    if (data.suggestions.length === 0) {
+      suggestionBox.classList.add('hidden');
+      return;
+    }
+
+    data.suggestions.forEach(item => {
+      const div = document.createElement('div');
+      div.className = "px-3 py-2 hover:bg-blue-100 cursor-pointer text-sm";
+      div.innerText = item.title;
+      div.onclick = () => {
+        window.location.href = `/job/${item.id}`;
+      };
+      suggestionBox.appendChild(div);
+    });
+
+    suggestionBox.classList.remove('hidden');
+  } catch (err) {
+    console.error('Search failed:', err);
+  }
+}
+</script>
+
+<main class="w-full py-10 px-0 flex gap-12 items-start">
+<aside class="w-96 bg-white py-6 px-6 rounded-lg shadow shrink-0 ml-2 flex flex-col justify-center space-y-4">
+  <div>
+    <h2 class="text-lg font-semibold mb-3">Your Profile</h2>
+    <!-- Profile Picture placeholder -->
+    <div class="w-20 h-20 rounded-full bg-gray-200 overflow-hidden mx-auto mb-4 flex items-center justify-center">
+      {% if current_user.profile_pic_url %}
+        <img src="{{ current_user.profile_pic_url }}" alt="Profile picture" class="object-cover w-full h-full">
+      {% else %}
+        <!-- Initials fallback or icon -->
+        <span class="text-3xl text-gray-500 font-bold">{{ (current_user.name or current_user.username)[:2] | upper }}</span>
       {% endif %}
     </div>
-  </header>
-  
-  <!-- 🔎 Search Overlay -->
-<div class="search-overlay" id="searchOverlay">
-  <div class="search-container">
-      <input type="text" id="searchInput" class="search-input" placeholder="Search for jobs..." onkeyup="fetchSuggestions()">
-      <button class="search-close" onclick="closeSearch()">✖</button>
+    <p class="text-base text-gray-700 font-medium text-center">{{ current_user.name or current_user.username }}</p>
+    <p class="text-sm text-gray-600 mb-1 text-center">{{ current_user.email }}</p>
+    <span class="inline-block text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded mb-2 capitalize mx-auto">{{ current_user.role }}</span>
+    {% if current_user.bio %}
+    <p class="text-xs text-gray-500 mb-2 text-center">{{ current_user.bio }}</p>
+    {% endif %}
   </div>
-  <div class="suggestions-box">
-      <div class="search-tips">
-          <h3></h3>
-          <p><kbd></kbd><kbd></kbd></p>
+  {% if current_user.role == 'employer' %}
+  <div>
+    <p class="text-xs text-gray-500 font-semibold">Company Name:</p>
+    <p class="text-sm text-gray-700 mb-1">{{ current_user.company_name or 'N/A' }}</p>
+    {% if current_user.company_website %}
+      <a href="{{ current_user.company_website }}" target="_blank" class="text-blue-600 hover:underline text-xs">Company Website</a>
+    {% endif %}
+  </div>
+  {% elif current_user.role == 'student' %}
+  <div>
+    <p class="text-xs text-gray-500 font-semibold">Resume:</p>
+    {% if current_user.resume_link %}
+      <a href="{{ current_user.resume_link }}" target="_blank" class="text-blue-600 hover:underline text-xs">View Resume</a>
+    {% else %}
+      <span class="text-xs text-gray-400">Not uploaded</span>
+    {% endif %}
+  </div>
+  <div>
+    <p class="text-xs text-gray-500 font-semibold">Skills:</p>
+    <p class="text-xs text-gray-700 flex flex-wrap gap-1">
+      {% if current_user.skills %}
+        {% for skill in current_user.skills.split(',') %}
+          <span class="inline-block bg-gray-200 text-gray-800 px-2 py-0.5 rounded-full">{{ skill.strip() }}</span>
+        {% endfor %}
+      {% else %}
+        <span class="text-xs text-gray-400">No skills listed</span>
+      {% endif %}
+    </p>
+  </div>
+  {% endif %}
+  <a href="{{ url_for('edit_profile') }}" class="mt-2 bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-700 text-xs text-center transition w-full">Edit Profile</a>
+
+<!-- Career Progress Tracker Tile -->
+<div class="bg-white rounded-lg shadow p-5 mt-4 flex flex-col items-center text-center">
+  <h3 class="text-lg font-semibold mb-4">Career Progress</h3>
+
+<!-- Fixed Circular Progress Bar with Upright Text -->
+<div class="relative w-24 h-24 mb-4">
+  <svg class="w-full h-full" viewBox="0 0 36 36">
+    <!-- Background circle -->
+    <path
+      d="M18 2.0845
+         a 15.9155 15.9155 0 0 1 0 31.831
+         a 15.9155 15.9155 0 0 1 0 -31.831"
+      fill="none"
+      stroke="#e5e7eb"
+      stroke-width="3"
+    />
+    <!-- Foreground arc rotated to start from top -->
+    <g transform="rotate(-90 18 18)">
+      <path
+        d="M18 2.0845
+           a 15.9155 15.9155 0 0 1 0 31.831
+           a 15.9155 15.9155 0 0 1 0 -31.831"
+        fill="none"
+        stroke="#3b82f6"
+        stroke-width="3"
+        stroke-dasharray="45 100"
+        stroke-linecap="round"
+      />
+    </g>
+    <!-- Upright text centered -->
+    <text
+  x="18"
+  y="20.5"
+  fill="#1f2937"
+  font-size="6"
+  font-weight="bold"
+  text-anchor="middle"
+  dominant-baseline="middle"
+>
+  45%
+</text>
+
+  </svg>
+</div>
+
+
+  <!-- Suggestions only -->
+  <div class="text-xs text-left w-full space-y-1">
+    <p>• Add a short bio</p>
+    <p>• List your top 3 skills</p>
+    <p>• Upload your resume</p>
+    <p>• Set your preferred job roles</p>
+  </div>
+
+  <!-- CTA -->
+  <a href="/edit_profile" class="mt-4 bg-blue-600 text-white px-4 py-1.5 rounded-full text-xs font-medium hover:bg-blue-700 transition">
+    Complete Profile
+  </a>
+</div>
+
+
+</aside>
+
+
+
+  <!-- Main content, wide and centered -->
+  <div class="flex-1 flex flex-col items-center">
+
+
+
+    <!-- Recommended Jobs (horizontal scroll, wide and centered) -->
+<section class="mb-12 w-full max-w-5xl mx-auto">
+  <h2 class="text-2xl font-semibold mb-4 text-center">Recommended Jobs for You</h2>
+  <div class="relative w-full">
+    <!-- Left arrow, pushed further out -->
+    <button
+      onclick="slideLeft()"
+      class="absolute z-20 top-1/2 bg-blue-600 text-white px-2 py-1 rounded-full shadow-lg hover:bg-blue-700 transition"
+      style="left: -2.5rem; transform: translateY(-50%);"
+      aria-label="Scroll left"
+    >&#10094;</button>
+
+    <div class="w-full pr-16">
+      <div id="jobSlider" class="flex gap-6 overflow-x-auto scroll-smooth pb-4 whitespace-nowrap hide-scrollbar">
+        {% for job in recommended_jobs %}
+
+<div class="inline-block w-80 h-[340px] bg-white p-5 rounded-lg shadow-md hover:shadow-lg transition cursor-pointer align-top flex flex-col justify-between"
+     onclick="showPreview(this)"
+     data-title="{{ job.title }}"
+     data-location="{{ job.location }}"
+     data-description="{{ job.description }}"
+     data-deadline="{{ job.deadline }}"
+     data-link="{{ url_for('job_details', job_id=job.id) }}">
+  <div>
+    <h3 class="text-xl font-bold mb-1 text-gray-800 truncate" title="{{ job.title }}">{{ job.title }}</h3>
+    <p class="text-sm text-gray-600 truncate" title="{{ job.location }}">{{ job.location }}</p>
+    <p class="text-sm text-gray-700 mt-2 overflow-hidden" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;" title="{{ job.description }}">{{ job.description }}</p>
+  </div>
+  <div>
+    <div class="mt-3 flex flex-wrap gap-2 text-xs text-gray-700">
+      <span class="bg-gray-200 px-2 py-0.5 rounded">Remote</span>
+      <span class="bg-gray-300 px-2 py-0.5 rounded">Entry Level</span>
+    </div>
+    <div class="mt-4 flex justify-between items-center">
+      <p class="text-xs text-gray-500">📅 {{ job.deadline }}</p>
+      <span class="text-sm bg-gray-200 text-gray-800 px-2 py-1 rounded">Skill Match: 87%</span>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
       </div>
-      <div class="trending-jobs">
-          <h4>#1 Trending</h4>
-          <div class="trending-item" onclick="selectSuggestion('Software Engineer')">
-              <span>💼</span> Software Engineer
-          </div>
-          <h4>#2 Trending</h4>
-          <div class="trending-item" onclick="selectSuggestion('Data Scientist')">
-              <span>📊</span> Data Scientist
-          </div>
+    </div>
+
+    <!-- Right arrow as before -->
+    <button
+      onclick="slideRight()"
+      class="absolute z-20 right-6 top-1/2 -translate-y-1/2 bg-blue-600 text-white px-2 py-1 rounded-full shadow-lg hover:bg-blue-700 transition"
+      style="transform: translateY(-50%);"
+      aria-label="Scroll right"
+    >&#10095;</button>
+  </div>
+</section>
+
+<section class="w-full max-w-7xl mx-auto flex flex-col lg:flex-row gap-6 items-start px-4">
+
+<!-- Applications List (60%) -->
+<div class="w-full lg:w-3/5">
+  <h2 class="text-2xl font-semibold mb-4">Your Applications</h2>
+  {% if applications %}
+  <div class="flex flex-col gap-5 w-full" id="applicationsList">
+    {% for application in applications[:2] %}
+    <div
+      class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition h-[160px] relative"
+      onclick="showApplicationPreview(this)"
+      data-title="{{ application.job.title }}"
+      data-company="{{ application.job.location }}"
+      data-applied="{{ application.timestamp.strftime('%Y-%m-%d') }}"
+      data-cover="{{ application.cover_letter|e }}"
+    >
+      <h3 class="text-xl font-bold mb-1 truncate">{{ application.job.title }}</h3>
+      <p class="text-sm text-gray-600 truncate">Company: {{ application.job.location }}</p>
+      <p class="text-sm text-gray-600 truncate">Applied: {{ application.timestamp.strftime('%Y-%m-%d') }}</p>
+
+      <!-- 💡 Status Badge -->
+      {% if application.status == 'Accepted' %}
+        <span class="absolute top-4 right-4 bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full">Accepted</span>
+      {% elif application.status == 'Rejected' %}
+        <span class="absolute top-4 right-4 bg-red-100 text-red-700 text-xs font-semibold px-3 py-1 rounded-full">Rejected</span>
+      {% else %}
+        <span class="absolute top-4 right-4 bg-gray-200 text-gray-700 text-xs font-semibold px-3 py-1 rounded-full">Pending</span>
+      {% endif %}
+
+      <div class="mt-2">
+        <a href="{{ url_for('edit_application', application_id=application.id) }}" class="text-blue-600 hover:underline text-xs" onclick="event.stopPropagation()">Edit</a>
       </div>
-      <ul class="search-suggestions" id="searchSuggestions"></ul>
+    </div>
+    {% endfor %}
+  </div>
+  {% if applications|length > 2 %}
+  <button
+    id="seeMoreBtn"
+    class="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition text-sm"
+    onclick="showAllApplications()"
+  >See More</button>
+  {% endif %}
+  {% else %}
+  <p class="text-gray-600">You have not applied for any jobs yet.</p>
+  {% endif %}
+</div>
+
+
+<!-- Sidebar Column for Connections + Zen -->
+<div class="w-full lg:w-2/5 flex flex-col gap-4 mt-10 lg:mt-0 self-start">
+
+  <!-- Connections Tile -->
+  <div class="bg-white p-5 rounded-lg shadow-md">
+    <h2 class="text-lg font-semibold mb-3">Your Connections</h2>
+    <ul class="space-y-3 text-sm">
+      <li class="flex items-center justify-between">
+        <div>
+          <p class="font-medium text-gray-800">Alex Johnson</p>
+          <p class="text-gray-500 text-xs">Software Engineer</p>
+        </div>
+        <button class="text-blue-600 text-xs hover:underline">Message</button>
+      </li>
+      <li class="flex items-center justify-between">
+        <div>
+          <p class="font-medium text-gray-800">Maria Lopez</p>
+          <p class="text-gray-500 text-xs">Data Analyst</p>
+        </div>
+        <button class="text-blue-600 text-xs hover:underline">Message</button>
+      </li>
+      <li class="flex items-center justify-between">
+        <div>
+          <p class="font-medium text-gray-800">David Chen</p>
+          <p class="text-gray-500 text-xs">Product Designer</p>
+        </div>
+        <button class="text-blue-600 text-xs hover:underline">Message</button>
+      </li>
+      <li class="flex items-center justify-between">
+        <div>
+          <p class="font-medium text-gray-800">Sarah Ahmed</p>
+          <p class="text-gray-500 text-xs">UX Researcher</p>
+        </div>
+        <button class="text-blue-600 text-xs hover:underline">Message</button>
+      </li>
+    </ul>
+    <div class="mt-4 text-right">
+      <a href="#" class="text-blue-600 text-sm hover:underline">View All</a>
+    </div>
+  </div>
+
+<style>
+  @font-face {
+    font-family: 'BabylonIndustrial';
+    src: url("{{ url_for('static', filename='fonts/BABIND.ttf') }}") format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  .zen-font {
+    font-family: 'BabylonIndustrial', sans-serif;
+    color: #4B5563; /* cool industrial gray */
+    letter-spacing: 0.5px;
+  }
+</style>
+<!-- Zen Tile -->
+<div class="p-4 rounded-lg shadow-md hover:shadow transition mt-4"
+     style="background-color: rgba(243, 244, 246, 0.6);"> <!-- light gray, translucent -->
+  <h3 class="text-3xl mb-2 zen-font">ZEN</h3>
+  <p class="text-sm text-gray-600 mb-3">Your personal resume builder.</p>
+  <a href=""
+     class="inline-block bg-blue-600 text-white text-xs px-4 py-1.5 rounded hover:bg-blue-700 transition">
+    Launch Zen
+  </a>
+</div>
+
+
+
+
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+  </div>
+
+  
+</main>
+
+
+
+
+
+<!-- Modal Preview -->
+<div id="jobPreview" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm hidden z-50 flex items-center justify-center">
+  <div class="bg-white rounded-lg shadow-lg max-w-2xl w-full p-6 relative">
+    <button onclick="closePreview()" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-xl">✖</button>
+    <h3 id="previewTitle" class="text-2xl font-bold mb-2"></h3>
+    <p id="previewLocation" class="text-gray-500 mb-1"></p>
+    <p id="previewDescription" class="text-sm text-gray-700 mb-4 whitespace-pre-line"></p>
+    <p id="previewDeadline" class="text-xs text-gray-400 mb-4"></p>
+    <a id="previewLink" href="#" class="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">View Full Job</a>
   </div>
 </div>
 
-  
-  <!-- Student Dashboard -->
-  <main class="container">
-    <div class="dashboard-header">
-        <h1>Welcome, {{ current_user.username }}</h1>
-        <div class="recommended-jobs-container">
-          <h2>Recommended Jobs for You</h2>
-      
-          <!-- Slider Container -->
-          <div class="slider-wrapper">
-              <button class="slide-btn left" onclick="slideLeft()">&#10094;</button>
-      
-              <div class="job-slider">
-                  {% for job in recommended_jobs %}
-                  <a href="{{ url_for('job_details', job_id=job.id) }}" class="job-card">
-                      <div class="job-details">
-                          <h3 class="job-title">{{ job.title }}</h3>
-                          <p class="job-location">{{ job.location }}</p>
-                          <p class="job-description">{{ job.description[:90] }}...</p>
-                      </div>
-                      <p class="job-meta">📅 Deadline: {{ job.deadline }}</p>
-                  </a>
-                  {% endfor %}
-              </div>
-      
-              <button class="slide-btn right" onclick="slideRight()">&#10095;</button>
-          </div>
-      </div>
-      
-        
-        
-        <script>
-          function slideLeft() {
-            document.querySelector('.job-slider').scrollBy({
-              left: -900,
-              behavior: 'smooth'
-            });
-          }
-        
-          function slideRight() {
-            document.querySelector('.job-slider').scrollBy({
-              left: 900,
-              behavior: 'smooth'
-            });
-          }
-        </script>
-        
-        
-        <p>View and manage your applications below.</p>
-    </div>
+<!-- Application Preview Modal -->
+<div id="appPreview" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm hidden z-50 flex items-center justify-center">
+  <div class="bg-white rounded-lg shadow-lg max-w-lg w-full p-6 relative">
+    <button onclick="closeAppPreview()" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-xl">✖</button>
+    <h3 id="appPreviewTitle" class="text-2xl font-bold mb-2"></h3>
+    <p id="appPreviewCompany" class="text-gray-500 mb-1"></p>
+    <p id="appPreviewApplied" class="text-xs text-gray-400 mb-4"></p>
+    <p class="text-sm font-semibold">Cover Letter:</p>
+    <p id="appPreviewCover" class="text-sm text-gray-700 whitespace-pre-line mb-2"></p>
+  </div>
+</div>
 
-    <!-- Applications Section -->
-    {% if applications %}
-    <h2>Your Applications</h2>
-    <div class="applications-grid">
-        {% for application in applications %}
-        <div class="application-card">
-            <h3>{{ application.job.title }}</h3>
-            <p><strong>Company:</strong> {{ application.job.location }}</p>
-            <p><strong>Applied On:</strong> {{ application.created_at.strftime('%Y-%m-%d') }}</p>
-            <p><strong>Cover Letter:</strong></p>
-            <p class="cover-letter">{{ application.cover_letter }}</p>
-            <div class="actions">
-                <a href="{{ url_for('edit_application', application_id=application.id) }}" class="btn btn-edit">Edit Application</a>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-    {% else %}
-    <p class="no-applications">You have not applied for any jobs yet.</p>
-    {% endif %}
-    <script src="static/js/script.js"></script>
-  </main>
-  <script src="static/js/script.js"></script>
+
+<!-- Footer -->
+<footer class="text-center text-sm text-gray-500 py-6 border-t mt-10">
+  &copy; {{ now().year }} JobConnect. All rights reserved.
+</footer>
+
+<script>
+  // For job preview (already exists)
+  function showPreview(card) {
+    document.getElementById('previewTitle').textContent = card.dataset.title;
+    document.getElementById('previewLocation').textContent = card.dataset.location;
+    document.getElementById('previewDescription').textContent = card.dataset.description;
+    document.getElementById('previewDeadline').textContent = '📅 Deadline: ' + card.dataset.deadline;
+    document.getElementById('previewLink').href = card.dataset.link;
+    document.getElementById('jobPreview').classList.remove('hidden');
+  }
+  function closePreview() {
+    document.getElementById('jobPreview').classList.add('hidden');
+  }
+
+  // For application preview
+  function showApplicationPreview(card) {
+    document.getElementById('appPreviewTitle').textContent = card.dataset.title;
+    document.getElementById('appPreviewCompany').textContent = 'Company: ' + card.dataset.company;
+    document.getElementById('appPreviewApplied').textContent = 'Applied On: ' + card.dataset.applied;
+    document.getElementById('appPreviewCover').textContent = card.dataset.cover;
+    document.getElementById('appPreview').classList.remove('hidden');
+  }
+  function closeAppPreview() {
+    document.getElementById('appPreview').classList.add('hidden');
+  }
+
+  function slideLeft() {
+    document.getElementById('jobSlider').scrollBy({ left: -320, behavior: 'smooth' });
+  }
+  function slideRight() {
+    document.getElementById('jobSlider').scrollBy({ left: 320, behavior: 'smooth' });
+  }
+
+  function showAllApplications() {
+  document.querySelectorAll('.extra-application').forEach(function(el) {
+    el.classList.remove('hidden');
+  });
+  document.getElementById('seeMoreBtn').style.display = 'none';
+}
+</script>
+
+
 </body>
 </html>

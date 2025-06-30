@@ -1,85 +1,378 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Applicants</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/view_applicants.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View Applicants | JobConnect</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <script>
+    function toggleLanguageDropdown() {
+      const dropdown = document.getElementById('languageDropdown');
+      dropdown.classList.toggle('hidden');
+    }
+    function changeLanguage(lang) {
+      alert('Language switched to: ' + lang);
+      // Implement real language switch functionality as needed
+    }
+  </script>
 </head>
-<body>
-  <div class="background"></div>
-   <!-- Glassmorphic Navbar -->
-   <header class="navbar">
-    <div class="navbar-left">
-      <a href="{{ url_for('index') }}" class="logo">JobConnect</a>
+
+<body class="bg-gray-100 text-gray-900 font-sans">
+<nav class="bg-white shadow-md sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+    <a href="{{ url_for('index') }}" class="text-2xl font-bold text-blue-600">JobConnect</a>
+
+    <!-- Live Search Component -->
+    <div class="relative w-96"> <!-- Increased from w-64 to w-96 -->
+      <input
+        type="text"
+        id="liveSearchInput"
+        placeholder="Search jobs or profiles..."
+        class="px-3 py-1.5 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm w-full"
+        oninput="fetchSuggestions(this.value)"
+        autocomplete="off"
+      >
+      <div id="searchSuggestions" class="absolute z-50 mt-1 bg-white border border-gray-300 rounded-md shadow-md w-full hidden max-h-80 overflow-y-auto"></div>
     </div>
-  
-    <ul class="nav-links">
-      <li><a href="{{ url_for('index') }}">Home</a></li>
-      <li><a href="{{ url_for('approved_postings') }}">Approved Postings</a></li>
-      
+
+    <ul class="flex space-x-6 items-center text-sm font-medium">
+      <li><a href="{{ url_for('index') }}" class="hover:text-blue-600 transition">Home</a></li>
+      <li><a href="{{ url_for('approved_postings') }}" class="hover:text-blue-600 transition">Jobs</a></li>
       {% if current_user.is_authenticated %}
         {% if current_user.role == 'admin' %}
-          <li><a href="{{ url_for('admin_panel') }}">Admin Panel</a></li>
-          <li><a href="{{ url_for('logout') }}">Logout</a></li>
+          <li><a href="{{ url_for('admin_panel') }}" class="hover:text-blue-600">Dashboard</a></li>
         {% elif current_user.role == 'employer' %}
-          <li><a href="{{ url_for('employer_dashboard') }}">Dashboard</a></li>
+          <li><a href="{{ url_for('employer_dashboard') }}" class="hover:text-blue-600">Dashboard</a></li>
         {% elif current_user.role == 'student' %}
-          <li><a href="{{ url_for('student_dashboard') }}">Dashboard</a></li>
+          <li><a href="{{ url_for('student_dashboard') }}" class="text-blue-600 font-semibold">My Dashboard</a></li>
         {% endif %}
+        <li><a href="{{ url_for('logout') }}" class="hover:text-red-500 transition">Logout</a></li>
       {% else %}
-        <li><a href="{{ url_for('login') }}">Login</a></li>
-        <li><a href="{{ url_for('register') }}">Register</a></li>
+        <li><a href="{{ url_for('login') }}" class="hover:text-blue-600 transition">Login</a></li>
+        <li><a href="{{ url_for('register') }}" class="hover:text-blue-600 transition">Register</a></li>
       {% endif %}
     </ul>
-  
-    <div class="nav-icons">
-      <i class="fas fa-search search-icon" onclick="openSearch()"></i>
-  
-      {% if current_user.is_authenticated and current_user.role in ['employer', 'student'] %}
-        <div class="user-dropdown">
-          <i class="fas fa-user user-icon" onclick="toggleUserMenu()"></i>
-          <div class="user-menu" id="userMenu">
-            <a href="{{ url_for('profile', username=current_user.username) }}">Profile</a>
-            <a href="{{ url_for('logout') }}">Logout</a>
-          </div>
-        </div>
-      {% endif %}
-    </div>
-  </header>
-
-    <!-- 🌍 Main Container -->
-    <main class="container">
-        <div class="dashboard-header">
-            <h1>Applicants for <span class="job-title">{{ job.title }}</span></h1>
-            <p>Review and manage applicants for this job posting.</p>
-        </div>
-
-        <!-- 📌 Applicants List -->
-        <!-- 📌 Applicants List -->
-<section class="applicants-section">
-  {% if applications %}
-  <div class="applicants-grid">
-      {% for application in applications %}
-      <a href="{{ url_for('applicant_details', application_id=application.id) }}" class="applicant-card-link">
-          <div class="applicant-card">
-              <div class="applicant-info">
-                  <h3>{{ application.student.username }}</h3>
-                  <p><strong>Email:</strong> {{ application.student.email }}</p>
-                  <p><strong>Applied On:</strong> {{ application.created_at.strftime('%Y-%m-%d') }}</p>
-                  <p class="cover-letter"><strong>Cover Letter:</strong> "{{ application.cover_letter }}"</p>
-              </div>
-          </div>
-      </a>
-      {% endfor %}
   </div>
-  {% else %}
-  <p class="no-applicants">No applicants have applied for this job yet.</p>
-  {% endif %}
-</section>
+</nav>
 
-    </main>
-    <script src="static\js\script.js"></script>
+<script>
+async function fetchSuggestions(query) {
+  const suggestionBox = document.getElementById('searchSuggestions');
+  if (!query.trim()) {
+    suggestionBox.classList.add('hidden');
+    suggestionBox.innerHTML = '';
+    return;
+  }
+
+  try {
+    const res = await fetch(`/search-suggestions?q=${encodeURIComponent(query)}`);
+    const data = await res.json();
+
+    suggestionBox.innerHTML = '';
+    if (data.suggestions.length === 0) {
+      suggestionBox.classList.add('hidden');
+      return;
+    }
+
+    data.suggestions.forEach(item => {
+      const div = document.createElement('div');
+      div.className = "px-3 py-2 hover:bg-blue-100 cursor-pointer text-sm";
+      div.innerText = item.title;
+      div.onclick = () => {
+        window.location.href = `/job/${item.id}`;
+      };
+      suggestionBox.appendChild(div);
+    });
+
+    suggestionBox.classList.remove('hidden');
+  } catch (err) {
+    console.error('Search failed:', err);
+  }
+}
+</script>
+
+  <!-- Main -->
+  <main class="max-w-7xl mx-auto px-4 py-10">
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-800">Applicants for <span class="text-blue-600">{{ job.title }}</span></h1>
+      <p class="text-gray-600 mt-2">Review and manage applicants for this job posting.</p>
+    </div>
+
+    {% if applications %}
+    <div class="flex flex-col md:flex-row gap-6">
+      <div class="md:w-1/3 space-y-4">
+        {% for application in applications %}
+        <button 
+  onclick="showApplicant('{{ application.id }}')" 
+  class="w-full text-left bg-white rounded-lg shadow hover:shadow-md transition p-4 border-l-4 border-blue-500"
+  data-id="{{ application.id }}"
+  data-cover="{{ application.cover_letter }}"
+  data-skills="{{ application.student.skills | default('', true) }}"
+>
+
+          <h3 class="font-bold text-lg">{{ application.student.username }}</h3>
+          <p class="text-sm text-gray-600">{{ application.student.email }}</p>
+        </button>
+        {% endfor %}
+      </div>
+
+      <div class="md:w-2/3 bg-white rounded-xl shadow p-6">
+        {% for application in applications %}
+        <div id="detail-{{ application.id }}" class="applicant-detail {% if not loop.first %}hidden{% endif %}">
+          <h2 class="text-xl font-bold text-gray-800 mb-2">{{ application.student.username }}</h2>
+          <p class="text-sm text-gray-700"><strong>Email:</strong> {{ application.student.email }}</p>
+          <p class="text-sm text-gray-700"><strong>Applied On:</strong> {{ application.created_at.strftime('%Y-%m-%d') }}</p>
+
+          <!-- AI Overview Section -->
+          <div class="bg-white border-l-4 border-blue-500 p-5 rounded-lg shadow-sm mt-6">
+  <div class="flex items-center justify-between mb-3">
+    <h3 class="text-xl font-semibold text-blue-700 flex items-center gap-2">
+      <i class="fas fa-robot text-blue-500"></i> AI Overview
+    </h3>
+    <span class="bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-1 rounded-full">
+      Powered by LLaMA 3.2 (local)
+    </span>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-4">
+    <div>
+      <p class="text-sm font-medium text-gray-600 mb-1">Summary:</p>
+      <p class="text-sm text-gray-800" id="ai-summary-{{ application.id }}">Loading summary...</p>
+    </div>
+    <div>
+      <p class="text-sm font-medium text-gray-600 mb-1">Score:</p>
+      <p class="text-sm text-green-600 font-bold" id="ai-score-{{ application.id }}">Loading...</p>
+    </div>
+    <div>
+      <p class="text-sm font-medium text-gray-600 mb-1">Pros:</p>
+      <ul id="ai-pros-{{ application.id }}" class="list-disc pl-5 text-sm text-gray-700 space-y-1">
+        <li>Loading...</li>
+      </ul>
+    </div>
+    <div>
+      <p class="text-sm font-medium text-gray-600 mb-1">Cons:</p>
+      <ul id="ai-cons-{{ application.id }}" class="list-disc pl-5 text-sm text-gray-700 space-y-1">
+        <li>Loading...</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+          <p class="text-sm text-gray-700 mt-4"><strong>Cover Letter:</strong></p>
+<p class="mt-1 text-gray-600">{{ application.cover_letter }}</p>
+
+<!-- Employer Notes Section -->
+{% if application.notes %}
+<div class="mt-6 border-t pt-4">
+  <h3 class="text-lg font-semibold text-gray-800 mb-2 flex items-center gap-2">
+    <i class="fas fa-sticky-note text-yellow-500"></i> Employer Notes
+  </h3>
+  <div class="space-y-4">
+    {% for note in application.notes %}
+    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded shadow-sm">
+      <div class="text-sm text-gray-700">{{ note.note }}</div>
+      <div class="text-xs text-gray-500 mt-1">— {{ note.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- Add Employer Note Form -->
+<div class="mt-4">
+  <h4 class="text-md font-medium text-gray-700 mb-1">Add a Note</h4>
+  <div class="flex items-start gap-2">
+    <textarea id="note-input-{{ application.id }}" class="w-full rounded-lg border-gray-300 shadow-sm text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none" rows="2" placeholder="Write a note..."></textarea>
+    <button onclick="submitNote({{ application.id }})" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm shadow">
+      Add
+    </button>
+  </div>
+</div>
+
+<!-- Accept / Reject Buttons -->
+<div class="mt-6 flex gap-4">
+  <button onclick="handleDecision({{ application.id }}, 'accepted')" class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded shadow">
+    Accept
+  </button>
+  <button onclick="handleDecision({{ application.id }}, 'rejected')" class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded shadow">
+    Reject
+  </button>
+</div>
+
+
+
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% else %}
+    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-xl text-yellow-800">
+      No applicants have applied for this job yet.
+    </div>
+    {% endif %}
+
+    
+  </main>
+
+  <footer class="text-center text-sm text-gray-500 py-6 border-t mt-10">
+    &copy; {{ now().year }} JobConnect. All rights reserved.
+  </footer>
+
+<script>
+  const aiFetched = new Set();
+
+  function showApplicant(id) {
+    // Hide all applicant detail views
+    document.querySelectorAll('.applicant-detail').forEach(d => d.classList.add('hidden'));
+
+    // Show selected one
+    const detail = document.getElementById('detail-' + id);
+    if (detail) detail.classList.remove('hidden');
+
+    // If already fetched, don't refetch
+    if (aiFetched.has(id)) return;
+
+    // Fetch cover letter and skills from the button
+    const button = document.querySelector(`[data-id='${id}']`);
+    const coverLetter = button?.getAttribute("data-cover") || "";
+    const skills = button?.getAttribute("data-skills") || "";
+
+    fetchAIOverview(id, coverLetter, skills);
+    aiFetched.add(id);
+  }
+
+  async function fetchAIOverview(applicationId, coverLetter, skills) {
+    const prompt = `You are an AI recruiter.
+
+Given the following job application, return structured output in this exact format:
+
+Summary: <one sentence>
+Score: <integer between 0-100>
+Pros: <comma-separated list>
+Cons: <comma-separated list>
+
+Cover Letter:
+${coverLetter}
+
+Skills:
+${skills}
+
+Only return the fields. No intro or explanation.`;
+
+    const response = await fetch("/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt })
+    });
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+    let fullText = "";
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      fullText += decoder.decode(value, { stream: true });
+    }
+
+    console.log(`AI response for ${applicationId}:`, fullText);
+
+    const summaryMatch = fullText.match(/Summary:\s*([^\n]+)/i);
+    const scoreMatch = fullText.match(/Score:\s*(\d{1,3})/i);
+    const prosMatch = fullText.match(/Pros:\s*([^\n]+)/i);
+    const consMatch = fullText.match(/Cons:\s*([^\n]+)/i);
+
+    document.getElementById(`ai-summary-${applicationId}`).innerText = summaryMatch?.[1]?.trim() || "No summary found.";
+    document.getElementById(`ai-score-${applicationId}`).innerText = scoreMatch?.[1] || "N/A";
+
+    const pros = (prosMatch?.[1]?.split(',') || []).map(p => p.trim()).filter(Boolean);
+    const cons = (consMatch?.[1]?.split(',') || []).map(c => c.trim()).filter(Boolean);
+
+    const prosList = document.getElementById(`ai-pros-${applicationId}`);
+    const consList = document.getElementById(`ai-cons-${applicationId}`);
+    prosList.innerHTML = "";
+    consList.innerHTML = "";
+
+    pros.forEach(p => {
+      const li = document.createElement("li");
+      li.textContent = p;
+      prosList.appendChild(li);
+    });
+
+    cons.forEach(c => {
+      const li = document.createElement("li");
+      li.textContent = c;
+      consList.appendChild(li);
+    });
+  }
+
+  // Trigger the first applicant view by default
+  document.addEventListener("DOMContentLoaded", () => {
+    const first = document.querySelector("[data-id]");
+    if (first) showApplicant(first.getAttribute("data-id"));
+  });
+</script>
+
+
+
+
 </body>
 </html>
+<script>
+async function submitNote(applicationId) {
+  const textarea = document.getElementById(`note-input-${applicationId}`);
+  const noteText = textarea.value.trim();
+  if (!noteText) return;
+
+  try {
+    const res = await fetch(`/application/${applicationId}/add_note`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ note: noteText })
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      const container = document.querySelector(`#detail-${applicationId} .space-y-4`);
+      const newNoteDiv = document.createElement("div");
+      newNoteDiv.className = "bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded shadow-sm";
+      newNoteDiv.innerHTML = `
+        <div class="text-sm text-gray-700">${noteText}</div>
+        <div class="text-xs text-gray-500 mt-1">— just now</div>
+      `;
+      container.prepend(newNoteDiv);
+      textarea.value = "";
+    } else {
+      alert("Failed to add note.");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Error adding note.");
+  }
+}
+
+async function handleDecision(applicationId, status) {
+  try {
+    const res = await fetch(`/application/${applicationId}/update_status`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status })
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      alert(`Application ${status.charAt(0).toUpperCase() + status.slice(1)}!`);
+    } else {
+      alert("Failed to update status.");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Error updating status.");
+  }
+}
+
+
+</script>
+

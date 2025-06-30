@@ -1,118 +1,272 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employer Dashboard</title>
-    <link rel="stylesheet" href="static/css/employer_dashboard.css">
-    <script src="https://kit.fontawesome.com/yourkit.js" crossorigin="anonymous"></script> <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Employer Dashboard | JobConnect</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+    <script src="https://kit.fontawesome.com/yourkit.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+    <style>
+      .truncate-multiline {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .hide-scrollbar::-webkit-scrollbar { display: none; }
+      .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
 </head>
-<body>
-  <div class="background"></div>
-  <!-- Glassmorphic Navbar -->
-  <header class="navbar">
-    <div class="navbar-left">
-      <a href="{{ url_for('index') }}" class="logo">JobConnect</a>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+
+<nav class="bg-white shadow-md sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+    <a href="{{ url_for('index') }}" class="text-2xl font-bold text-blue-600">JobConnect</a>
+
+    <!-- Live Search Component -->
+    <div class="relative w-96"> <!-- Increased from w-64 to w-96 -->
+      <input
+        type="text"
+        id="liveSearchInput"
+        placeholder="Search jobs or profiles..."
+        class="px-3 py-1.5 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm w-full"
+        oninput="fetchSuggestions(this.value)"
+        autocomplete="off"
+      >
+      <div id="searchSuggestions" class="absolute z-50 mt-1 bg-white border border-gray-300 rounded-md shadow-md w-full hidden max-h-80 overflow-y-auto"></div>
     </div>
-  
-    <ul class="nav-links">
-      <li><a href="{{ url_for('index') }}">Home</a></li>
-      <li><a href="{{ url_for('approved_postings') }}">Approved Postings</a></li>
-      
+
+    <ul class="flex space-x-6 items-center text-sm font-medium">
+      <li><a href="{{ url_for('index') }}" class="hover:text-blue-600 transition">Home</a></li>
+      <li><a href="{{ url_for('approved_postings') }}" class="hover:text-blue-600 transition">Jobs</a></li>
       {% if current_user.is_authenticated %}
         {% if current_user.role == 'admin' %}
-          <li><a href="{{ url_for('admin_panel') }}">Admin Panel</a></li>
-          <li><a href="{{ url_for('logout') }}">Logout</a></li>
+          <li><a href="{{ url_for('admin_panel') }}" class="hover:text-blue-600">Dashboard</a></li>
         {% elif current_user.role == 'employer' %}
-          <li><a href="{{ url_for('employer_dashboard') }}">Dashboard</a></li>
+          <li><a href="{{ url_for('employer_dashboard') }}" class="hover:text-blue-600">Dashboard</a></li>
         {% elif current_user.role == 'student' %}
-          <li><a href="{{ url_for('student_dashboard') }}">Dashboard</a></li>
+          <li><a href="{{ url_for('student_dashboard') }}" class="text-blue-600 font-semibold">My Dashboard</a></li>
         {% endif %}
+        <li><a href="{{ url_for('logout') }}" class="hover:text-red-500 transition">Logout</a></li>
       {% else %}
-        <li><a href="{{ url_for('login') }}">Login</a></li>
-        <li><a href="{{ url_for('register') }}">Register</a></li>
+        <li><a href="{{ url_for('login') }}" class="hover:text-blue-600 transition">Login</a></li>
+        <li><a href="{{ url_for('register') }}" class="hover:text-blue-600 transition">Register</a></li>
       {% endif %}
     </ul>
-  
-    <div class="nav-icons">
-      <i class="fas fa-search search-icon" onclick="openSearch()"></i>
-  
-      {% if current_user.is_authenticated and current_user.role in ['employer', 'student'] %}
-        <div class="user-dropdown">
-          <i class="fas fa-user user-icon" onclick="toggleUserMenu()"></i>
-          <div class="user-menu" id="userMenu">
-            <a href="{{ url_for('profile', username=current_user.username) }}">Profile</a>
-            <a href="{{ url_for('logout') }}">Logout</a>
-          </div>
+  </div>
+</nav>
+
+<script>
+async function fetchSuggestions(query) {
+  const suggestionBox = document.getElementById('searchSuggestions');
+  if (!query.trim()) {
+    suggestionBox.classList.add('hidden');
+    suggestionBox.innerHTML = '';
+    return;
+  }
+
+  try {
+    const res = await fetch(`/search-suggestions?q=${encodeURIComponent(query)}`);
+    const data = await res.json();
+
+    suggestionBox.innerHTML = '';
+    if (data.suggestions.length === 0) {
+      suggestionBox.classList.add('hidden');
+      return;
+    }
+
+    data.suggestions.forEach(item => {
+      const div = document.createElement('div');
+      div.className = "px-3 py-2 hover:bg-blue-100 cursor-pointer text-sm";
+      div.innerText = item.title;
+      div.onclick = () => {
+        window.location.href = `/job/${item.id}`;
+      };
+      suggestionBox.appendChild(div);
+    });
+
+    suggestionBox.classList.remove('hidden');
+  } catch (err) {
+    console.error('Search failed:', err);
+  }
+}
+</script>
+
+<!-- Analytics Cards -->
+<section class="max-w-7xl mx-auto w-full px-4 py-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+  <div class="bg-white shadow rounded-lg p-5">
+    <h3 class="text-sm text-gray-600">Total Job Posts</h3>
+    <p class="text-2xl font-bold text-blue-600">{{ job_count }}</p>
+  </div>
+  <div class="bg-white shadow rounded-lg p-5">
+    <h3 class="text-sm text-gray-600">Total Applicants</h3>
+    <p class="text-2xl font-bold text-blue-600">{{ applicant_count }}</p>
+  </div>
+  <div class="bg-white shadow rounded-lg p-5">
+    <h3 class="text-sm text-gray-600">Active Connections</h3>
+    <p class="text-2xl font-bold text-blue-600">{{ connections|length }}</p>
+  </div>
+</section>
+
+
+
+<script>
+function toggleNotifications() {
+  const dropdown = document.getElementById('notificationDropdown');
+  dropdown.classList.toggle('hidden');
+}
+
+async function fetchSuggestions(query) {
+  const suggestionBox = document.getElementById('searchSuggestions');
+  if (!query.trim()) {
+    suggestionBox.classList.add('hidden');
+    suggestionBox.innerHTML = '';
+    return;
+  }
+
+  try {
+    const res = await fetch(`/search-suggestions?q=${encodeURIComponent(query)}`);
+    const data = await res.json();
+
+    suggestionBox.innerHTML = '';
+    if (data.suggestions.length === 0) {
+      suggestionBox.classList.add('hidden');
+      return;
+    }
+
+    data.suggestions.forEach(item => {
+      const div = document.createElement('div');
+      div.className = "px-3 py-2 hover:bg-blue-100 cursor-pointer text-sm";
+      div.innerText = item.title;
+      div.onclick = () => {
+        window.location.href = `/job/${item.id}`;
+      };
+      suggestionBox.appendChild(div);
+    });
+
+    suggestionBox.classList.remove('hidden');
+  } catch (err) {
+    console.error('Search failed:', err);
+  }
+}
+</script>
+  <!-- Main Dashboard Layout -->
+  <main class="flex-1 flex flex-row gap-8 max-w-7xl mx-auto w-full px-4 py-10 items-start">
+
+    <!-- Left Sidebar: Employer Profile -->
+    <aside class="w-80 bg-white py-6 px-6 rounded-lg shadow shrink-0 flex flex-col justify-center space-y-4">
+      <div>
+        <h2 class="text-lg font-semibold mb-3">Your Profile</h2>
+        <div class="w-20 h-20 rounded-full bg-gray-200 overflow-hidden mx-auto mb-4 flex items-center justify-center">
+          {% if current_user.profile_pic_url %}
+            <img src="{{ current_user.profile_pic_url }}" alt="Profile picture" class="object-cover w-full h-full">
+          {% else %}
+            <span class="text-3xl text-gray-500 font-bold">{{ (current_user.name or current_user.username)[:2] | upper }}</span>
+          {% endif %}
         </div>
-      {% endif %}
-    </div>
-  </header>
-  
-  <!-- 🔎 Search Overlay -->
-<div class="search-overlay" id="searchOverlay">
-  <div class="search-container">
-      <input type="text" id="searchInput" class="search-input" placeholder="Search for jobs..." onkeyup="fetchSuggestions()">
-      <button class="search-close" onclick="closeSearch()">✖</button>
-  </div>
-  <div class="suggestions-box">
-      <div class="search-tips">
-          <h3></h3>
-          <p><kbd></kbd><kbd></kbd></p>
+        <p class="text-base text-gray-700 font-medium text-center">{{ current_user.name or current_user.username }}</p>
+        <p class="text-sm text-gray-600 mb-1 text-center">{{ current_user.email }}</p>
+        <span class="inline-block text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded mb-2 capitalize mx-auto text-center">{{ current_user.role }}</span>
+        {% if current_user.bio %}
+        <p class="text-xs text-gray-500 mb-2 text-center">{{ current_user.bio }}</p>
+        {% endif %}
       </div>
-      <div class="trending-jobs">
-          <h4>#1 Trending</h4>
-          <div class="trending-item" onclick="selectSuggestion('Software Engineer')">
-              <span>💼</span> Software Engineer
-          </div>
-          <h4>#2 Trending</h4>
-          <div class="trending-item" onclick="selectSuggestion('Data Scientist')">
-              <span>📊</span> Data Scientist
-          </div>
+      <div>
+        <p class="text-xs text-gray-500 font-semibold">Company Name:</p>
+        <p class="text-sm text-gray-700 mb-1">{{ current_user.company_name or 'N/A' }}</p>
+        {% if current_user.company_website %}
+          <a href="{{ current_user.company_website }}" target="_blank" class="text-blue-600 hover:underline text-xs">Company Website</a>
+        {% endif %}
       </div>
-      <ul class="search-suggestions" id="searchSuggestions"></ul>
-  </div>
-</div>
+      <a href="{{ url_for('edit_profile') }}" class="mt-2 bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-700 text-xs text-center transition w-full">Edit Profile</a>
+    </aside>
 
-  
- 
+    <!-- Center: Job Postings and Main Actions -->
+    <section class="flex-1 min-w-0 flex flex-col gap-8">
+      <!-- Welcome Card & Post Job Button -->
+      <div class="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-center gap-2 mb-2">
+        <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mb-3">
+          <i class="fas fa-building text-blue-600 text-3xl"></i>
+        </div>
+        <h1 class="text-2xl font-bold mb-1">Welcome, {{ current_user.name or current_user.username }}</h1>
+        <p class="text-gray-600 mb-3 text-center">Manage your job postings and connect with top talent.</p>
+        <a href="{{ url_for('post_job') }}"
+           class="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl px-5 py-2 mt-2 shadow transition">
+          <i class="fas fa-plus mr-2"></i>Post a New Job
+        </a>
+      </div>
 
-
-    <!-- Employer Dashboard Section -->
-    <main class="container">
-        <h1>Welcome, {{ current_user.username }}</h1>
-        <p>Manage your job postings and connect with top talent.</p>
-        <a href="{{ url_for('post_job') }}" class="btn-primary">Post a New Job</a>
-
-
-
-
-        <!-- Job Postings -->
-        <h2>Your Job Postings</h2>
-        <div class="job-list">
+      <!-- Job Postings List -->
+      <div>
+        <h2 class="text-xl font-semibold mb-2">Your Job Postings</h2>
+        {% if job_postings %}
+          <div class="flex flex-col gap-6">
             {% for job in job_postings %}
-            <div class="job-card">
-                <i class="fas fa-bookmark bookmark"></i> <!-- Bookmark icon -->
-                <h3>{{ job.title }}</h3>
-                <p><strong>{{ job.location }}</strong></p>
-                <p>{{ job.description }}</p>
-                <div class="job-meta">
-                    <span><i class="fas fa-calendar-alt"></i> Deadline: {{ job.deadline }}</span>
+              <div class="bg-white border border-gray-200 rounded-xl shadow flex flex-col md:flex-row md:items-center p-6 gap-4 hover:shadow-lg transition">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-2">
+                    <i class="fas fa-bookmark text-blue-500"></i>
+                    <h3 class="text-lg font-bold text-blue-700 truncate">{{ job.title }}</h3>
+                  </div>
+                  <p class="text-sm text-gray-600 truncate"><strong>{{ job.location }}</strong></p>
+                  <p class="text-sm text-gray-700 mt-2 truncate-multiline" title="{{ job.description }}">{{ job.description }}</p>
+                  <div class="mt-2 text-xs text-gray-500 flex items-center gap-1">
+                    <i class="fas fa-calendar-alt"></i> Deadline: {{ job.deadline }}
+                  </div>
                 </div>
-                <div class="job-actions">
-                    <a href="/view-applicants/{{ job.id }}" class="btn btn-view">View Applicants</a>
-                    <a href="/edit-posting/{{ job.id }}" class="btn btn-edit">Edit</a>
-                    <form method="POST" action="{{ url_for('delete_posting', job_id=job.id) }}">
-                        <button type="submit" class="btn btn-delete">Delete</button>
-                    </form>
+                <div class="flex flex-col gap-2 md:ml-6">
+                  <a href="/view-applicants/{{ job.id }}"
+                     class="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded-full shadow text-xs font-semibold text-center">View Applicants</a>
+                  <a href="/edit-posting/{{ job.id }}"
+                     class="bg-yellow-400 hover:bg-yellow-500 text-white px-4 py-1 rounded-full shadow text-xs font-semibold text-center">Edit</a>
+                  <form method="POST" action="{{ url_for('delete_posting', job_id=job.id) }}" onsubmit="return confirm('Are you sure you want to delete this posting?');">
+                    <button type="submit"
+                            class="bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded-full shadow text-xs font-semibold text-center w-full">Delete</button>
+                  </form>
                 </div>
-            </div>
+              </div>
             {% endfor %}
-        </div>
+          </div>
+        {% else %}
+          <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-xl text-yellow-800">
+            <p>You haven't posted any jobs yet.</p>
+          </div>
+        {% endif %}
+      </div>
+    </section>
 
-        
-    </main>
-    <script src="static/js/script.js"></script>
+    <!-- Right Sidebar: Connections -->
+    <aside class="w-72 bg-white py-6 px-4 rounded-lg shadow shrink-0 flex flex-col items-center space-y-4">
+      <h2 class="text-lg font-semibold mb-2">Connections</h2>
+      {% if connections %}
+        <ul class="flex flex-col gap-2 w-full">
+          {% for connection in connections %}
+            <li class="flex items-center gap-3 bg-gray-100 rounded-lg p-2">
+              <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                {% if connection.profile_pic_url %}
+                  <img src="{{ connection.profile_pic_url }}" alt="Connection" class="w-10 h-10 object-cover rounded-full">
+                {% else %}
+                  <span class="text-lg text-blue-600 font-bold">{{ (connection.name or connection.username)[:2]|upper }}</span>
+                {% endif %}
+              </div>
+              <div>
+                <p class="text-sm font-semibold">{{ connection.name or connection.username }}</p>
+                <p class="text-xs text-gray-600">{{ connection.email }}</p>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="text-gray-500 text-sm text-center">No connections yet.</div>
+      {% endif %}
+    </aside>
+
+  </main>
+
+  <footer class="text-center text-sm text-gray-500 py-6 border-t mt-10">
+    &copy; {{ now().year }} JobConnect. All rights reserved.
+  </footer>
+
 </body>
 </html>

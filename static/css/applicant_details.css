@@ -602,3 +602,46 @@ body {
     width: 100%;
   }
 }
+
+/* 📌 Button Container */
+.decision-buttons {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+/* ✅ Accept Button */
+.accept-btn {
+  background: #28a745;
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.accept-btn:hover {
+  background: #218838;
+  transform: scale(1.05);
+}
+
+/* ❌ Reject Button */
+.reject-btn {
+  background: #dc3545;
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.reject-btn:hover {
+  background: #c82333;
+  transform: scale(1.05);
+}

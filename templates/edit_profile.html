@@ -1,113 +1,146 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Profile</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Edit Profile | JobConnect</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 </head>
-<body>
-  <div class="background"></div>
-    <!-- Glassmorphic Navbar -->
-    <header class="navbar">
-      <div class="navbar-left">
-        <a href="{{ url_for('index') }}" class="logo">JobConnect</a>
-      </div>
-    
-      <ul class="nav-links">
-        <li><a href="{{ url_for('index') }}">Home</a></li>
-        <li><a href="{{ url_for('approved_postings') }}">Approved Postings</a></li>
-        
-        {% if current_user.is_authenticated %}
-          {% if current_user.role == 'admin' %}
-            <li><a href="{{ url_for('admin_panel') }}">Admin Panel</a></li>
-            <li><a href="{{ url_for('logout') }}">Logout</a></li>
-          {% elif current_user.role == 'employer' %}
-            <li><a href="{{ url_for('employer_dashboard') }}">Dashboard</a></li>
-          {% elif current_user.role == 'student' %}
-            <li><a href="{{ url_for('student_dashboard') }}">Dashboard</a></li>
-          {% endif %}
-        {% else %}
-          <li><a href="{{ url_for('login') }}">Login</a></li>
-          <li><a href="{{ url_for('register') }}">Register</a></li>
-        {% endif %}
-      </ul>
-    
-      <div class="nav-icons">
-        <i class="fas fa-search search-icon" onclick="openSearch()"></i>
-    
-        {% if current_user.is_authenticated and current_user.role in ['employer', 'student'] %}
-          <div class="user-dropdown">
-            <i class="fas fa-user user-icon" onclick="toggleUserMenu()"></i>
-            <div class="user-menu" id="userMenu">
-              <a href="{{ url_for('profile', username=current_user.username) }}">Profile</a>
-              <a href="{{ url_for('logout') }}">Logout</a>
-            </div>
-          </div>
-        {% endif %}
-      </div>
-    </header>
-    
-    <!-- 🔎 Search Overlay -->
-  <div class="search-overlay" id="searchOverlay">
-    <div class="search-container">
-        <input type="text" id="searchInput" class="search-input" placeholder="Search for jobs..." onkeyup="fetchSuggestions()">
-        <button class="search-close" onclick="closeSearch()">✖</button>
+<body class="bg-gray-100 text-gray-900 font-sans">
+
+  <!-- Navbar -->
+<nav class="bg-white shadow-md sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+    <a href="{{ url_for('index') }}" class="text-2xl font-bold text-blue-600">JobConnect</a>
+
+    <!-- Live Search Component -->
+    <div class="relative w-96"> <!-- Increased from w-64 to w-96 -->
+      <input
+        type="text"
+        id="liveSearchInput"
+        placeholder="Search jobs or profiles..."
+        class="px-3 py-1.5 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm w-full"
+        oninput="fetchSuggestions(this.value)"
+        autocomplete="off"
+      >
+      <div id="searchSuggestions" class="absolute z-50 mt-1 bg-white border border-gray-300 rounded-md shadow-md w-full hidden max-h-80 overflow-y-auto"></div>
     </div>
-    <div class="suggestions-box">
-        <div class="search-tips">
-            <h3></h3>
-            <p><kbd></kbd><kbd></kbd></p>
-        </div>
-        <div class="trending-jobs">
-            <h4>#1 Trending</h4>
-            <div class="trending-item" onclick="selectSuggestion('Software Engineer')">
-                <span>💼</span> Software Engineer
-            </div>
-            <h4>#2 Trending</h4>
-            <div class="trending-item" onclick="selectSuggestion('Data Scientist')">
-                <span>📊</span> Data Scientist
-            </div>
-        </div>
-        <ul class="search-suggestions" id="searchSuggestions"></ul>
-    </div>
+
+    <ul class="flex space-x-6 items-center text-sm font-medium">
+      <li><a href="{{ url_for('index') }}" class="hover:text-blue-600 transition">Home</a></li>
+      <li><a href="{{ url_for('approved_postings') }}" class="hover:text-blue-600 transition">Jobs</a></li>
+      {% if current_user.is_authenticated %}
+        {% if current_user.role == 'admin' %}
+          <li><a href="{{ url_for('admin_panel') }}" class="hover:text-blue-600">Dashboard</a></li>
+        {% elif current_user.role == 'employer' %}
+          <li><a href="{{ url_for('employer_dashboard') }}" class="hover:text-blue-600">Dashboard</a></li>
+        {% elif current_user.role == 'student' %}
+          <li><a href="{{ url_for('student_dashboard') }}" class="text-blue-600 font-semibold">My Dashboard</a></li>
+        {% endif %}
+        <li><a href="{{ url_for('logout') }}" class="hover:text-red-500 transition">Logout</a></li>
+      {% else %}
+        <li><a href="{{ url_for('login') }}" class="hover:text-blue-600 transition">Login</a></li>
+        <li><a href="{{ url_for('register') }}" class="hover:text-blue-600 transition">Register</a></li>
+      {% endif %}
+    </ul>
   </div>
-  
-    
-   
-  
-    <div class="profile-container">
-        <h1>Edit Profile</h1>
-        <form method="POST">
-            <label for="name">Full Name:</label>
-            <input type="text" id="name" name="name" value="{{ user.name }}" required>
+</nav>
 
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" value="{{ user.email }}" required>
+<script>
+async function fetchSuggestions(query) {
+  const suggestionBox = document.getElementById('searchSuggestions');
+  if (!query.trim()) {
+    suggestionBox.classList.add('hidden');
+    suggestionBox.innerHTML = '';
+    return;
+  }
 
-            <label for="bio">Bio:</label>
-            <textarea id="bio" name="bio" rows="4">{{ user.bio }}</textarea>
+  try {
+    const res = await fetch(`/search-suggestions?q=${encodeURIComponent(query)}`);
+    const data = await res.json();
 
-            {% if user.role == 'employer' %}
-                <h3>Company Details</h3>
-                <label for="company_name">Company Name:</label>
-                <input type="text" id="company_name" name="company_name" value="{{ user.company_name }}">
+    suggestionBox.innerHTML = '';
+    if (data.suggestions.length === 0) {
+      suggestionBox.classList.add('hidden');
+      return;
+    }
 
-                <label for="company_website">Company Website:</label>
-                <input type="url" id="company_website" name="company_website" value="{{ user.company_website }}">
+    data.suggestions.forEach(item => {
+      const div = document.createElement('div');
+      div.className = "px-3 py-2 hover:bg-blue-100 cursor-pointer text-sm";
+      div.innerText = item.title;
+      div.onclick = () => {
+        window.location.href = `/job/${item.id}`;
+      };
+      suggestionBox.appendChild(div);
+    });
 
-            {% elif user.role == 'student' %}
-                <h3>Student Details</h3>
-                <label for="resume_link">Resume Link:</label>
-                <input type="url" id="resume_link" name="resume_link" value="{{ user.resume_link }}">
+    suggestionBox.classList.remove('hidden');
+  } catch (err) {
+    console.error('Search failed:', err);
+  }
+}
+</script>
 
-                <label for="skills">Skills:</label>
-                <textarea id="skills" name="skills" rows="3">{{ user.skills }}</textarea>
-            {% endif %}
+  <!-- Profile Edit Card -->
+  <main class="max-w-2xl mx-auto px-6 py-10">
+    <div class="bg-white shadow-md rounded-lg p-8">
+      <h1 class="text-2xl font-bold text-gray-800 mb-4">Edit Your Profile</h1>
+      <form method="POST" class="space-y-6">
 
-            <button type="submit" class="btn">Save Changes</button>
-        </form>
+        <!-- Name -->
+        <div>
+          <label for="name" class="block text-sm font-medium text-gray-700">Full Name</label>
+          <input type="text" id="name" name="name" value="{{ user.name }}" required class="mt-1 w-full px-3 py-2 border rounded-md shadow-sm" />
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+          <input type="email" id="email" name="email" value="{{ user.email }}" required class="mt-1 w-full px-3 py-2 border rounded-md shadow-sm" />
+        </div>
+
+        <!-- Bio -->
+        <div>
+          <label for="bio" class="block text-sm font-medium text-gray-700">Bio</label>
+          <textarea id="bio" name="bio" rows="4" class="mt-1 w-full px-3 py-2 border rounded-md shadow-sm">{{ user.bio }}</textarea>
+        </div>
+
+        <!-- Employer-Specific Fields -->
+        {% if user.role == 'employer' %}
+        <div class="pt-4 border-t">
+          <h3 class="text-lg font-semibold text-gray-700 mb-2 mt-4">Company Information</h3>
+
+          <label for="company_name" class="block text-sm font-medium text-gray-700">Company Name</label>
+          <input type="text" id="company_name" name="company_name" value="{{ user.company_name }}" class="mt-1 w-full px-3 py-2 border rounded-md shadow-sm" />
+
+          <label for="company_website" class="block text-sm font-medium text-gray-700 mt-4">Company Website</label>
+          <input type="url" id="company_website" name="company_website" value="{{ user.company_website }}" class="mt-1 w-full px-3 py-2 border rounded-md shadow-sm" />
+        </div>
+        {% endif %}
+
+        <!-- Student-Specific Fields -->
+        {% if user.role == 'student' %}
+        <div class="pt-4 border-t">
+          <h3 class="text-lg font-semibold text-gray-700 mb-2 mt-4">Student Information</h3>
+
+          <label for="resume_link" class="block text-sm font-medium text-gray-700">Resume Link</label>
+          <input type="url" id="resume_link" name="resume_link" value="{{ user.resume_link }}" class="mt-1 w-full px-3 py-2 border rounded-md shadow-sm" />
+
+          <label for="skills" class="block text-sm font-medium text-gray-700 mt-4">Skills</label>
+          <textarea id="skills" name="skills" rows="3" class="mt-1 w-full px-3 py-2 border rounded-md shadow-sm">{{ user.skills }}</textarea>
+        </div>
+        {% endif %}
+
+        <!-- Submit -->
+        <div class="pt-4">
+          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md shadow font-medium text-sm">Save Changes</button>
+          <a href="{{ url_for('profile', username=user.username) }}" class="ml-4 text-sm text-gray-500 hover:underline">Cancel</a>
+        </div>
+      </form>
     </div>
-    <script src="static/js/script.js"></script>
+  </main>
+
 </body>
 </html>

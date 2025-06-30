@@ -1,255 +1,209 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ job.title }} - Job Details</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/job_details.css') }}">
-     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-     <script>
-      const aiInsights = JSON.parse('{{ ai_insights | tojson | safe }}');
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ job.title }} - Job Details</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const aiInsights = JSON.parse('{{ ai_insights | tojson | safe }}');
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    html, body {
+      height: 100%;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 9999px;
+    }
+  </style>
 </head>
-<body>
-  <div class="background"></div>
+<body class="bg-gray-100 text-gray-900 font-sans">
+  <!-- Navbar -->
+  <header class="bg-white shadow-md sticky top-0 z-50">
+    <div class="w-full max-w-screen-xl mx-auto px-4 py-4 flex justify-between items-center">
+      <a href="{{ url_for('index') }}" class="text-2xl font-bold text-blue-600">JobConnect</a>
+      <ul class="flex space-x-6 items-center text-sm font-medium">
+        <li><a href="{{ url_for('index') }}" class="hover:text-blue-600 transition">Home</a></li>
+        <li><a href="{{ url_for('approved_postings') }}" class="hover:text-blue-600 transition">Jobs</a></li>
+        {% if current_user.is_authenticated %}
+          {% if current_user.role == 'admin' %}
+            <li><a href="{{ url_for('admin_panel') }}" class="hover:text-blue-600">Dashboard</a></li>
+          {% elif current_user.role == 'employer' %}
+            <li><a href="{{ url_for('employer_dashboard') }}" class="hover:text-blue-600">Dashboard</a></li>
+          {% elif current_user.role == 'student' %}
+            <li><a href="{{ url_for('student_dashboard') }}" class="text-blue-600 font-semibold">My Dashboard</a></li>
+          {% endif %}
+          <li><a href="{{ url_for('logout') }}" class="hover:text-red-500 transition">Logout</a></li>
+        {% else %}
+          <li><a href="{{ url_for('login') }}" class="hover:text-blue-600 transition">Login</a></li>
+          <li><a href="{{ url_for('register') }}" class="hover:text-blue-600 transition">Register</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </header>
 
-<!-- 🌟 Glassmorphic Navbar -->
-<header class="navbar">
-  <div class="navbar-left">
-    <a href="{{ url_for('index') }}" class="logo">JobConnect</a>
-  </div>
+  <!-- Main Layout -->
+  <main class="w-full max-w-screen-xl mx-auto px-2 py-4 grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-96px)]">
+    <!-- Scrollable Sidebar -->
+    <section class="lg:col-span-1 bg-white rounded-xl shadow-md h-full overflow-y-auto">
+      <div class="sticky top-0 bg-white z-10 px-4 pt-4 pb-2 border-b">
+        <h2 class="text-xl font-bold">All Jobs</h2>
+      </div>
+      <ul class="space-y-3 px-4 pb-4">
+        {% for job in jobs %}
+        <li>
+          <a href="/job/{{ job.id }}" class="block p-3 bg-gray-50 hover:bg-blue-100 rounded transition">
+            <h3 class="text-md font-semibold">{{ job.title }}</h3>
+            <p class="text-sm text-gray-600">{{ job.location }}</p>
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    </section>
 
-  <ul class="nav-links">
-    <li><a href="{{ url_for('index') }}">Home</a></li>
-    <li><a href="{{ url_for('approved_postings') }}">Approved Postings</a></li>
-    
-    {% if current_user.is_authenticated %}
-      {% if current_user.role == 'admin' %}
-        <li><a href="{{ url_for('admin_panel') }}">Admin Panel</a></li>
-        <li><a href="{{ url_for('logout') }}">Logout</a></li>
-      {% elif current_user.role == 'employer' %}
-        <li><a href="{{ url_for('employer_dashboard') }}">Dashboard</a></li>
-      {% elif current_user.role == 'student' %}
-        <li><a href="{{ url_for('student_dashboard') }}">Dashboard</a></li>
-      {% endif %}
-    {% else %}
-      <li><a href="{{ url_for('login') }}">Login</a></li>
-      <li><a href="{{ url_for('register') }}">Register</a></li>
-    {% endif %}
-  </ul>
+    <!-- Scrollable Insights Container -->
+    <section class="lg:col-span-2 bg-white rounded-xl shadow-md p-6 w-full h-full overflow-y-auto">
+      <div class="mb-4 border-b pb-2">
+        <h1 class="text-2xl font-bold text-gray-800">{{ job.title }}</h1>
+        <p class="text-blue-700 font-medium">{{ job.company }}</p>
+        <p class="text-sm text-gray-500">📍 {{ job.location }}</p>
+      </div>
 
-  <div class="nav-icons">
-    <i class="fas fa-search search-icon" onclick="openSearch()"></i>
+      <h2 class="text-xl font-semibold mb-2">📊 AI-Driven Market Insights</h2>
+      <p class="text-sm text-gray-600 mb-3">These insights provide a quick overview of the market performance for this job based on various AI models.</p>
 
-    {% if current_user.is_authenticated and current_user.role in ['employer', 'student'] %}
-      <div class="user-dropdown">
-        <i class="fas fa-user user-icon" onclick="toggleUserMenu()"></i>
-        <div class="user-menu" id="userMenu">
-          <a href="{{ url_for('profile', username=current_user.username) }}">Profile</a>
-          <a href="{{ url_for('logout') }}">Logout</a>
+      <div class="grid grid-cols-4 gap-2 mb-6">
+        <div class="h-36 flex flex-col items-center justify-center bg-transparent rounded">
+          <canvas id="growthChart" class="mb-1"></canvas>
+          <div class="text-xs text-gray-500 mt-1">Growth</div>
+        </div>
+        <div class="h-36 flex flex-col items-center justify-center bg-transparent rounded">
+          <canvas id="demandChart" class="mb-1"></canvas>
+          <div class="text-xs text-gray-500 mt-1">Relevance</div>
+        </div>
+        <div class="h-36 flex flex-col items-center justify-center bg-transparent rounded">
+          <canvas id="valueChart" class="mb-1"></canvas>
+          <div class="text-xs text-gray-500 mt-1">Acceptance</div>
+        </div>
+        <div class="h-36 flex flex-col items-center justify-center bg-transparent rounded">
+          <canvas id="competitionChart" class="mb-1"></canvas>
+          <div class="text-xs text-gray-500 mt-1">Competition</div>
         </div>
       </div>
-    {% endif %}
-  </div>
-</header>
 
-<!-- 🔎 Search Overlay -->
-<div class="search-overlay" id="searchOverlay">
-<div class="search-container">
-    <input type="text" id="searchInput" class="search-input" placeholder="Search for jobs..." onkeyup="fetchSuggestions()">
-    <button class="search-close" onclick="closeSearch()">✖</button>
-</div>
-<div class="suggestions-box">
-    <div class="search-tips">
-        <h3></h3>
-        <p><kbd></kbd><kbd></kbd></p>
-    </div>
-    <div class="trending-jobs">
-        <h4>#1 Trending</h4>
-        <div class="trending-item" onclick="selectSuggestion('Software Engineer')">
-            <span>💼</span> Software Engineer
-        </div>
-        <h4>#2 Trending</h4>
-        <div class="trending-item" onclick="selectSuggestion('Data Scientist')">
-            <span>📊</span> Data Scientist
-        </div>
-    </div>
-    <ul class="search-suggestions" id="searchSuggestions"></ul>
-</div>
-</div>
-
-
-
-
-
-     <!-- 🌟 Left Content (Job Details) -->
-     <div class="content-wrapper">
-      <h1 class="job-title">{{ job.title }}</h1>
-      <p class="company-name">{{ job.company }}</p>
-      <p class="job-location">📍 {{ job.location }}</p>
-      <p class="job-description">{{ job.description }}</p>
-
-      <!-- 💰 Salary Info -->
-      <p class="salary-text">${{ ai_insights.estimated_salary }}</p>
-      <p class="salary-subtitle">Projected Salary Estimate</p>
-
-      <!-- 🎯 Apply Now Button -->
-       <a href="/apply/{{ job.id }}" class="apply-btn">Apply Now</a>
-
-  </div>
-
-  <!-- 📌 Separator -->
-  <div class="separator"></div>
-
-  <div class="right-content">
-    <!-- 📌 Grid Container for Title & Graphs -->
-    <div class="insights-grid">
-        <!-- 📌 Section Title (Now Clearly Above) -->
-        <h2 class="section-title">AI-Driven Market Insights</h2>
-
-        <!-- 📊 Graphs Row (Below the Title) -->
-        <div class="graphs-container">
-            <div class="graph-box">
-                <canvas id="growthChart"></canvas>
-                <div class="chart-label">Market Growth Rate</div>
-            </div>
-            <div class="graph-box">
-                <canvas id="demandChart"></canvas>
-                <div class="chart-label">Relevance</div>
-            </div>
-            <div class="graph-box">
-                <canvas id="valueChart"></canvas>
-                <div class="chart-label">Acceptance Chance</div>
-            </div>
-            <div class="graph-box">
-                <canvas id="competitionChart"></canvas>
-                <div class="chart-label">Job Market Competition</div>
-            </div>
-        </div>
-
-        <div class="stock-chart-container">
+      <div class="bg-transparent p-4 rounded mb-5">
+        <h3 class="text-sm font-medium mb-2">Market Popularity Trend</h3>
+        <div class="h-40">
           <canvas id="stockChart"></canvas>
+        </div>
       </div>
 
-      
-      
-    </div>
-</div>
+      <p class="mb-5 text-sm leading-relaxed text-gray-700">{{ job.description }}</p>
 
-<div class="job-recommendations">
-  <h2>🎯 Recommended Jobs for You</h2>
-  <div class="job-list">
-    {% for job in recommended_jobs %}
-      <a href="/job/{{ job.id }}" class="job-card">
-        <h3>{{ job.title }}</h3>
-        <p>{{ job.location }}</p>
-      </a>
-    {% endfor %}
-  </div>
+      <div class="bg-blue-50 border border-blue-100 p-3 rounded mb-5">
+        <p class="text-xl font-bold text-blue-700">${{ ai_insights.estimated_salary }}</p>
+        <p class="text-xs text-gray-500">Estimated salary based on current market data</p>
+      </div>
 
+      <a href="/apply/{{ job.id }}" class="inline-block bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700 transition text-sm font-semibold">Apply Now</a>
+    </section>
+  </main>
 
+  <!-- JS Charts -->
+  <script src="/static/js/script.js"></script>
+  <script>
+    window.onload = function () {
+      const insights = aiInsights;
 
-<script>
-  window.onload = function () {
-      // ✅ Ensure AI Insights Data is Loaded
-      const insights = JSON.parse('{{ ai_insights | tojson | safe }}');
+      const centerTextPlugin = {
+        id: 'centerText',
+        beforeDraw(chart) {
+          const { width, height, ctx } = chart;
+          const value = chart.data.datasets[0].data[0];
+          ctx.save();
+          ctx.font = 'bold 16px sans-serif';
+          ctx.fillStyle = '#111';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(`${value}%`, width / 2, height / 1.2);
+          ctx.restore();
+        }
+      };
 
-      // 🎯 Half-Circle Graph Function
       function createSemiDonutChart(canvasId, value, colorStart, colorEnd) {
-          const ctx = document.getElementById(canvasId).getContext("2d");
+        const ctx = document.getElementById(canvasId).getContext("2d");
+        const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+        gradient.addColorStop(0, colorStart);
+        gradient.addColorStop(1, colorEnd);
 
-          // Create a gradient color
-          const gradient = ctx.createLinearGradient(0, 0, 0, 200);
-          gradient.addColorStop(0, colorStart);
-          gradient.addColorStop(1, colorEnd);
-
-          // Create chart with thinner, rounded bars
-          new Chart(ctx, {
-              type: "doughnut",
-              data: {
-                  datasets: [{
-                      data: [value, 100 - value],
-                      backgroundColor: [gradient, "#E0E0E0"], // Apply gradient
-                      borderWidth: 0,
-                      borderRadius: 15, // Smooth curved edges
-                      hoverOffset: 4 // Adds slight hover effect
-                  }]
-              },
-              options: {
-                  rotation: -90, // Start from bottom
-                  circumference: 180, // Half-circle effect
-                  cutout: "75%", // Thinner bars
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  plugins: {
-                      legend: { display: false },
-                      tooltip: { enabled: false }
-                  }
-              }
-          });
-
-          // 📌 Move Value Label Below Graph for Readability
-          const chartContainer = document.getElementById(canvasId).parentElement;
-          const valueLabel = document.createElement("div");
-          valueLabel.classList.add("chart-value");
-          valueLabel.textContent = `${value}%`; // Display actual value
-          chartContainer.appendChild(valueLabel);
+        new Chart(ctx, {
+          type: "doughnut",
+          data: {
+            datasets: [{
+              data: [value, 100 - value],
+              backgroundColor: [gradient, "#E0E0E0"],
+              borderWidth: 0,
+              borderRadius: 15,
+              hoverOffset: 4
+            }]
+          },
+          options: {
+            rotation: -90,
+            circumference: 180,
+            cutout: "75%",
+            plugins: {
+              legend: { display: false },
+              tooltip: { enabled: false }
+            }
+          },
+          plugins: [centerTextPlugin]
+        });
       }
 
-      // 🎯 Generate Semi-Donut Graphs
-      createSemiDonutChart("growthChart", insights.market_growth, "#FF6B6B", "#FFD166");  // Red-Orange
-      createSemiDonutChart("demandChart", insights.market_demand, "#06D6A0", "#1B9AAA");  // Teal-Green
-      createSemiDonutChart("valueChart", insights.relevance_score, "#118AB2", "#073B4C");   // Deep Blue
-      createSemiDonutChart("competitionChart", insights.acceptance_chance, "#EF476F", "#8338EC"); // Pink-Purple
+      createSemiDonutChart("growthChart", insights.market_growth, "#FF6B6B", "#FFD166");
+      createSemiDonutChart("demandChart", insights.market_demand, "#06D6A0", "#1B9AAA");
+      createSemiDonutChart("valueChart", insights.relevance_score, "#118AB2", "#073B4C");
+      createSemiDonutChart("competitionChart", insights.acceptance_chance, "#EF476F", "#8338EC");
 
-      // 📊 Generate Stock Chart Below the Half-Circle Graphs
       const stockData = insights.popularity_trend || [];
-
       if (stockData.length > 0) {
-          const ctx = document.getElementById('stockChart').getContext('2d');
+        const ctx = document.getElementById('stockChart').getContext('2d');
+        const minValue = Math.min(...stockData) - 5;
+        const maxValue = Math.max(...stockData) + 5;
 
-          // 📌 Dynamically determine min and max values for scaling
-          const minValue = Math.min(...stockData) - 5; // Add padding below
-          const maxValue = Math.max(...stockData) + 5; // Add padding above
-
-          new Chart(ctx, {
-              type: 'line',
-              data: {
-                  labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'], // Example months
-                  datasets: [{
-                      label: 'Market Trend',
-                      data: stockData,
-                      borderColor: '#1D3557', // Dark blue for a stock-like look
-                      backgroundColor: 'rgba(29, 53, 87, 0.2)', // Light blue shade
-                      borderWidth: 2,
-                      pointRadius: 3,
-                      pointBackgroundColor: '#1D3557',
-                      fill: true,
-                      tension: 0.4 // Smooth curve for stock-like appearance
-                  }]
-              },
-              options: {
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  scales: {
-                      y: {
-                          suggestedMin: minValue,
-                          suggestedMax: maxValue,
-                          grid: { color: "#E0E0E0" }
-                      },
-                      x: { grid: { display: false } }
-                  }
-              }
-          });
-      } else {
-          console.error("Stock data is missing or empty.");
+        new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+            datasets: [{
+              label: 'Market Trend',
+              data: stockData,
+              borderColor: '#1D3557',
+              backgroundColor: 'rgba(29, 53, 87, 0.2)',
+              borderWidth: 2,
+              pointRadius: 3,
+              pointBackgroundColor: '#1D3557',
+              fill: true,
+              tension: 0.4
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: { suggestedMin: minValue, suggestedMax: maxValue, grid: { color: "#E0E0E0" } },
+              x: { grid: { display: false } }
+            }
+          }
+        });
       }
-  };
-</script>
-
-<script src="static/js/script.js"></script>
+    };
+  </script>
 </body>
 </html>

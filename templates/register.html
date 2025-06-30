@@ -3,114 +3,186 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Register</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <title>Register | JobConnect</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+  <script>
+    // Show/hide additional fields by role
+    function toggleRoleFields() {
+      var role = document.getElementById('role').value;
+      document.getElementById('employerFields').style.display = role === 'employer' ? 'block' : 'none';
+      document.getElementById('studentFields').style.display = role === 'student' ? 'block' : 'none';
+    }
+    window.addEventListener('DOMContentLoaded', function() {
+      toggleRoleFields();
+    });
+  </script>
 </head>
-<body>
+<body class="bg-gray-100 min-h-screen">
 
-  <div class="background"></div>
+  <!-- Navbar -->
+  <nav class="bg-white shadow-md sticky top-0 z-50">
+  <div class="w-full max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+    <a href="{{ url_for('index') }}" class="text-2xl font-bold text-blue-600">JobConnect</a>
 
-  <header class="navbar">
-    <div class="navbar-left">
-      <a href="{{ url_for('index') }}" class="logo">JobConnect</a>
+    <div class="relative w-96 hidden md:block">
+      <input
+        type="text"
+        id="liveSearchInput"
+        placeholder="Search jobs or profiles..."
+        class="px-3 py-1.5 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm w-full"
+        oninput="fetchSuggestions(this.value)"
+        autocomplete="off"
+      >
+      <div id="searchSuggestions" class="absolute z-50 mt-1 bg-white border border-gray-300 rounded-md shadow-md w-full hidden max-h-80 overflow-y-auto"></div>
     </div>
-    <div class="hamburger">
-      <i class="fas fa-bars"></i>
-  </div>
-    <ul class="nav-links">
-      <li><a href="{{ url_for('index') }}">Home</a></li>
-      <li><a href="{{ url_for('approved_postings') }}">Approved Postings</a></li>
-      
+
+    <ul class="flex space-x-6 items-center text-sm font-medium">
+      <li><a href="{{ url_for('index') }}" class="hover:text-blue-600 transition">Home</a></li>
+      <li><a href="{{ url_for('approved_postings') }}" class="hover:text-blue-600 transition">Jobs</a></li>
       {% if current_user.is_authenticated %}
         {% if current_user.role == 'admin' %}
-          <li><a href="{{ url_for('admin_panel') }}">Admin Panel</a></li>
-          <li><a href="{{ url_for('logout') }}">Logout</a></li>
+          <li><a href="{{ url_for('admin_panel') }}" class="hover:text-blue-600">Dashboard</a></li>
         {% elif current_user.role == 'employer' %}
-          <li><a href="{{ url_for('employer_dashboard') }}">Dashboard</a></li>
+          <li><a href="{{ url_for('employer_dashboard') }}" class="hover:text-blue-600">Dashboard</a></li>
         {% elif current_user.role == 'student' %}
-          <li><a href="{{ url_for('student_dashboard') }}">Dashboard</a></li>
+          <li><a href="{{ url_for('student_dashboard') }}" class="hover:text-blue-600">My Dashboard</a></li>
         {% endif %}
+        <li><a href="{{ url_for('logout') }}" class="hover:text-red-500 transition">Logout</a></li>
       {% else %}
-        <li><a href="{{ url_for('login') }}">Login</a></li>
-        <li><a href="{{ url_for('register') }}">Register</a></li>
+        <li><a href="{{ url_for('login') }}" class="hover:text-blue-600 transition">Login</a></li>
+        <li><a href="{{ url_for('register') }}" class="hover:text-blue-600 transition">Register</a></li>
       {% endif %}
     </ul>
-  
-    <div class="nav-icons">
-      <i class="fas fa-search search-icon" onclick="openSearch()"></i>
-  
-      {% if current_user.is_authenticated and current_user.role in ['employer', 'student'] %}
-        <div class="user-dropdown">
-          <i class="fas fa-user user-icon" onclick="toggleUserMenu()"></i>
-          <div class="user-menu" id="userMenu">
-            <a href="{{ url_for('profile', username=current_user.username) }}">Profile</a>
-            <a href="{{ url_for('logout') }}">Logout</a>
+  </div>
+</nav>
+<script>
+async function fetchSuggestions(query) {
+  const suggestionBox = document.getElementById('searchSuggestions');
+  if (!query.trim()) {
+    suggestionBox.classList.add('hidden');
+    suggestionBox.innerHTML = '';
+    return;
+  }
+
+  try {
+    const res = await fetch(`/search-suggestions?q=${encodeURIComponent(query)}`);
+    const data = await res.json();
+
+    suggestionBox.innerHTML = '';
+    if (data.suggestions.length === 0) {
+      suggestionBox.classList.add('hidden');
+      return;
+    }
+
+    data.suggestions.forEach(item => {
+      const div = document.createElement('div');
+      div.className = "px-3 py-2 hover:bg-blue-100 cursor-pointer text-sm";
+      div.innerText = item.title;
+      div.onclick = () => {
+        window.location.href = `/job/${item.id}`;
+      };
+      suggestionBox.appendChild(div);
+    });
+
+    suggestionBox.classList.remove('hidden');
+  } catch (err) {
+    console.error('Search failed:', err);
+  }
+}
+</script>
+  <main class="flex flex-col items-center justify-center min-h-[80vh] px-4">
+    <div class="w-full max-w-lg bg-white rounded-2xl shadow-xl p-8 mt-10">
+      <div class="flex flex-col items-center mb-6">
+        <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mb-2">
+          <i class="fas fa-user-plus text-blue-600 text-3xl"></i>
+        </div>
+        <h1 class="text-2xl font-bold text-blue-700 mb-1">Register</h1>
+        <p class="text-gray-500 text-sm mb-2 text-center">Join JobConnect and find or post jobs easily.</p>
+      </div>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="mb-3">
+            {% for category, message in messages %}
+              <div class="text-sm rounded px-3 py-2 mb-1 {{ 'bg-red-100 text-red-700' if category == 'error' else 'bg-green-100 text-green-700' }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <form method="POST" class="flex flex-col gap-4">
+        <div>
+          <label for="full_name" class="block text-gray-700 font-semibold mb-1">Full Name</label>
+          <input type="text" id="full_name" name="full_name" placeholder="Enter your full name"
+                 class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 outline-none" required>
+        </div>
+        <div>
+          <label for="email" class="block text-gray-700 font-semibold mb-1">Email</label>
+          <input type="email" id="email" name="email" placeholder="Enter your email"
+                 class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 outline-none" required>
+        </div>
+        <div>
+          <label for="username" class="block text-gray-700 font-semibold mb-1">Username</label>
+          <input type="text" id="username" name="username" placeholder="Choose a username"
+                 class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 outline-none" required>
+        </div>
+        <div>
+          <label for="password" class="block text-gray-700 font-semibold mb-1">Password</label>
+          <input type="password" id="password" name="password" placeholder="Enter your password"
+                 class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 outline-none" required>
+        </div>
+        <div>
+          <label for="confirm_password" class="block text-gray-700 font-semibold mb-1">Confirm Password</label>
+          <input type="password" id="confirm_password" name="confirm_password" placeholder="Re-enter your password"
+                 class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 outline-none" required>
+        </div>
+        <div>
+          <label for="role" class="block text-gray-700 font-semibold mb-1">Role</label>
+          <select id="role" name="role" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 outline-none" onchange="toggleRoleFields()">
+            <option value="" disabled selected>Select your role</option>
+            <option value="employer">Employer</option>
+            <option value="student">Student</option>
+          </select>
+        </div>
+
+        <!-- Employer Fields -->
+        <div id="employerFields" style="display:none;">
+          <div>
+            <label for="company_name" class="block text-gray-700 font-semibold mb-1">Company Name</label>
+            <input type="text" id="company_name" name="company_name" placeholder="Your company"
+                   class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+          </div>
+          <div>
+            <label for="company_website" class="block text-gray-700 font-semibold mb-1">Company Website</label>
+            <input type="url" id="company_website" name="company_website" placeholder="https://"
+                   class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
           </div>
         </div>
-      {% endif %}
+
+        <!-- Student Fields -->
+        <div id="studentFields" style="display:none;">
+          <div>
+            <label for="resume_link" class="block text-gray-700 font-semibold mb-1">Resume Link</label>
+            <input type="url" id="resume_link" name="resume_link" placeholder="Link to your resume"
+                   class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+          </div>
+          <div>
+            <label for="skills" class="block text-gray-700 font-semibold mb-1">Skills</label>
+            <input type="text" id="skills" name="skills" placeholder="e.g. Python, Excel, Teamwork"
+                   class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+          </div>
+        </div>
+
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg px-4 py-2 transition shadow w-full">
+          Register
+        </button>
+      </form>
+      <div class="mt-4 text-center">
+        <a class="text-blue-700 hover:underline text-sm" href="{{ url_for('login') }}">
+          Already have an account? Login
+        </a>
+      </div>
     </div>
-  </header>
-  
-  <!-- 🔎 Search Overlay -->
-<div class="search-overlay" id="searchOverlay">
-  <div class="search-container">
-      <input type="text" id="searchInput" class="search-input" placeholder="Search for jobs..." onkeyup="fetchSuggestions()">
-      <button class="search-close" onclick="closeSearch()">✖</button>
-  </div>
-  <div class="suggestions-box">
-      <div class="search-tips">
-          <h3></h3>
-          <p><kbd></kbd><kbd></kbd></p>
-      </div>
-      <div class="trending-jobs">
-          <h4>#1 Trending</h4>
-          <div class="trending-item" onclick="selectSuggestion('Software Engineer')">
-              <span>💼</span> Software Engineer
-          </div>
-          <h4>#2 Trending</h4>
-          <div class="trending-item" onclick="selectSuggestion('Data Scientist')">
-              <span>📊</span> Data Scientist
-          </div>
-      </div>
-      <ul class="search-suggestions" id="searchSuggestions"></ul>
-  </div>
-</div>
-
-  
- 
-
-  <!-- Register Form -->
-  <div class="container">
-    <h1>Register</h1>
-    <p class="subheading">Join JobConnect and find or post jobs easily.</p>
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <p class="{{ category }}">{{ message }}</p>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
-
-    <form method="POST">
-      <label for="username">Username</label>
-      <input type="text" id="username" name="username" placeholder="Enter your username" required>
-
-      <label for="password">Password</label>
-      <input type="password" id="password" name="password" placeholder="Enter your password" required>
-
-      <label for="role">Role</label>
-      <select id="role" name="role" required>
-        <option value="" disabled selected>Select your role</option>
-        <option value="employer">Employer</option>
-        <option value="student">Student</option>
-      </select>
-
-      <button type="submit">Register</button>
-    </form>
-    <a class="accountless" href="{{ url_for('login') }}">Already have an account? Login</a>
-  </div>
-  <script src="static/js/script.js"></script>
+  </main>
 </body>
 </html>

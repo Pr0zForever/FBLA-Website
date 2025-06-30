@@ -1,127 +1,267 @@
+<!-- templates/admin_panel.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_panel.css') }}">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard | JobConnect</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
-  <div class="background"></div>
-   <!-- 🌟 Glassmorphic Navbar -->
-   <header class="navbar">
-    <div class="navbar-left">
-      <a href="{{ url_for('index') }}" class="logo">JobConnect</a>
+<body class="bg-gray-100 text-gray-800 font-sans">
+
+<nav class="bg-white shadow-md sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+    <a href="{{ url_for('index') }}" class="text-2xl font-bold text-blue-600">JobConnect</a>
+
+    <!-- Live Search Component -->
+    <div class="relative w-96"> <!-- Increased from w-64 to w-96 -->
+      <input
+        type="text"
+        id="liveSearchInput"
+        placeholder="Search jobs or profiles..."
+        class="px-3 py-1.5 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm w-full"
+        oninput="fetchSuggestions(this.value)"
+        autocomplete="off"
+      >
+      <div id="searchSuggestions" class="absolute z-50 mt-1 bg-white border border-gray-300 rounded-md shadow-md w-full hidden max-h-80 overflow-y-auto"></div>
     </div>
-  
-    <ul class="nav-links">
-      <li><a href="{{ url_for('index') }}">Home</a></li>
-      <li><a href="{{ url_for('approved_postings') }}">Approved Postings</a></li>
-      
+
+    <ul class="flex space-x-6 items-center text-sm font-medium">
+      <li><a href="{{ url_for('index') }}" class="hover:text-blue-600 transition">Home</a></li>
+      <li><a href="{{ url_for('approved_postings') }}" class="hover:text-blue-600 transition">Jobs</a></li>
       {% if current_user.is_authenticated %}
         {% if current_user.role == 'admin' %}
-          <li><a href="{{ url_for('admin_panel') }}">Admin Panel</a></li>
-          <li><a href="{{ url_for('logout') }}">Logout</a></li>
+          <li><a href="{{ url_for('admin_panel') }}" class="hover:text-blue-600">Dashboard</a></li>
         {% elif current_user.role == 'employer' %}
-          <li><a href="{{ url_for('employer_dashboard') }}">Dashboard</a></li>
+          <li><a href="{{ url_for('employer_dashboard') }}" class="hover:text-blue-600">Dashboard</a></li>
         {% elif current_user.role == 'student' %}
-          <li><a href="{{ url_for('student_dashboard') }}">Dashboard</a></li>
+          <li><a href="{{ url_for('student_dashboard') }}" class="text-blue-600 font-semibold">My Dashboard</a></li>
         {% endif %}
+        <li><a href="{{ url_for('logout') }}" class="hover:text-red-500 transition">Logout</a></li>
       {% else %}
-        <li><a href="{{ url_for('login') }}">Login</a></li>
-        <li><a href="{{ url_for('register') }}">Register</a></li>
+        <li><a href="{{ url_for('login') }}" class="hover:text-blue-600 transition">Login</a></li>
+        <li><a href="{{ url_for('register') }}" class="hover:text-blue-600 transition">Register</a></li>
       {% endif %}
     </ul>
-  
-    <div class="nav-icons">
-      <i class="fas fa-search search-icon" onclick="openSearch()"></i>
-  
-      {% if current_user.is_authenticated and current_user.role in ['employer', 'student'] %}
-        <div class="user-dropdown">
-          <i class="fas fa-user user-icon" onclick="toggleUserMenu()"></i>
-          <div class="user-menu" id="userMenu">
-            <a href="{{ url_for('profile', username=current_user.username) }}">Profile</a>
-            <a href="{{ url_for('logout') }}">Logout</a>
-          </div>
-        </div>
-      {% endif %}
-    </div>
-  </header>
-  
-  <!-- 🔎 Search Overlay -->
-<div class="search-overlay" id="searchOverlay">
-  <div class="search-container">
-      <input type="text" id="searchInput" class="search-input" placeholder="Search for jobs..." onkeyup="fetchSuggestions()">
-      <button class="search-close" onclick="closeSearch()">✖</button>
   </div>
-  <div class="suggestions-box">
-      <div class="search-tips">
-          <h3></h3>
-          <p><kbd></kbd><kbd></kbd></p>
-      </div>
-      <div class="trending-jobs">
-          <h4>#1 Trending</h4>
-          <div class="trending-item" onclick="selectSuggestion('Software Engineer')">
-              <span>💼</span> Software Engineer
-          </div>
-          <h4>#2 Trending</h4>
-          <div class="trending-item" onclick="selectSuggestion('Data Scientist')">
-              <span>📊</span> Data Scientist
-          </div>
-      </div>
-      <ul class="search-suggestions" id="searchSuggestions"></ul>
+</nav>
+
+<script>
+async function fetchSuggestions(query) {
+  const suggestionBox = document.getElementById('searchSuggestions');
+  if (!query.trim()) {
+    suggestionBox.classList.add('hidden');
+    suggestionBox.innerHTML = '';
+    return;
+  }
+
+  try {
+    const res = await fetch(`/search-suggestions?q=${encodeURIComponent(query)}`);
+    const data = await res.json();
+
+    suggestionBox.innerHTML = '';
+    if (data.suggestions.length === 0) {
+      suggestionBox.classList.add('hidden');
+      return;
+    }
+
+    data.suggestions.forEach(item => {
+      const div = document.createElement('div');
+      div.className = "px-3 py-2 hover:bg-blue-100 cursor-pointer text-sm";
+      div.innerText = item.title;
+      div.onclick = () => {
+        window.location.href = `/job/${item.id}`;
+      };
+      suggestionBox.appendChild(div);
+    });
+
+    suggestionBox.classList.remove('hidden');
+  } catch (err) {
+    console.error('Search failed:', err);
+  }
+}
+</script>
+  <!-- ✅ Page Layout -->
+  <div class="flex justify-start items-start max-w-7xl mx-auto pt-10 px-4 gap-10">
+
+    <!-- ✅ Glassmorphic Sidebar -->
+<aside class="fixed left-6 top-1/2 transform -translate-y-1/2 z-50">
+  <div class="flex flex-col items-center gap-6">
+    <a href="{{ url_for('admin_panel') }}"
+       class="bg-white/30 text-blue-800 font-semibold py-2 px-6 rounded-xl hover:bg-white/50 backdrop-blur-md transition">
+       Dashboard
+    </a>
+    <a href="{{ url_for('manage_posts') }}"
+       class="bg-white/30 text-blue-800 font-semibold py-2 px-6 rounded-xl hover:bg-white/50 backdrop-blur-md transition">
+       Manage Posts
+    </a>
+    <a href="{{ url_for('audit_logs_page') }}"
+       class="bg-white/30 text-blue-800 font-semibold py-2 px-6 rounded-xl hover:bg-white/50 backdrop-blur-md transition">
+       Audit Logs
+    </a>
+  </div>
+</aside>
+
+
+    <!-- ✅ Main Content -->
+<div class="ml-28 w-full">
+    <!-- 📈 Applications Over Time Chart -->
+
+<div class="w-full max-w-5xl mx-auto mt-8 px-4">
+  
+
+<!-- 🔵 Full-Width Applications Over Time Chart -->
+<section class="w-full bg-white shadow mb-10">
+  <div class="max-w-7xl mx-auto px-4 py-6">
+    <h2 class="text-lg font-semibold text-gray-800 mb-4">📈 Applications Over Time</h2>
+    <div class="relative w-full h-64"> <!-- ✅ fixes growing height -->
+      <canvas id="applicationsChart"></canvas>
+    </div>
+  </div>
+</section>
+
+<div class="flex justify-center gap-4 mb-4">
+    <button onclick="switchGraph('applications')" class="tab-btn bg-blue-600 text-white px-4 py-1.5 rounded hover:bg-blue-700">Applications</button>
+    <button onclick="switchGraph('postings')" class="tab-btn bg-gray-200 text-gray-800 px-4 py-1.5 rounded hover:bg-gray-300">Postings</button>
+    <button onclick="switchGraph('users')" class="tab-btn bg-gray-200 text-gray-800 px-4 py-1.5 rounded hover:bg-gray-300">Users</button>
   </div>
 </div>
+    
+
+
+
+
+
+  <h2 class="text-xl font-bold mb-4">Welcome, Admin</h2>
+  
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white p-6 rounded-lg shadow"><h2 class="text-sm text-gray-500">Total Users</h2><p class="text-2xl font-bold">{{ total_users }}</p></div>
+        <div class="bg-white p-6 rounded-lg shadow"><h2 class="text-sm text-gray-500">Job Posts</h2><p class="text-2xl font-bold">{{ total_jobs }}</p></div>
+        <div class="bg-white p-6 rounded-lg shadow"><h2 class="text-sm text-gray-500">Applications</h2><p class="text-2xl font-bold">{{ total_applications }}</p></div>
+        <div class="bg-white p-6 rounded-lg shadow"><h2 class="text-sm text-gray-500">Messages</h2><p class="text-2xl font-bold">{{ total_messages }}</p></div>
+      </div>
+
+      <section class="mb-10">
+        <h2 class="text-lg font-semibold mb-2">Pending Employers</h2>
+        <div class="bg-white p-4 rounded shadow space-y-2">
+          {% for employer in unapproved_employers %}
+            <div class="flex justify-between items-center border-b pb-2">
+              <span>{{ employer.username }} ({{ employer.email }})</span>
+              <div class="space-x-2">
+                <button onclick="approveEmployer({{ employer.id }})" class="text-green-600 hover:underline">Approve</button>
+                <button onclick="rejectEmployer({{ employer.id }})" class="text-red-600 hover:underline">Reject</button>
+              </div>
+            </div>
+          {% else %}
+            <p class="text-gray-500">No pending employers.</p>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="mb-10">
+  <h2 class="text-lg font-semibold mb-3">🚩 Flagged Job Postings</h2>
+  <div class="bg-white rounded-lg shadow divide-y">
+    {% if flagged_jobs %}
+      {% for job in flagged_jobs %}
+        <div class="p-4 hover:bg-red-50 transition">
+          <h3 class="font-semibold text-red-600">{{ job.title }}</h3>
+          <p class="text-sm text-gray-600 mb-1">{{ job.location }} &bull; Deadline: {{ job.deadline }}</p>
+          <p class="text-xs text-gray-500">{{ job.description[:120] }}...</p>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="p-4 text-gray-500 text-sm">No flagged jobs found.</div>
+    {% endif %}
+  </div>
+</section>
+
+
+      <section class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20">
+        <div class="bg-white p-6 rounded-lg shadow">
+          <h3 class="text-sm font-semibold mb-2">Job Distribution by Location</h3>
+          <canvas id="locationChart"></canvas>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow">
+          <h3 class="text-sm font-semibold mb-2">Applications Over Time</h3>
+          <canvas id="trendChart"></canvas>
+        </div>
+      </section>
+    </main>
+  </div>
+
+<script>
+  let chart;
+
+  const datasets = {
+    applications: [40, 30, 50, 100, 180, 220, 140, 80, 60, 50, 30, 20],  // sum = 1000
+    postings:     [5, 10, 8, 15, 30, 25, 20, 18, 12, 10, 8, 4],          // example values
+    users:        [10, 12, 14, 18, 20, 22, 28, 32, 35, 40, 45, 50]       // example growth
+  };
+
+  function createLineChart(label, data) {
+    const ctx = document.getElementById("applicationsChart").getContext("2d");
+    if (chart) chart.destroy();
+
+    chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        datasets: [{
+          label,
+          data,
+          borderColor: '#3B82F6',
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: "#e5e7eb" }
+          },
+          x: {
+            grid: { display: false }
+          }
+        }
+      }
+    });
+  }
+
+  function switchGraph(type) {
+    // Update button styles
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.classList.remove("bg-blue-600", "text-white");
+      btn.classList.add("bg-gray-200", "text-gray-800");
+    });
+
+    const activeBtn = document.querySelector(`[onclick="switchGraph('${type}')"]`);
+    activeBtn.classList.remove("bg-gray-200", "text-gray-800");
+    activeBtn.classList.add("bg-blue-600", "text-white");
+
+    // Switch chart
+    createLineChart(type.charAt(0).toUpperCase() + type.slice(1), datasets[type]);
+  }
+
+  // Default chart
+  document.addEventListener("DOMContentLoaded", () => {
+    switchGraph('applications');
+  });
+</script>
+
+
 
   
- 
-
-
-
-
-    <!-- 🌍 Main Container -->
-    <main class="container">
-        <div class="dashboard-header">
-            <h1>Admin Dashboard</h1>
-            <p>Manage job postings and oversee platform operations.</p>
-        </div>
-
-        <!-- 🚀 Pending Approval Section -->
-        <section class="admin-section">
-            <h2>Pending Approvals</h2>
-            <div class="dashboard-grid">
-                {% for job in unapproved_jobs %}
-                <div class="dashboard-card">
-                    <h3>{{ job.title }}</h3>
-                    <p><strong>Location:</strong> {{ job.location }}</p>
-                    <p><strong>Qualifications:</strong> {{ job.qualifications }}</p>
-                    <p><strong>Deadline:</strong> {{ job.deadline }}</p>
-                    <div class="card-actions">
-                        <form action="/approve-posting/{{ job.id }}" method="POST">
-                            <button class="btn btn-approve">Approve</button>
-                        </form>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </section>
-
-        <!-- ✅ Approved Postings Section -->
-        <section class="admin-section">
-            <h2>Approved Job Postings</h2>
-            <div class="dashboard-grid">
-                {% for job in approved_jobs %}
-                <div class="dashboard-card approved">
-                    <h3>{{ job.title }}</h3>
-                    <p><strong>Location:</strong> {{ job.location }}</p>
-                    <p><strong>Qualifications:</strong> {{ job.qualifications }}</p>
-                    <p><strong>Deadline:</strong> {{ job.deadline }}</p>
-                </div>
-                {% endfor %}
-            </div>
-        </section>
-    </main>
-    <script src="static/js/script.js"></script>
 </body>
 </html>

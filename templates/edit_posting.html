@@ -1,109 +1,147 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Job Posting</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/edit_posting.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Edit Job Posting | JobConnect</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 </head>
-<body>
-  <div class="background"></div>
+<body class="bg-gray-100 text-gray-900 font-sans">
 
-  <header class="navbar">
-    <div class="navbar-left">
-      <a href="{{ url_for('index') }}" class="logo">JobConnect</a>
+<nav class="bg-white shadow-md sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+    <a href="{{ url_for('index') }}" class="text-2xl font-bold text-blue-600">JobConnect</a>
+
+    <!-- Live Search Component -->
+    <div class="relative w-96"> <!-- Increased from w-64 to w-96 -->
+      <input
+        type="text"
+        id="liveSearchInput"
+        placeholder="Search jobs or profiles..."
+        class="px-3 py-1.5 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm w-full"
+        oninput="fetchSuggestions(this.value)"
+        autocomplete="off"
+      >
+      <div id="searchSuggestions" class="absolute z-50 mt-1 bg-white border border-gray-300 rounded-md shadow-md w-full hidden max-h-80 overflow-y-auto"></div>
     </div>
-  
-    <ul class="nav-links">
-      <li><a href="{{ url_for('index') }}">Home</a></li>
-      <li><a href="{{ url_for('approved_postings') }}">Approved Postings</a></li>
-      
+
+    <ul class="flex space-x-6 items-center text-sm font-medium">
+      <li><a href="{{ url_for('index') }}" class="hover:text-blue-600 transition">Home</a></li>
+      <li><a href="{{ url_for('approved_postings') }}" class="hover:text-blue-600 transition">Jobs</a></li>
       {% if current_user.is_authenticated %}
         {% if current_user.role == 'admin' %}
-          <li><a href="{{ url_for('admin_panel') }}">Admin Panel</a></li>
-          <li><a href="{{ url_for('logout') }}">Logout</a></li>
+          <li><a href="{{ url_for('admin_panel') }}" class="hover:text-blue-600">Dashboard</a></li>
         {% elif current_user.role == 'employer' %}
-          <li><a href="{{ url_for('employer_dashboard') }}">Dashboard</a></li>
+          <li><a href="{{ url_for('employer_dashboard') }}" class="hover:text-blue-600">Dashboard</a></li>
         {% elif current_user.role == 'student' %}
-          <li><a href="{{ url_for('student_dashboard') }}">Dashboard</a></li>
+          <li><a href="{{ url_for('student_dashboard') }}" class="text-blue-600 font-semibold">My Dashboard</a></li>
         {% endif %}
+        <li><a href="{{ url_for('logout') }}" class="hover:text-red-500 transition">Logout</a></li>
       {% else %}
-        <li><a href="{{ url_for('login') }}">Login</a></li>
-        <li><a href="{{ url_for('register') }}">Register</a></li>
+        <li><a href="{{ url_for('login') }}" class="hover:text-blue-600 transition">Login</a></li>
+        <li><a href="{{ url_for('register') }}" class="hover:text-blue-600 transition">Register</a></li>
       {% endif %}
     </ul>
-  
-    <div class="nav-icons">
-      <i class="fas fa-search search-icon" onclick="openSearch()"></i>
-  
-      {% if current_user.is_authenticated and current_user.role in ['employer', 'student'] %}
-        <div class="user-dropdown">
-          <i class="fas fa-user user-icon" onclick="toggleUserMenu()"></i>
-          <div class="user-menu" id="userMenu">
-            <a href="{{ url_for('profile', username=current_user.username) }}">Profile</a>
-            <a href="{{ url_for('logout') }}">Logout</a>
-          </div>
-        </div>
-      {% endif %}
-    </div>
-  </header>
-  
-  <!-- 🔎 Search Overlay -->
-<div class="search-overlay" id="searchOverlay">
-  <div class="search-container">
-      <input type="text" id="searchInput" class="search-input" placeholder="Search for jobs..." onkeyup="fetchSuggestions()">
-      <button class="search-close" onclick="closeSearch()">✖</button>
   </div>
-  <div class="suggestions-box">
-      <div class="search-tips">
-          <h3></h3>
-          <p><kbd></kbd><kbd></kbd></p>
+</nav>
+
+<script>
+async function fetchSuggestions(query) {
+  const suggestionBox = document.getElementById('searchSuggestions');
+  if (!query.trim()) {
+    suggestionBox.classList.add('hidden');
+    suggestionBox.innerHTML = '';
+    return;
+  }
+
+  try {
+    const res = await fetch(`/search-suggestions?q=${encodeURIComponent(query)}`);
+    const data = await res.json();
+
+    suggestionBox.innerHTML = '';
+    if (data.suggestions.length === 0) {
+      suggestionBox.classList.add('hidden');
+      return;
+    }
+
+    data.suggestions.forEach(item => {
+      const div = document.createElement('div');
+      div.className = "px-3 py-2 hover:bg-blue-100 cursor-pointer text-sm";
+      div.innerText = item.title;
+      div.onclick = () => {
+        window.location.href = `/job/${item.id}`;
+      };
+      suggestionBox.appendChild(div);
+    });
+
+    suggestionBox.classList.remove('hidden');
+  } catch (err) {
+    console.error('Search failed:', err);
+  }
+}
+</script>
+
+  <main class="max-w-4xl mx-auto p-6 mt-10 bg-white rounded-xl shadow-md">
+    <h1 class="text-2xl font-bold text-gray-800 mb-1">Edit Job Posting</h1>
+    <p class="text-gray-500 mb-6">Update the job listing details below.</p>
+
+    <form method="POST" class="space-y-6">
+      <div>
+        <label for="title" class="block text-sm font-medium text-gray-700">Job Title</label>
+        <input type="text" id="title" name="title" value="{{ job.title }}" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2" required>
       </div>
-      <div class="trending-jobs">
-          <h4>#1 Trending</h4>
-          <div class="trending-item" onclick="selectSuggestion('Software Engineer')">
-              <span>💼</span> Software Engineer
-          </div>
-          <h4>#2 Trending</h4>
-          <div class="trending-item" onclick="selectSuggestion('Data Scientist')">
-              <span>📊</span> Data Scientist
-          </div>
+
+      <div>
+        <label for="location" class="block text-sm font-medium text-gray-700">Location</label>
+        <input type="text" id="location" name="location" value="{{ job.location }}" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2" required>
       </div>
-      <ul class="search-suggestions" id="searchSuggestions"></ul>
-  </div>
-</div>
 
-  
- 
+      <div>
+        <label for="description" class="block text-sm font-medium text-gray-700">Job Description</label>
+        <textarea id="description" name="description" rows="5" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2" required>{{ job.description }}</textarea>
+      </div>
 
-    <main class="container">
-        <h1>Edit Job Posting</h1>
-        <p>Make necessary updates to your job posting below.</p>
+      <div>
+        <label for="qualifications" class="block text-sm font-medium text-gray-700">Qualifications</label>
+        <input type="text" id="qualifications" name="qualifications" value="{{ job.qualifications }}" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2" required>
+      </div>
 
-        <form method="POST">
-            <label for="title">Job Title</label>
-            <input type="text" id="title" name="title" value="{{ job.title }}" required>
+      <div>
+        <label for="deadline" class="block text-sm font-medium text-gray-700">Application Deadline</label>
+        <input type="date" id="deadline" name="deadline" value="{{ job.deadline }}" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2" required>
+      </div>
 
-            <label for="location">Location</label>
-            <input type="text" id="location" name="location" value="{{ job.location }}" required>
-
-            <label for="description">Job Description</label>
-            <textarea id="description" name="description" rows="5" required>{{ job.description }}</textarea>
-
-            <label for="qualifications">Qualifications</label>
-            <input type="text" id="qualifications" name="qualifications" value="{{ job.qualifications }}" required>
-
-            <label for="deadline">Application Deadline</label>
-            <input type="date" id="deadline" name="deadline" value="{{ job.deadline }}" required>
-
-            <button type="submit" class="btn btn-primary">Update Posting</button>
-        </form>
-
-        <div class="back-link">
-            <a href="{{ url_for('employer_dashboard') }}">← Back to Dashboard</a>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Application Questions</label>
+        <div id="questions-container" class="space-y-2">
+          {% for question in job.get_questions() %}
+          <input type="text" name="questions[]" value="{{ question }}" class="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2" />
+          {% endfor %}
+          {% if job.get_questions()|length == 0 %}
+          <input type="text" name="questions[]" placeholder="Enter a question..." class="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2" />
+          {% endif %}
         </div>
-    </main>
-    <script src="static/js/script.js"></script>
+        <button type="button" onclick="addQuestion()" class="mt-2 text-sm text-blue-600 hover:underline">+ Add another question</button>
+      </div>
+
+      <div class="pt-4">
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg shadow text-sm font-medium">Update Job</button>
+        <a href="{{ url_for('employer_dashboard') }}" class="ml-4 text-sm text-gray-600 hover:underline">Cancel</a>
+      </div>
+    </form>
+  </main>
+
+  <script>
+    function addQuestion() {
+      const container = document.getElementById('questions-container');
+      const input = document.createElement('input');
+      input.type = "text";
+      input.name = "questions[]";
+      input.placeholder = "Enter a question...";
+      input.className = "block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 mt-1";
+      container.appendChild(input);
+    }
+  </script>
 </body>
 </html>

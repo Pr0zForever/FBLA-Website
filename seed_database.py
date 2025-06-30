@@ -1,184 +1,226 @@
-from faker import Faker 
+from faker import Faker
 from db import db
 from app import app, JobPosting, JobApplication, User, EmployerNote
-import random
-import json
 from werkzeug.security import generate_password_hash
+from io import BytesIO
+import json
+import random
+from datetime import datetime, timedelta
 
-# Initialize Faker
+# Config
+NUM_EMPLOYERS = 10
+NUM_STUDENTS = 20
+NUM_POSTINGS = 300
+APPLICATIONS_PER_JOB = 10
+SCHOOL = "Jordan High School"
+
+# Setup
 fake = Faker()
-
-# Configuration
-NUM_EMPLOYERS = 10     
-NUM_STUDENTS = 20      
-NUM_POSTINGS = 100     
-APPLICATIONS_PER_JOB = 10  
+Faker.seed(1234)
 
 with app.app_context():
-    print("🔄 Initializing Database Seeding...")
+    print("🔄 Starting full seeding...")
 
-    # ✅ Ensure Database Tables Exist
+    db.drop_all()
     db.create_all()
 
-    # ✅ Create a Fixed Employer
+    # ✅ Create VamsiEmployer
     vamsi_employer = User(
         username="VamsiEmployer",
-        password=generate_password_hash("Employer", method='pbkdf2:sha256'),
+        password=generate_password_hash("Employer"),
         role="employer",
         name="Vamsi Employer",
         email="vamsi.employer@example.com",
         company_name="Vamsi Tech Inc.",
-        company_website="https://vamsitech.com"
+        company_website="https://vamsitech.com",
+        job_title="Senior AI Engineer",
+        request_reason="To support student hiring",
+        school=SCHOOL,
+        bio="Employer passionate about mentoring young tech talent.",
+        profile_pic_url=fake.image_url(),
+        phone=fake.phone_number(),
+        approved=True
     )
-    db.session.add(vamsi_employer)
 
-    # ✅ Create a Fixed Student
+    # ✅ Create VamsiStudent
     vamsi_student = User(
         username="VamsiStudent",
-        password=generate_password_hash("Student", method='pbkdf2:sha256'),
+        password=generate_password_hash("Student"),
         role="student",
         name="Vamsi Student",
         email="vamsi.student@example.com",
         resume_link="https://vamsistudent.com/resume.pdf",
-        skills="Python, Machine Learning, Data Analysis, SQL"
+        grade_level="12",
+        skills="Python, Machine Learning, Data Analysis, SQL",
+        bio="Aspiring data scientist with a strong foundation in Python and ML.",
+        profile_pic_url=fake.image_url(),
+        phone=fake.phone_number(),
+        school=SCHOOL,
+        approved=True
     )
-    db.session.add(vamsi_student)
 
-    # ✅ Create Additional Employers
-    employers = [vamsi_employer]  
+    db.session.add_all([vamsi_employer, vamsi_student])
+    db.session.commit()
+
+    employers = [vamsi_employer]
+    students = [vamsi_student]
+
+    # ✅ Generate Employers
     for _ in range(NUM_EMPLOYERS):
-        employer = User(
+        emp = User(
             username=fake.user_name(),
-            password=generate_password_hash("password123", method='pbkdf2:sha256'),
+            password=generate_password_hash("password123"),
             role="employer",
             name=fake.name(),
             email=fake.unique.email(),
             company_name=fake.company(),
-            company_website=fake.url()
+            company_website=fake.url(),
+            job_title=fake.job(),
+            request_reason=fake.text(50),
+            school=random.choice([SCHOOL]),
+            bio=fake.text(100),
+            profile_pic_url=fake.image_url(),
+            phone=fake.phone_number(),
+            # weighted cboice for approved status
+            approved=random.choice([True, True, True, False])  # 75% approved
         )
-        db.session.add(employer)
-        employers.append(employer)
+        employers.append(emp)
+        db.session.add(emp)
 
-    # ✅ Create Additional Students
-    students = [vamsi_student]  
+    # ✅ Generate Students
     for _ in range(NUM_STUDENTS):
-        student = User(
+        stu = User(
             username=fake.user_name(),
-            password=generate_password_hash("password123", method='pbkdf2:sha256'),
+            password=generate_password_hash("password123"),
             role="student",
             name=fake.name(),
             email=fake.unique.email(),
             resume_link=fake.url(),
-            skills=", ".join(fake.words(nb=8))
+            grade_level=random.choice(["9", "10", "11", "12"]),
+            skills=", ".join(fake.words(nb=6)),
+            school=SCHOOL,
+            bio=fake.text(100),
+            profile_pic_url=fake.image_url(),
+            phone=fake.phone_number(),
+            approved=True
         )
-        db.session.add(student)
-        students.append(student)
+        students.append(stu)
+        db.session.add(stu)
 
-    # ✅ Commit Users Before Proceeding
     db.session.commit()
 
     # ✅ Generate Job Postings
     job_postings = []
+    application_questions = json.dumps([
+        "Why are you interested in this position?",
+        "Describe a challenging project you've worked on.",
+        "What relevant skills do you bring to this role?"
+    ])
+
     for _ in range(NUM_POSTINGS):
-        employer = random.choice(employers)
-
-        description = f"""
-        {fake.paragraph(nb_sentences=3)}
-
-        Responsibilities:
-        - {fake.sentence()}  
-        - {fake.sentence()}  
-        - {fake.sentence()}  
-        - {fake.sentence()}  
-
-        About {employer.company_name}:  
-        {fake.paragraph(nb_sentences=3)}
-
-        Culture & Benefits:
-        - {fake.sentence()}  
-        - {fake.sentence()}  
-        - {fake.sentence()}  
-        """
-
-        qualifications = ", ".join(fake.words(nb=10))
-
-        application_questions = json.dumps([
-            "Why are you interested in this position?",
-            "Describe a challenging project you've worked on.",
-            "What relevant skills do you bring to this role?"
-        ])
-
+        emp = random.choice(employers)
         job = JobPosting(
             title=fake.job(),
             location=fake.city(),
-            description=description.strip(),
-            qualifications=qualifications,
-            deadline=fake.date_this_year(),
-            posted_by=employer.id,  
-            approved=True,  
-            application_questions=application_questions  
+            description=fake.paragraph(nb_sentences=4) + "\n\nResponsibilities:\n- " +
+                        "\n- ".join(fake.sentences(nb=3)),
+            qualifications=", ".join(fake.words(10)),
+            deadline=(datetime.utcnow() + timedelta(days=30)).strftime('%Y-%m-%d'),
+            posted_by=emp.id,
+            approved=False,  # 75% approved,
+            flagged=random.choice([False, False, False, True]),  # 25% flagged,   
+            school=emp.school,
+            application_questions=application_questions
         )
         job_postings.append(job)
 
-    # ✅ Commit Job Postings Before Assigning Applications
     db.session.bulk_save_objects(job_postings)
     db.session.commit()
 
-    # ✅ Retrieve Committed Jobs
+    # ✅ Create Applications
     all_jobs = JobPosting.query.all()
-
-    # ✅ Generate 10 Applications for Each Job Posting (with application_id)
     applications = []
+
     for job in all_jobs:
-        applied_students = random.sample(students, min(APPLICATIONS_PER_JOB, len(students)))
-
-        for student in applied_students:
-            application = JobApplication(
+        applicants = random.sample(students, min(APPLICATIONS_PER_JOB, len(students)))
+        for stu in applicants:
+            resume_text = f"Resume for {stu.name}"
+            app = JobApplication(
                 job_id=job.id,
-                student_id=student.id,
-                cover_letter=f"""
-                Dear Hiring Manager,
-
-                I am excited to apply for the {job.title} position at {job.employer.company_name}. 
-                My background in {student.skills} aligns well with the job requirements. 
-
-                I am eager to contribute to {job.employer.company_name} and look forward to discussing how my skills can add value. 
-                
-                Thank you for your time and consideration.
-
-                Best regards,  
-                {student.name}
-                """.strip()
+                user_id=stu.id,
+                cover_letter=fake.paragraph(nb_sentences=3),
+                resume_url=stu.resume_link,
+                resume_filename=f"{stu.username}_resume.pdf",
+                resume_data=BytesIO(resume_text.encode()).read(),
+                status=random.choice(["Pending", "Reviewed", "Accepted", "Rejected"]),
+                created_at=datetime.utcnow()
             )
-            applications.append(application)
+            applications.append(app)
 
-    # ✅ Commit Applications & Retrieve IDs
     db.session.bulk_save_objects(applications)
     db.session.commit()
 
-    # ✅ Retrieve Applications with their IDs
-    all_applications = JobApplication.query.all()
-
-    # ✅ Assign Employer Notes (with application_id)
+    # ✅ Create Employer Notes
     employer_notes = []
-    for app in all_applications:
+    all_apps = JobApplication.query.all()
+    for app in all_apps:
         note = EmployerNote(
-            employer_id=app.job.employer.id,  # The employer who posted the job
-            student_id=app.student_id,
+            application_id=app.id,
+            employer_id=app.job.posted_by,
+            student_id=app.user_id,
             job_id=app.job_id,
-            application_id=app.id,  # ✅ Ensure this is correctly stored
-            note=f"Employer feedback: {fake.sentence()}"
+            note=fake.sentence()
         )
         employer_notes.append(note)
 
-    # ✅ Commit Employer Notes
     db.session.bulk_save_objects(employer_notes)
     db.session.commit()
 
-    # ✅ Final Log
-    print("\n✅ Successfully Seeded Database:")
-    print(f"  - {NUM_EMPLOYERS + 1} employers (including VamsiEmployer)")
-    print(f"  - {NUM_STUDENTS + 1} students (including VamsiStudent)")
-    print(f"  - {NUM_POSTINGS} job postings")
-    print(f"  - {len(all_applications)} job applications")
-    print(f"  - {len(employer_notes)} employer notes")
+    flagged_jobs_count = sum(1 for job in job_postings if job.flagged)
+
+    print("\n✅ Database Seeded with:")
+    print(f"  - {len(employers)} Employers")
+    print(f"  - {len(students)} Students")
+    print(f"  - {len(job_postings)} Job Postings")
+    print(f"  - {flagged_jobs_count} Flagged Jobs 🚩")
+    print(f"  - {len(applications)} Applications")
+    print(f"  - {len(employer_notes)} Employer Notes")
+    print("  - VamsiStudent and VamsiEmployer fully set up.")
+
+
+
+    from app import UserConnection  # Make sure this is imported at the top
+
+
+    print("🔗 Generating user connections...")
+
+    # Retrieve seeded users
+    vamsi_student = User.query.filter_by(username="VamsiStudent").first()
+    vamsi_employer = User.query.filter_by(username="VamsiEmployer").first()
+
+    # Create connections for VamsiStudent with random students and employers
+    student_peers = random.sample([s for s in students if s.id != vamsi_student.id], min(5, len(students)-1))
+    employer_peers = random.sample(employers, min(3, len(employers)))
+
+    for peer in student_peers:
+        db.session.add(UserConnection(requester_id=vamsi_student.id, recipient_id=peer.id))
+        db.session.add(UserConnection(requester_id=peer.id, recipient_id=vamsi_student.id))  # optional reciprocal
+
+    for emp in employer_peers:
+        db.session.add(UserConnection(requester_id=vamsi_student.id, recipient_id=emp.id))
+
+    # Create connections for VamsiEmployer with students and employers
+    connected_students = random.sample(students, min(5, len(students)))
+    connected_employers = random.sample([e for e in employers if e.id != vamsi_employer.id], min(3, len(employers)-1))
+
+    for stu in connected_students:
+        db.session.add(UserConnection(requester_id=vamsi_employer.id, recipient_id=stu.id))
+        db.session.add(UserConnection(requester_id=stu.id, recipient_id=vamsi_employer.id))  # optional reciprocal
+
+    for peer_emp in connected_employers:
+        db.session.add(UserConnection(requester_id=vamsi_employer.id, recipient_id=peer_emp.id))
+
+    db.session.commit()
+
+    print(f"  - {len(student_peers)*2 + len(employer_peers)} connections created for VamsiStudent")
+    print(f"  - {len(connected_students)*2 + len(connected_employers)} connections created for VamsiEmployer")

@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/applicant_details.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const aiInsights = JSON.parse('{{ ai_insights | tojson | safe }}');
+        
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -65,10 +65,17 @@
             {{ application.cover_letter | safe }}
         </p>
 
-        <p class="salary">${{ application.job.estimated_salary }}</p>
-        <p class="salary-label">Projected Salary Estimate</p>
+        
 
-        <button class="apply-btn">Apply Now</button>
+        <!-- Accept & Reject Buttons -->
+        <div class="decision-buttons">
+          <form action="{{ url_for('accept_application', application_id=application.id) }}" method="POST">
+              <button type="submit" class="accept-btn">✔ Accept</button>
+          </form>
+          <form action="{{ url_for('reject_application', application_id=application.id) }}" method="POST">
+              <button type="submit" class="reject-btn">✖ Reject</button>
+          </form>
+      </div>
     </div>
 
     <!-- Right: Employer Notes -->

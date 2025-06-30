@@ -1,109 +1,176 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Approved Postings</title>
-  <link rel="stylesheet" href="static/css/approved.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Approved Job Postings | JobConnect</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
 </head>
-<body>
-  <div class="background"></div>
-  <!-- 🌟 Glassmorphic Navbar -->
-  <header class="navbar">
-    <div class="navbar-left">
-      <a href="{{ url_for('index') }}" class="logo">JobConnect</a>
+<body class="bg-gray-100 text-gray-900">
+
+
+<nav class="bg-white shadow-md sticky top-0 z-50">
+  <div class="w-full max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+    <a href="{{ url_for('index') }}" class="text-2xl font-bold text-blue-600">JobConnect</a>
+
+    <div class="relative w-96 hidden md:block">
+      <input
+        type="text"
+        id="liveSearchInput"
+        placeholder="Search jobs or profiles..."
+        class="px-3 py-1.5 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm w-full"
+        oninput="fetchSuggestions(this.value)"
+        autocomplete="off"
+      >
+      <div id="searchSuggestions" class="absolute z-50 mt-1 bg-white border border-gray-300 rounded-md shadow-md w-full hidden max-h-80 overflow-y-auto"></div>
     </div>
 
-    <div class="hamburger">
-      <i class="fas fa-bars"></i>
-  </div>
-  
-    <ul class="nav-links">
-      <li><a href="{{ url_for('index') }}">Home</a></li>
-      <li><a href="{{ url_for('approved_postings') }}">Approved Postings</a></li>
-      
+    <ul class="flex space-x-6 items-center text-sm font-medium">
+      <li><a href="{{ url_for('index') }}" class="hover:text-blue-600 transition">Home</a></li>
+      <li><a href="{{ url_for('approved_postings') }}" class="hover:text-blue-600 transition">Jobs</a></li>
       {% if current_user.is_authenticated %}
         {% if current_user.role == 'admin' %}
-          <li><a href="{{ url_for('admin_panel') }}">Admin Panel</a></li>
-          <li><a href="{{ url_for('logout') }}">Logout</a></li>
+          <li><a href="{{ url_for('admin_panel') }}" class="hover:text-blue-600">Dashboard</a></li>
         {% elif current_user.role == 'employer' %}
-          <li><a href="{{ url_for('employer_dashboard') }}">Dashboard</a></li>
+          <li><a href="{{ url_for('employer_dashboard') }}" class="hover:text-blue-600">Dashboard</a></li>
         {% elif current_user.role == 'student' %}
-          <li><a href="{{ url_for('student_dashboard') }}">Dashboard</a></li>
+          <li><a href="{{ url_for('student_dashboard') }}" class="hover:text-blue-600">My Dashboard</a></li>
         {% endif %}
+        <li><a href="{{ url_for('logout') }}" class="hover:text-red-500 transition">Logout</a></li>
       {% else %}
-        <li><a href="{{ url_for('login') }}">Login</a></li>
-        <li><a href="{{ url_for('register') }}">Register</a></li>
+        <li><a href="{{ url_for('login') }}" class="hover:text-blue-600 transition">Login</a></li>
+        <li><a href="{{ url_for('register') }}" class="hover:text-blue-600 transition">Register</a></li>
       {% endif %}
     </ul>
-  
-    <div class="nav-icons">
-      <i class="fas fa-search search-icon" onclick="openSearch()"></i>
-  
-      {% if current_user.is_authenticated and current_user.role in ['employer', 'student'] %}
-        <div class="user-dropdown">
-          <i class="fas fa-user user-icon" onclick="toggleUserMenu()"></i>
-          <div class="user-menu" id="userMenu">
-            <a href="{{ url_for('profile', username=current_user.username) }}">Profile</a>
-            <a href="{{ url_for('logout') }}">Logout</a>
-          </div>
-        </div>
-      {% endif %}
+  </div>
+</nav>
+
+<script>
+async function fetchSuggestions(query) {
+  const suggestionBox = document.getElementById('searchSuggestions');
+  if (!query.trim()) {
+    suggestionBox.classList.add('hidden');
+    suggestionBox.innerHTML = '';
+    return;
+  }
+
+  try {
+    const res = await fetch(`/search-suggestions?q=${encodeURIComponent(query)}`);
+    const data = await res.json();
+
+    suggestionBox.innerHTML = '';
+    if (data.suggestions.length === 0) {
+      suggestionBox.classList.add('hidden');
+      return;
+    }
+
+    data.suggestions.forEach(item => {
+      const div = document.createElement('div');
+      div.className = "px-3 py-2 hover:bg-blue-100 cursor-pointer text-sm";
+      div.innerText = item.title;
+      div.onclick = () => {
+        window.location.href = `/job/${item.id}`;
+      };
+      suggestionBox.appendChild(div);
+    });
+
+    suggestionBox.classList.remove('hidden');
+  } catch (err) {
+    console.error('Search failed:', err);
+  }
+}
+</script>
+
+<main class="max-w-7xl mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-4 gap-8">
+
+    <!-- Filters Panel -->
+    <!-- Sidebar Filters -->
+<aside class="w-full md:w-64 bg-white rounded-xl shadow p-6 mb-6 md:mb-0">
+  <h2 class="text-xl font-semibold mb-4">Filter Jobs</h2>
+
+  <!-- Location Filter -->
+  <div class="mb-4">
+    <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+    <input type="text" placeholder="City, State" class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+  </div>
+
+  <!-- Job Type -->
+  <div class="mb-4">
+    <label class="block text-sm font-medium text-gray-700 mb-1">Job Type</label>
+    <select class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+      <option>All</option>
+      <option>Full-Time</option>
+      <option>Part-Time</option>
+      <option>Internship</option>
+      <option>Contract</option>
+    </select>
+  </div>
+
+  <!-- Salary Range -->
+  <div class="mb-4">
+    <label class="block text-sm font-medium text-gray-700 mb-1">Salary Range ($)</label>
+    <div class="flex space-x-2">
+      <input type="number" placeholder="Min" class="w-1/2 border border-gray-300 rounded px-2 py-1 text-sm">
+      <input type="number" placeholder="Max" class="w-1/2 border border-gray-300 rounded px-2 py-1 text-sm">
     </div>
-  </header>
-  
-  <!-- 🔎 Search Overlay -->
-<div class="search-overlay" id="searchOverlay">
-  <div class="search-container">
-      <input type="text" id="searchInput" class="search-input" placeholder="Search for jobs..." onkeyup="fetchSuggestions()">
-      <button class="search-close" onclick="closeSearch()">✖</button>
   </div>
-  <div class="suggestions-box">
-      <div class="search-tips">
-          <h3></h3>
-          <p><kbd></kbd><kbd></kbd></p>
+
+  <!-- Remote Type -->
+  <div class="mb-4">
+    <label class="block text-sm font-medium text-gray-700 mb-1">Remote Type</label>
+    <select class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+      <option>Any</option>
+      <option>Remote</option>
+      <option>Onsite</option>
+      <option>Hybrid</option>
+    </select>
+  </div>
+
+  <!-- School Filter -->
+  <div class="mb-4">
+    <label class="block text-sm font-medium text-gray-700 mb-1">School</label>
+    <select class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+      <option>All</option>
+      <option>Jordan High School</option>
+      <option>Seven Lakes High School</option>
+      <option>Tompkins High School</option>
+    </select>
+  </div>
+
+  <!-- Tags/Skills -->
+  <div class="mb-4">
+    <label class="block text-sm font-medium text-gray-700 mb-1">Tags</label>
+    <input type="text" placeholder="e.g. Python, Marketing" class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+  </div>
+
+  <button class="w-full mt-2 bg-blue-600 text-white font-medium py-2 rounded hover:bg-blue-700 transition">
+    Apply Filters
+  </button>
+</aside>
+
+
+    <!-- Job Listings -->
+    <section class="md:col-span-3 space-y-6">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-800">Approved Job Listings</h1>
+        <p class="text-sm text-gray-600">Explore verified opportunities below:</p>
       </div>
-      <div class="trending-jobs">
-          <h4>#1 Trending</h4>
-          <div class="trending-item" onclick="selectSuggestion('Software Engineer')">
-              <span>💼</span> Software Engineer
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {% for job in job_postings %}
+        <a href="{{ url_for('job_details', job_id=job.id) }}" class="block bg-white p-5 rounded-lg shadow hover:shadow-lg transition">
+          <div class="mb-3">
+            <h2 class="text-lg font-semibold text-blue-700">{{ job.title }}</h2>
+            <p class="text-sm text-gray-500">{{ job.location }} &bull; {{ job.type }}</p>
           </div>
-          <h4>#2 Trending</h4>
-          <div class="trending-item" onclick="selectSuggestion('Data Scientist')">
-              <span>📊</span> Data Scientist
-          </div>
+          <p class="text-sm text-gray-700 mb-2">{{ job.description[:100] }}...</p>
+          <p class="text-xs text-gray-400">📅 Deadline: {{ job.deadline }}</p>
+        </a>
+        {% endfor %}
       </div>
-      <ul class="search-suggestions" id="searchSuggestions"></ul>
-  </div>
-</div>
-
-  
- 
+    </section>
+  </main>
 
 
 
-
-<div class="approved-jobs-container">
-  <h1>Approved Job Listings</h1>
-  <p>Explore verified job postings and find the right opportunity for you.</p>
-
-  <div class="job-grid">
-      {% for job in job_postings %}
-      <a href="{{ url_for('job_details', job_id=job.id) }}" class="job-card">
-          <div class="job-details">
-              <h2 class="job-title">{{ job.title }}</h2>
-              <p class="job-location">{{ job.location }}</p>
-          </div>
-          <p class="job-description">{{ job.description[:100] }}...</p>
-          <div class="job-meta">
-              <span class="job-posted">🗓️ Posted: {{ job.deadline }}</span>
-          </div>
-      </a>
-      {% endfor %}
-  </div>
-</div>
-<script src="static/js/script.js"></script>
 </body>
-</html>

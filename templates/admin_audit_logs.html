@@ -3,11 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Post a Job | JobConnect</title>
+  <title>Audit Logs | Admin | JobConnect</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 </head>
-<body class="bg-gray-100 text-gray-900 font-sans">
+<body class="bg-gray-100 text-gray-800 font-sans">
 
   <!-- Navbar -->
 <nav class="bg-white shadow-md sticky top-0 z-50">
@@ -83,62 +82,28 @@ async function fetchSuggestions(query) {
 }
 </script>
 
-  <!-- Form Container -->
-  <main class="max-w-3xl mx-auto px-6 py-10 bg-white shadow-md rounded-lg mt-10">
-    <h1 class="text-2xl font-bold text-gray-800 mb-2">Post a New Job</h1>
-    <p class="text-gray-500 mb-6">Fill in the details for your new job posting.</p>
+  <!-- Sidebar -->
+  <aside class="fixed left-6 top-1/2 transform -translate-y-1/2 z-50">
+    <div class="flex flex-col items-center gap-6">
+      <a href="{{ url_for('admin_panel') }}" class="bg-white/30 font-semibold py-2 px-6 rounded-xl hover:bg-white/50 backdrop-blur-md transition">Dashboard</a>
+      <a href="{{ url_for('manage_posts') }}" class="bg-white/30 font-semibold py-2 px-6 rounded-xl hover:bg-white/50 backdrop-blur-md transition">Manage Posts</a>
+      <a href="{{ url_for('audit_logs_page') }}" class="bg-white/30 font-semibold py-2 px-6 rounded-xl hover:bg-white/50 backdrop-blur-md transition">Audit Logs</a>
+    </div>
+  </aside>
 
-    <form method="POST" class="space-y-6">
-      <div>
-        <label for="title" class="block text-sm font-medium text-gray-700">Job Title</label>
-        <input type="text" id="title" name="title" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2" />
-      </div>
-
-      <div>
-        <label for="location" class="block text-sm font-medium text-gray-700">Location</label>
-        <input type="text" id="location" name="location" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2" />
-      </div>
-
-      <div>
-        <label for="description" class="block text-sm font-medium text-gray-700">Job Description</label>
-        <textarea id="description" name="description" rows="5" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2"></textarea>
-      </div>
-
-      <div>
-        <label for="qualifications" class="block text-sm font-medium text-gray-700">Qualifications</label>
-        <textarea id="qualifications" name="qualifications" rows="3" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2"></textarea>
-      </div>
-
-      <div>
-        <label for="deadline" class="block text-sm font-medium text-gray-700">Application Deadline</label>
-        <input type="date" id="deadline" name="deadline" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2" />
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Custom Application Questions</label>
-        <div id="questions-container" class="space-y-2">
-          <input type="text" name="questions[]" placeholder="Enter a question..." class="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2" />
+  <!-- Main Content -->
+  <main class="ml-60 p-10">
+    <h1 class="text-2xl font-bold mb-6">Audit Logs ({{ school }})</h1>
+    <div class="bg-white p-6 rounded shadow space-y-3 max-h-[80vh] overflow-y-auto">
+      {% for log in logs %}
+        <div class="border-b pb-2">
+          <p class="text-sm"><span class="font-semibold">Action:</span> {{ log.action }}</p>
+          <p class="text-xs text-gray-500">Time: {{ log.timestamp }}</p>
         </div>
-        <button type="button" id="add-question" class="mt-2 text-sm text-blue-600 hover:underline">+ Add Another Question</button>
-      </div>
-
-      <div class="pt-4">
-        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg shadow text-sm font-medium">Submit Job Posting</button>
-        <a href="{{ url_for('employer_dashboard') }}" class="ml-4 text-sm text-gray-600 hover:underline">Cancel</a>
-      </div>
-    </form>
+      {% else %}
+        <p class="text-gray-500">No logs available.</p>
+      {% endfor %}
+    </div>
   </main>
-
-  <script>
-    document.getElementById('add-question').addEventListener('click', function () {
-      let container = document.getElementById('questions-container');
-      let input = document.createElement('input');
-      input.type = 'text';
-      input.name = 'questions[]';
-      input.placeholder = 'Enter a question...';
-      input.className = 'block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2';
-      container.appendChild(input);
-    });
-  </script>
 </body>
 </html>
